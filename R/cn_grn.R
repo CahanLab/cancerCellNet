@@ -103,7 +103,7 @@ cn_make_grn<-function
     grnSampSize<-min(table(sampTab[,dLevel]))
   }
 
-  stGRN<-sample_profiles_grn(sampTab, minNum=grnSampSize)
+  stGRN<-sample_profiles_grn(sampTab, minNum=grnSampSize, dLevel=dLevel)
   cat("Number of samples per CT: ",mean(table(stGRN[,dLevel])),"\n")
   expGRN<-expDat[,rownames(stGRN)]
   if(normDat){
@@ -161,9 +161,11 @@ cn_getRawGRN<-function# get raw GRN, communities from zscores, and corr
   
   # make an iGraph object and find communities
   cat("Make iGraph...\n")
-  igTmp<-ig_tabToIgraph(grn, directed=FALSE, weights=TRUE);
+  igTmp<-ig_tabToIgraph(grn, directed=FALSE, weights=TRUE)
+  igPos<-ig_tabToIgraph(grn, directed=FALSE, weights=TRUE, pos=TRUE)
    cat("done with iGraph...\n")
-  list(grnTable=grn, graph=igTmp);
+
+  list(grnTable=grn, graph=igTmp, graphPos=igPos);
 }
 
 #' finds general and context dependent specifc genes
@@ -439,9 +441,14 @@ ig_tabToIgraph<-function#
 (grnTab,
  simplify=FALSE,
  directed=FALSE,
- weights=TRUE
+ weights=TRUE,
+ pos=FALSE
 ){
   
+  if(pos){
+    grnTab<-grnTab[grnTab$corr>0,]
+  }
+
   tmpAns<-as.matrix(grnTab[,c("TF", "TG")]);
   regs<-as.vector(unique(grnTab[,"TF"]));
   ###cat("Length TFs:", length(regs), "\n");
