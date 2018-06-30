@@ -61,13 +61,10 @@ The results of the analysis ^above^ are different than the traditional CellNet i
 stValRand<-addRandToSampTab(classRes_val, stVal, "description2", "sample_name")
 grps<-as.vector(stValRand$description2)
 names(grps)<-rownames(stValRand)
-ccn_hmClass(classRes_val, grps=grps)
+ccn_hmClass(classRes_val, grps=grps, fontsize=6)
 ```
 
-
-####
-
-![](md_img/hmClass_val_Jun_30_2018.png)
+![](md_img/hmClass_val_June_30_2018.png)
 
 
 Use cnn_classAssess() and plot_class_PRs() to assess the performance of this classifier.
