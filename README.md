@@ -54,7 +54,7 @@ nrand<-50
 classRes_val<-rf_classPredict(rf_tsp, expValTrans, numRand=nrand)
 ```
 
-The results of the ^^ are different than the traditional CellNet in that they only (for now) return a classification matrix.
+The results of the analysis ^above^ are different than the traditional CellNet in that they only (for now) return a classification matrix.
 
 #### Plot the classification results
 ```R
@@ -62,9 +62,12 @@ stValRand<-addRandToSampTab(classRes_val, stVal, "description2", "sample_name")
 grps<-as.vector(stValRand$description2)
 names(grps)<-rownames(stValRand)
 ccn_hmClass(classRes_val, grps=grps)
+```
+
+
 ####
 
-![](md_img/hmClass_val_Jun_29_2018.png)
+![](md_img/hmClass_val_Jun_30_2018.png)
 
 
 Use cnn_classAssess() and plot_class_PRs() to assess the performance of this classifier.
