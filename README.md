@@ -79,10 +79,10 @@ Below, we alk through the steps in making and assessing a CCN classifier. Becaus
 
 Here are the files that you need:
 
-- (Raw PDX data)[https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/expRaw_pdx_070618.rda]
-- (Raw TCGA data)[https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/expTCGA_Raw_Good_Jun_27_2018.rda]
-- (TCGA meta data table)[https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/stTCGA_Raw_Good_Jun_27_2018.rda]
-- (Gene table)[https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/geneToTrans_Homo_sapiens_pc.only.GRCh38.80.exo_Feb_23_2018.rda]
+- [Raw PDX data](https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/expRaw_pdx_070618.rda)
+- [Raw TCGA data](https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/expTCGA_Raw_Good_Jun_27_2018.rda)
+- [TCGA meta data table](https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/stTCGA_Raw_Good_Jun_27_2018.rda)
+- [Gene table](https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/geneToTrans_Homo_sapiens_pc.only.GRCh38.80.exo_Feb_23_2018.rda)
 
 You can fetch them using the download.file() function as shown above.
 
