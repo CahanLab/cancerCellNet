@@ -3,6 +3,71 @@
 
 # commonly used or misc functions
 
+
+
+
+
+#' weighted subtraction from mapped reades
+#'
+#' Simulate expression profile of  _total_ mapped reads
+#' @param vector of total mapped reads per gene/transcript
+#' @param total post transformation sum of read counts
+#'
+#' @return vector of downsampled read mapped to genes/transcripts
+#'
+#' @export
+downSampleW<-function
+(vector,
+ total=1e5,
+ dThresh=0){ 
+
+  totalSignal<-sum(vector)
+  wAve<-vector/totalSignal
+###  resid<-sum(vector)-total #num to subtract from sample
+  resid<-totalSignal-total #num to subtract from sample
+  residW<-wAve*resid # amount to substract from each gene
+  ans<-vector-residW
+  ans[which(ans<dThresh)]<-0
+  ans
+}
+
+
+#' weighted subtraction from mapped reades, applied to all
+#'
+#' Simulate expression profile of  _total_ mapped reads
+#' @param expRaw matrix of total mapped reads per gene/transcript
+#' @param total numeric post transformation sum of read counts
+#'
+#' @return vector of downsampled read mapped to genes/transcripts
+#'
+#' @export
+weighted_down<-function
+(expRaw,
+ total,
+ dThresh=0
+ ){
+    expCountDnW<-apply(expRaw, 2, downSampleW, total=total, dThresh=dThresh)
+    #log(1+expCountDnW)
+    expCountDnW
+  }
+
+
+#' @export
+trans_prop<-function 
+(expDat,
+ xFact=1e5
+){
+  ans<-matrix(0, nrow=nrow(expDat), ncol=ncol(expDat));
+  for(i in seq(ncol(expDat))){
+    ans[,i]<-expDat[,i]/sum(expDat[,i]);    
+  }
+  ans<-ans*xFact;
+  colnames(ans)<-colnames(expDat);
+  rownames(ans)<-rownames(expDat);
+  log(1+ans)
+}
+
+
 #' split a sample table into training and validation
 #'
 #' split a sample table into training and validation
