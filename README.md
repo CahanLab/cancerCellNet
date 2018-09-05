@@ -143,10 +143,11 @@ hm_gpa_sel(expTnorm, cgenesA, grps, maxPerGrp=25, toScale=T, cRow=F, cCol=F,font
 Find the best pairs
 ```R
 system.time(xpairs<-ptGetTop(expTrain[cgenesA,], grps, topX=50, sliceSize=2000))
+   user  system elapsed 
+698.959 192.131 890.980 
 
 length(xpairs)
-
-
+[1] 948
 ```
 
 
@@ -162,9 +163,10 @@ dim(pdTrain)
 
 train classifier
 ```R
-system.time(tspRF<-sc_makeClassifier(pdTrain[xpairs,], genes=xpairs, groups=grps, nRand=30, ntrees=1000))
-
-
+system.time(rf_tspAll<-makeClassifier(pdTrain[xpairs,], genes=xpairs, groups=grps, nRand=50, ntrees=1000))
+Number of mussing genes  0 
+   user  system elapsed 
+ 16.111   0.046  16.154 
 ```
 
 Now you can apply this to the held out validation data (sampTab is the 2nd item in the stList), and to the PDX data ...

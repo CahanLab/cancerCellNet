@@ -2,6 +2,7 @@
 # (C) Patrick Cahan 2016-2018
 
 
+
 #' makes vector of gene pairs, iterates over this and computes pairDat, sc_testPattern, then, at the end, findBestPairs 
 #'
 #' @param expDat expDat
@@ -136,7 +137,7 @@ findBestPairs<-function # find best and diverse set of pairs
  	}
  	ans
  }
- 
+
 
 #' find best pairs
 #'
