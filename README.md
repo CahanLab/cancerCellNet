@@ -124,37 +124,47 @@ expTrain<-expTCGA[,rownames(stTrain)]
 
 normalize training data and find classy genes
 ```R
-expTnorm<-trans_prop(weighted_down(expTrain, 5e5), 1e5)
+expTnorm<-trans_prop(weighted_down(expTrain, 5e5, dThresh=0.25), 1e5)
+
 system.time(cgenes<-findClassyGenes(expTnorm, stTrain, "description2", topX=20))
+ Done testing
    user  system elapsed 
- 48.867   8.732  58.208 
+ 33.498   5.697  39.193
 
 cgenesA<-cgenes[['cgenes']]
 grps<-cgenes[['grps']]
 length(cgenesA)
-731 # might differ for you
+740 # might differ for you
 
 hm_gpa_sel(expTnorm, cgenesA, grps, maxPerGrp=25, toScale=T, cRow=F, cCol=F,font=4)
 ```
+![](md_img/hmClassyGenes_090518.png)
+
+Find the best pairs
+```R
+system.time(xpairs<-ptGetTop(expTrain[cgenesA,], grps, topX=50, sliceSize=2000))
+
+length(xpairs)
+
+
+```
+
 
 transform the training data
 ```R
-system.time(pairDat<-pair_transform(expTrain[cgenesA,]))
+system.time(pdTrain<-query_transform(expTrain[cgenesA, ], xpairs))
+  user  system elapsed 
+  0.352   0.061   0.414 
 
-   user  system elapsed 
-601.236 257.128 878.092
-```
+dim(pdTrain)
 
-find best pairs
-```R
-system.time(xpairs<-gnrBP(pairDat, grps))
 ```
 
 train classifier
 ```R
-system.time(tspRF<-sc_makeClassifier(pairDat[xpairs,], genes=xpairs, groups=grps, nRand=30, ntrees=1000))
-  user  system elapsed 
- 22.173   0.148  22.472
+system.time(tspRF<-sc_makeClassifier(pdTrain[xpairs,], genes=xpairs, groups=grps, nRand=30, ntrees=1000))
+
+
 ```
 
 Now you can apply this to the held out validation data (sampTab is the 2nd item in the stList), and to the PDX data ...
