@@ -148,16 +148,23 @@ system.time(xpairs<-ptGetTop(expTrain[cgenesA,], grps, topX=50, sliceSize=2000))
 
 length(xpairs)
 [1] 948
+
+# some of these might include selection cassettes; remove them
+xi<-setdiff(1:length(xpairs), grep("selection", xpairs))
+xpairs<-xpairs[xi]
+length(xpairs)
+[1] 945
 ```
 
 
 transform the training data
 ```R
 system.time(pdTrain<-query_transform(expTrain[cgenesA, ], xpairs))
-  user  system elapsed 
-  0.352   0.061   0.414 
+   user  system elapsed 
+  0.034   0.002   0.035 
 
 dim(pdTrain)
+[1] 945 570
 
 ```
 
