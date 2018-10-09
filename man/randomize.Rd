@@ -2,18 +2,18 @@
 % Please edit documentation in R/CCN.R
 \name{randomize}
 \alias{randomize}
-\title{randomize data matrix}
+\title{Randomize the data matrix}
 \usage{
 randomize(expDat, num = 50)
 }
 \arguments{
-\item{expDat}{expDat}
+\item{expDat}{the data matrix}
 
-\item{num}{number of profiles to return}
+\item{num}{number of random profiles}
 }
 \value{
-exp matrix random
+a randomized matrix
 }
 \description{
-randomize data matrix
+To generate random profiles by providing random permutations of the data matrix
 }

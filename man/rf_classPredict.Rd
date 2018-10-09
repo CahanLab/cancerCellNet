@@ -2,20 +2,20 @@
 % Please edit documentation in R/CCN.R
 \name{rf_classPredict}
 \alias{rf_classPredict}
-\title{classify samples}
+\title{Classify the samples}
 \usage{
 rf_classPredict(rfObj, expQuery, numRand = 50)
 }
 \arguments{
-\item{rfObj}{result of running sc_makeClassifier}
+\item{rfObj}{random forest object created from \code{\link{makeClassifier}}}
 
-\item{expQuery}{expQuery}
+\item{expQuery}{transformed query data created from \code{\link{query_transform}}}
 
-\item{numRand}{numRand}
+\item{numRand}{number of random profiles wish to create}
 }
 \value{
-classRes matrix
+a classification matrix of the query data
 }
 \description{
-classify samples
+This functions will classify the query samples using the random forest object created from \code{\link{makeClassifier}}
 }

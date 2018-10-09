@@ -2,13 +2,13 @@
 % Please edit documentation in R/graphics.R
 \name{ccn_hmClass}
 \alias{ccn_hmClass}
-\title{heatmap of the classification result}
+\title{Heatmap of the classification result}
 \usage{
 ccn_hmClass(classMat, grps = NULL, isBig = FALSE, cRow = FALSE,
   cCol = FALSE, fontsize_row = 4, scale = FALSE)
 }
 \arguments{
-\item{classMat}{classMat}
+\item{classMat}{classification matrix generated from \code{\link{rf_classPredict}}}
 
 \item{isBig}{is this a big heatmap? TRUE or FALSE}
 
@@ -18,7 +18,7 @@ ccn_hmClass(classMat, grps = NULL, isBig = FALSE, cRow = FALSE,
 nothing
 }
 \description{
-Heatmap of the classification result.
+This function generates a heatmap of the classification result for visualization
 }
 \examples{
 ccn_HmClass(cnRes, isBig=TRUE)

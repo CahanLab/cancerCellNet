@@ -17,7 +17,7 @@
 #' @param fontsize_row =4
 #'
 #' @return pheatmap
-#' 
+#'
 #' @export
 hm_gpa_sel<-function(
   expDat,
@@ -31,7 +31,7 @@ hm_gpa_sel<-function(
   fontsize_row=4,
   reOrderCells=FALSE){
 
-  
+
   allgenes<-rownames(expDat)
   missingGenes<-setdiff(genes, allgenes)
   if(length(missingGenes)>0){
@@ -53,7 +53,7 @@ hm_gpa_sel<-function(
     groupNames<-sort(unique(grps))
   }
 
-  cells<-names(grps)  
+  cells<-names(grps)
 
 ##
  ## groupNames<-myGrpSort(grps)
@@ -104,10 +104,10 @@ hm_gpa_sel<-function(
 #'
 #' @export
 cn_HmClass<-function
-(classRes, 
+(classRes,
  isBig=FALSE
 ){
- 
+
   cools<-colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
   bcol<-'white';
   if(isBig){
@@ -123,10 +123,12 @@ cn_HmClass<-function
 }
 
 
-#' heatmap of the classification result
+#' @title
+#' Heatmap of the classification result
+#' @description
+#' This function generates a heatmap of the classification result for visualization
 #'
-#' Heatmap of the classification result.
-#' @param classMat classMat
+#' @param classMat classification matrix generated from \code{\link{rf_classPredict}}
 #' @param isBig is this a big heatmap? TRUE or FALSE
 #' @param cluster_cols cluster_cols
 #'
@@ -138,14 +140,14 @@ cn_HmClass<-function
 #' @export
 ccn_hmClass<-function(
   classMat,
-  grps=NULL, ## vector of cellnames -> grp label 
+  grps=NULL, ## vector of cellnames -> grp label
   isBig=FALSE,
   cRow=FALSE,
   cCol=FALSE,
   fontsize_row=4,
   scale=FALSE
 ){
- 
+
   cools<-colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
   bcol<-'white';
   if(isBig){
@@ -176,7 +178,7 @@ ccn_hmClass<-function(
     mymin<-0
     mymax<-1
   }
-  
+
  	 pheatmap(classMat, col=cools, breaks=seq(from=mymin, to=mymax, length.out=100), cluster_rows = cRow, cluster_cols = cCol,
         show_colnames = FALSE, annotation_names_row = FALSE,
 ##        annotation_col = annTab,
@@ -187,37 +189,38 @@ ccn_hmClass<-function(
 }
 
 
-#' adds 'random' samples to a sample table to help with plotting
+#' @title
+#' add "random" profiles to the meta sample table to assist with plotting
 #'
-#' adds 'random' samples to a sample table to help with plotting
-#' @param classRes classRes
-#' @param sampTab sampTab
-#' @param desc desc
-#' @param id id
+#' @description
+#' This will add the random profiles generated from \code{\link{rf_classPredict}} to the meta sample table
 #'
-#' @return sample table
+#' @param classRes the classification matrix generated from \code{\link{rf_classPredict}}
+#' @param sampTab the meta sample table
+#' @param desc the "column name" of the column containing the sample descriptions in the meta sample table
+#' @param id the column name of the column containing the sample names in the meta sample table
+#'
+#' @return meta sample table containing the random profiles
 #'
 #' @examples
-#' stNew<-addRandToSampTab(classRes, stOld, "description1", "sample_name")
-#'
-
+#' stValRand<-addRandToSampTab(classRes_val, stVal, "description2", "sample_name")
 #' @export
-addRandToSampTab<-function(
-	classRes, 
-	sampTab, 
-	desc, id="cell_name"
-	){
+addRandToSampTab<-function(classRes, sampTab, desc, id="cell_name") {
 	cNames<-colnames(classRes)
 	snames<-rownames(sampTab)
 
 	rnames<-setdiff(cNames, snames)
+
 	cat("number of random samples: ",length(rnames), "\n")
 
 	stNew<-data.frame(rid=rnames, rdesc=rep("rand", length(rnames)))
 	stTop<-sampTab[,c(id, desc)]
 	colnames(stNew)<-c(id, desc)
+
 	ans<-rbind(stTop, stNew)
 	rownames(ans)<-colnames(classRes)
+
+	#return
 	ans
 }
 

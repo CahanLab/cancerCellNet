@@ -2,7 +2,6 @@
 % Please edit documentation in R/CCN.R, R/utils.R
 \name{weighted_down}
 \alias{weighted_down}
-\alias{weighted_down}
 \title{weighted subtraction from mapped reades, applied to all}
 \usage{
 weighted_down(expRaw, total, dThresh = 0)

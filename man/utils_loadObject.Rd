@@ -2,16 +2,16 @@
 % Please edit documentation in R/utils.R
 \name{utils_loadObject}
 \alias{utils_loadObject}
-\title{loads an R object when you don't know the name}
+\title{Load an R object}
 \usage{
 utils_loadObject(fname)
 }
 \arguments{
-\item{fname}{file}
+\item{fname}{The name of the R object}
 }
 \value{
-variable
+A R object
 }
 \description{
-loads an R object when you don't know the name
+Load an R object
 }

@@ -2,18 +2,18 @@
 % Please edit documentation in R/CCN.R
 \name{query_transform}
 \alias{query_transform}
-\title{makes complete gene-to-gene comparison}
+\title{Make complete gene-to-gene comparison}
 \usage{
 query_transform(expDat, genePairs)
 }
 \arguments{
-\item{expDat}{expDat}
+\item{expDat}{the expression matrix}
 
-\item{genePairs}{genePairs}
+\item{genePairs}{a vector with gene pairs}
 }
 \value{
-matrix indicating which gene of a pair is greater
+A matrix indicating whether the first gene in the gene pair has a greater expression than the second gene in the gene pair
 }
 \description{
-makes complete gene-to-gene comparison
+This function will compare the genes in genepair sample by sample in the expression matrix.
 }

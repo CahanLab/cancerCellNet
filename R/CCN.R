@@ -3,7 +3,7 @@
 
 
 
-#' makes vector of gene pairs, iterates over this and computes pairDat, sc_testPattern, then, at the end, findBestPairs 
+#' makes vector of gene pairs, iterates over this and computes pairDat, sc_testPattern, then, at the end, findBestPairs
 #'
 #' @param expDat expDat
 #' @param cell_labels named vector, value is grp, name is cell name
@@ -30,7 +30,7 @@ ptGetTop<-function
 		for(j in 1:ngenes){
 			if(j>i){
 				genes1<-append(genes1, genes[i])
-				genes2<-append(genes2, genes[j])				
+				genes2<-append(genes2, genes[j])
 			}
 		}
 	}
@@ -64,14 +64,14 @@ ptGetTop<-function
 		tmpPdat<-ptSmall(expDat, tmpTab)
 
 		for(gi in seq(length(myPatternG))){
-	    	
+
 	    	grp<-grps[[gi]]
     		statList[[grp]]<-rbind( statList[[grp]], sc_testPattern(myPatternG[[gi]], expDat=tmpPdat) )
     	}
 
 
     	str = stp+1
-   	 	stp = str + sliceSize - 1		
+   	 	stp = str + sliceSize - 1
 	}
 	cat("compile results\n")
 	for(grp in grps){
@@ -91,7 +91,7 @@ ptSmall<-function
 
     for(i in seq(nrow(pTab))){
     	#cat(genes1[i], ": ", genes2[i],"\n")
-    	ans[i,]<-as.numeric(expDat[genes1[i],]>expDat[genes2[i],]) 
+    	ans[i,]<-as.numeric(expDat[genes1[i],]>expDat[genes2[i],])
     }
 	colnames(ans)<-colnames(expDat)
 	rownames(ans)<-as.vector(pTab$pairName)
@@ -113,12 +113,12 @@ findBestPairs<-function # find best and diverse set of pairs
 (xdiff,
  n=50,
  maxPer=3){
- 
- 	
+
+
  	xdiff<-xdiff[order(xdiff$cval, decreasing=TRUE),]
  	genes<-unique(unlist(strsplit(rownames(xdiff), "_")))
  	countList <- rep(0, length(genes))
- 	names(countList) <- genes	
+ 	names(countList) <- genes
 
  	i<-0
  	ans<-vector()
@@ -147,7 +147,7 @@ findBestPairs<-function # find best and diverse set of pairs
 #' @param cellLabels named vector of cell groups
 #'
 #' @return vector of pairs
-#' 
+#'
 #' @export
 gnrBP<-function(
   expDat,
@@ -182,7 +182,7 @@ getClassGenes<-function(
   {
     #exclude NAs
     xi<-which(!is.na(diffRes$cval))
-    diffRes<-diffRes[xi,]   
+    diffRes<-diffRes[xi,]
     diffRes<-diffRes[order(diffRes$cval, decreasing=TRUE),]
     ans<-rownames(diffRes[1:topX,])
     if(bottom){
@@ -206,7 +206,7 @@ getClassGenes<-function(
 #' @param mu mu
 #'
 #' @return list of cgenes and grps
-#' 
+#'
 #' @export
 findClassyGenes<-function(
 	expDat,
@@ -248,7 +248,7 @@ expDat){
 			if(j>i){
 				genes1<-append(genes1, genes[i])
 				genes2<-append(genes2, genes[j])
-				ans[pair_index,]<-as.numeric(expDat[i,]>expDat[j,]) 
+				ans[pair_index,]<-as.numeric(expDat[i,]>expDat[j,])
 				pair_index<-pair_index +1
 			}
 		}
@@ -298,7 +298,7 @@ trans_prop<-function(
 ){
   ans<-matrix(0, nrow=nrow(expDat), ncol=ncol(expDat));
   for(i in seq(ncol(expDat))){
-    ans[,i]<-expDat[,i]/sum(expDat[,i]);    
+    ans[,i]<-expDat[,i]/sum(expDat[,i]);
   }
   ans<-ans*xFact;
   colnames(ans)<-colnames(expDat);
@@ -340,51 +340,44 @@ makeClassifier<-function(
 
 }
 
-#
-#' classify samples
+#' @title
+#' Classify the samples
 #'
-#' classify samples
-#' @param rfObj result of running sc_makeClassifier
-#' @param expQuery expQuery
-#' @param numRand numRand
-
-#' @return classRes matrix
+#' @description
+#' This functions will classify the query samples using the random forest object created from \code{\link{makeClassifier}}
+#'
+#' @param rfObj random forest object created from \code{\link{makeClassifier}}
+#' @param expQuery transformed query data created from \code{\link{query_transform}}
+#' @param numRand number of random profiles wish to create
+#' @return a classification matrix of the query data
 #' @export
-#'
-rf_classPredict<-function(
-  rfObj,
-  expQuery,
-  numRand=50){
+rf_classPredict<-function(rfObj, expQuery, numRand=50) {
 
-  	randDat<-randomize(expQuery, num=numRand)
-  	expQuery<-cbind(expQuery, randDat)
+	randDat<-randomize(expQuery, num=numRand) # generate the random profiles
+	expQuery<-cbind(expQuery, randDat)
 
-    preds<-rownames(rfObj$importance)
-  	xpreds<-t(predict(rfObj, t(expQuery[preds,]), type='prob'))
+  preds<-rownames(rfObj$importance)
+	xpreds<-t(predict(rfObj, t(expQuery[preds,]), type='prob'))
 	colnames(xpreds)<-colnames(expQuery)
 	xpreds
 }
 
 
-#
-#' randomize data matrix 
+#' Randomize the data matrix
 #'
-#' randomize data matrix 
-#' @param expDat expDat
-#' @param num number of profiles to return
+#' To generate random profiles by providing random permutations of the data matrix
+#' @param expDat the data matrix
+#' @param num number of random profiles
 #'
-#' @return exp matrix random
+#' @return a randomized matrix
 #' @export
-#'
-randomize<-function(
- expDat,
- num=50){
+randomize<-function(expDat, num=50) {
 
-
-	randDat<-t(apply(expDat, 1, sample))	
+	randDat<-t(apply(expDat, 1, sample))
  	randDat<-apply(randDat, 2, sample)
 
  	randDat<-randDat[,sample(1:ncol(randDat), num)]
+
 	colnames(randDat)<-paste0(rep("rand_", num), 1:num)
 	rownames(randDat)<-rownames(expDat)
 	randDat
@@ -392,23 +385,23 @@ randomize<-function(
 
 
 
-#' makes complete gene-to-gene comparison
+#' Make complete gene-to-gene comparison
 #'
-#' @param expDat expDat
-#' @param genePairs genePairs
+#' This function will compare the genes in genepair sample by sample in the expression matrix.
 #'
-#' @return matrix indicating which gene of a pair is greater
+#' @param expDat the expression matrix
+#' @param genePairs a vector with gene pairs
+#'
+#' @return A matrix indicating whether the first gene in the gene pair has a greater expression than the second gene in the gene pair
 #'
 #' @export
-query_transform<-function( # convert to a vector of length = length(vect)^2 - 1 /2
-	expDat,
- 	genePairs #vector of strings indicating pairs to compare
- ){
+query_transform <- function(expDat, genePairs) {
 	genes<-strsplit(genePairs, "_")
-    ans<-matrix(0, nrow=length(genes), ncol=ncol(expDat))
-	pair_index<-1
+  ans<-matrix(0, nrow=length(genes), ncol=ncol(expDat))
+	pair_index <- 1
 	genes1<-vector()
 	genes2<-vector()
+
 	for(i in seq(length(genes))){
 		ans[i,]<-as.numeric(expDat[genes[[i]][1],]>expDat[genes[[i]][2],])
 	}

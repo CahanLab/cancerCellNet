@@ -2,26 +2,25 @@
 % Please edit documentation in R/graphics.R
 \name{addRandToSampTab}
 \alias{addRandToSampTab}
-\title{adds 'random' samples to a sample table to help with plotting}
+\title{add "random" profiles to the meta sample table to assist with plotting}
 \usage{
 addRandToSampTab(classRes, sampTab, desc, id = "cell_name")
 }
 \arguments{
-\item{classRes}{classRes}
+\item{classRes}{the classification matrix generated from \code{\link{rf_classPredict}}}
 
-\item{sampTab}{sampTab}
+\item{sampTab}{the meta sample table}
 
-\item{desc}{desc}
+\item{desc}{the "column name" of the column containing the sample descriptions in the meta sample table}
 
-\item{id}{id}
+\item{id}{the column name of the column containing the sample names in the meta sample table}
 }
 \value{
-sample table
+meta sample table containing the random profiles
 }
 \description{
-adds 'random' samples to a sample table to help with plotting
+This will add the random profiles generated from \code{\link{rf_classPredict}} to the meta sample table
 }
 \examples{
-stNew<-addRandToSampTab(classRes, stOld, "description1", "sample_name")
-
+stValRand<-addRandToSampTab(classRes_val, stVal, "description2", "sample_name")
 }

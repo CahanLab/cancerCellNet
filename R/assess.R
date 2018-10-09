@@ -12,7 +12,7 @@
 #' @param dLevelSID column to indicate sample id
 #'
 #' @return list of data frames with threshold, sens, precision
-#' @export 
+#' @export
 ccn_classAssess<-function# make PR data frames for each classifier
 (ct_scores,# matrix of classification scores, rows = classifiers, columns = samples, colnames=sampleids
  stVal, # sampletable
@@ -87,7 +87,7 @@ cn_eval<-function# return a data frame of the number of TP, FN, FP, and TN, and 
 #' @param thresh threshold above which to make a call
 #' @param dLevelSID column to indicate sample id
 #'
-#' @return vector of TP FN FP TN 
+#' @return vector of TP FN FP TN
 cn_clPerf<-function # assumes rownames(sampTab) == sampTab identifier used as colname for vect
 (vect,
  sampTab,
@@ -99,21 +99,21 @@ cn_clPerf<-function # assumes rownames(sampTab) == sampTab identifier used as co
   FN<-0;
   FP<-0;
   TN<-0;
-  sampIDs<-names(vect);  
+  sampIDs<-names(vect);
   classes<-as.vector(sampTab[sampIDs,dLevel]);
-  
+
   ###actualPos<-as.vector(sampTab[sampTab[,dLevel]==classification,]$sample_id);#which(classes==classification));
   actualPos<-as.vector(sampTab[sampTab[,dLevel]==classification,dLevelSID])
   actualNeg<-setdiff(sampIDs, actualPos);
-  
+
   calledPos<-names(which(vect>thresh));
   calledNeg<-names(which(vect<=thresh));
-  
+
   TP <- length(intersect(actualPos, calledPos));
   FP <- length(intersect(actualNeg, calledPos));
   FN <- length(actualPos)-TP;
   TN <- length(actualNeg)-FP;
-  c(TP, FN, FP, TN);  
+  c(TP, FN, FP, TN);
 }
 
 

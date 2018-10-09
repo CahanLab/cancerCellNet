@@ -11,7 +11,7 @@
 #' @param cellLabels named vector of cell groups
 #'
 #' @return list of diffExp data framnes
-#' 
+#'
 #' @export
 gnrAll<-function(
   expDat,
@@ -72,7 +72,7 @@ sc_testPattern<-function(pattern, expDat){
 #' @param mu threshold, average expression level of genes passing the lower proportion criteria
 #'
 #' @return vector of gene symbols
-#' 
+#'
 #' @export
 #'
 sc_filterGenes<-function
@@ -96,7 +96,7 @@ sc_filterGenes<-function
 #' @param maxValQuant quantile to select max threshold
 #'
 #' @return vector rownames(sampTab) meeting criteria
-#' 
+#'
 #' @export
 #'
 sc_filterCells<-function
@@ -116,7 +116,7 @@ sc_statTab<-function# make a gene stats table (i.e. alpha, mu, etc)
 (expDat, # expression matrix
  dThresh=0 # threshold for detection
  ){
-  
+
   statTab<-data.frame()
   muAll<-sc_compMu(expDat, threshold=dThresh);
   alphaAll<-sc_compAlpha(expDat,threshold=dThresh);
@@ -125,7 +125,7 @@ sc_statTab<-function# make a gene stats table (i.e. alpha, mu, etc)
   fanoAll<-apply(expDat,1, sc_fano);
   maxAll<-apply(expDat, 1, max);
   sdAll<-apply(expDat, 1, sd);
-  
+
   statTabAll<-data.frame(gene=rownames(expDat), mu=muAll, alpha=alphaAll, overall_mean=meanAll, cov=covAll, fano=fanoAll, max_val=maxAll, sd=sdAll)
   statTabAll;
 }
@@ -133,15 +133,15 @@ sc_statTab<-function# make a gene stats table (i.e. alpha, mu, etc)
 
 # compute alpha given detection threshold
 #' @export
-sc_compAlpha<-function 
+sc_compAlpha<-function
 (expMat,
  threshold=0,
   pseudo=FALSE){
-  
+
   indexFunction<-function(vector, threshold){
     names(which(vector>threshold));
   }
-  
+
   indexes<-apply(expMat, 1, indexFunction, threshold);
   alphas<-unlist(lapply(indexes, length));
   ans<-alphas/ncol(expMat)
@@ -153,14 +153,14 @@ sc_compAlpha<-function
 
 # compute Mu given threshold
 #' @export
-sc_compMu<-function 
+sc_compMu<-function
 (expMat,
  threshold=0){
-  
+
   afunct<-function(vector, threshold){
     mean( vector[which(vector>threshold)] );
-  } 
-  
+  }
+
   mus<-unlist(apply(expMat, 1, afunct, threshold))
   mus[is.na(mus)]<-0;
   mus;
@@ -200,7 +200,7 @@ sc_cov<-function
 downSampleW<-function
 (vector,
  total=1e5,
- dThresh=0){ 
+ dThresh=0){
 
   totalSignal<-sum(vector)
   wAve<-vector/totalSignal
@@ -234,13 +234,13 @@ weighted_down<-function
 
 
 #' @export
-trans_prop<-function 
+trans_prop<-function
 (expDat,
  xFact=1e5
 ){
   ans<-matrix(0, nrow=nrow(expDat), ncol=ncol(expDat));
   for(i in seq(ncol(expDat))){
-    ans[,i]<-expDat[,i]/sum(expDat[,i]);    
+    ans[,i]<-expDat[,i]/sum(expDat[,i]);
   }
   ans<-ans*xFact;
   colnames(ans)<-colnames(expDat);
@@ -262,8 +262,8 @@ trans_prop<-function
 #' stList<-splitCommon(stTrain, ncells=25, dLevel="description1")
 #' @export
 splitCommon<-function(
-  sampTab, 
-  ncells, 
+  sampTab,
+  ncells,
   dLevel="description1"){
   cts<-unique(as.vector(sampTab[,dLevel]))
   trainingids<-vector()
@@ -283,7 +283,7 @@ splitCommon<-function(
 #' @export
 getGenesFromGO<-function# return the entrez gene ids of a given a GOID, for now assumes mouse
 (GOID, # GO id to find genes for
- annList 
+ annList
 ){
   sort(as.vector(unlist(annList[['egSymbols']][annList[['goegs']][[GOID]]])));
 }
@@ -305,15 +305,15 @@ GEP_makeMean<-function
  groupings,
  type='mean'
 ){
-  
-  
+
+
   ans<-data.frame();
   grps<-unique(groupings);
   if(type=='mean'){
     for(grp in grps){
       gi<-which(groupings==grp);
       if(length(gi)==1){
-        
+
         if(nrow(ans)==0){
           ans<-data.frame(exp[,gi]);
         }else{
@@ -343,7 +343,7 @@ GEP_makeMean<-function
       }
     }
   }
-  
+
   colnames(ans)<-grps;
   ans;
   ### data.frame of mean or median-ed data based on given groupings
@@ -355,13 +355,13 @@ GEP_makeMean<-function
 #' find transcript factors
 #' @param annotation
 #' @param species defaul is 'Hs', can also be 'Mm;
-#' @param ontology default is BP 
+#' @param ontology default is BP
 #'
 #' @return vector fo TF names
 #' @export
 #' @importFrom AnnotationDbi as.list
 #'
-find_genes_byGo<-function# 
+find_genes_byGo<-function#
 (annotation,
   species='Hs',
   onto="BP"
@@ -411,8 +411,8 @@ find_genes_byGo<-function#
 #'
 #' 1-PCC distance
 #' @param x numeric matrix
-#' 
-#' @return distance matrix  
+#'
+#' @return distance matrix
 #'
 #' @examples
 #' xdist<-utils_myDist(t(expDat))
@@ -425,12 +425,14 @@ utils_myDist<-function
   as.dist(1-cor(t(x)));
 }
 
-#' loads an R object when you don't know the name
+#' Load an R object
 #'
-#' loads an R object when you don't know the name
-#' @param fname file
+#' Load an R object
+#' @param fname The name of the R object
 #'
-#' @return variable
+#' @return A R object
+#' @example
+#' utils_loadObject("ccn_classifier_Jun_29_2018.rda")
 #'
 #' @export
 utils_loadObject<-function
@@ -450,7 +452,7 @@ utils_loadObject<-function
 #'
 #' @export
 utils_stripwhite<-function
-### 
+###
 (string
  #### string
  ){
@@ -464,7 +466,7 @@ utils_stripwhite<-function
 #'
 #' @export
 utils_myDate<-function
-### 
+###
 ()
 {
   format(Sys.time(), "%b_%d_%Y");
@@ -495,11 +497,11 @@ zscore<-function
 ### compute zscore
 (x,
  ### numeric vector
- meanVal, 
- ### mean of distribution to compute zscore of x against 
+ meanVal,
+ ### mean of distribution to compute zscore of x against
  sdVal
  ### standard deviation of distribution to compute zscore of x agains
- ){ 
+ ){
   (x-meanVal)/sdVal;
   ### zscore
 }
