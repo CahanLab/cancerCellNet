@@ -7,12 +7,12 @@
 trans_prop(expDat, xFact = 1e+05)
 }
 \arguments{
-\item{expDat}{expDat}
+\item{expDat}{a matrix of weighted down expression data}
 
-\item{xFact}{xFact}
+\item{xFact}{a number representing scaling factor}
 }
 \value{
-vector of downsampled read mapped to genes/transcripts
+a matrix of downsampled read mapped to genes/transcripts
 }
 \description{
 divide each column by sum of that column then scale to xFact and log it

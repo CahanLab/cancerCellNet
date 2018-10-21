@@ -165,26 +165,24 @@ gnrBP<-function(
     unique(ans)
 }
 
-#' getClassGenes
+#' Find Classy Genes
 #'
-#' extract genes for training classifier
-#' @param diffRes a df with cval, holm, rownames=genes
-#' @param topX number of genes to select
-#' @param bottom boolean if ture use the top x genes with - cvals
+#' Extract genes suitable for training classifier
+#' @param diffRes a dataframe with pval, cval, holm, and rownames as the gene names
+#' @param topX a number dicataing the number of genes to select for training classifier
+#' @param bottom logic if true use the top x genes with - cvals
 #'
-#' @return vector of genes
+#' @return a vector of genes that are good for training classifier for that category
 #'
 #' @export
-getClassGenes<-function(
-  diffRes,
-  topX=25,
-  bottom=TRUE)
-  {
+getClassGenes<-function(diffRes, topX=25, bottom=TRUE) {
     #exclude NAs
     xi<-which(!is.na(diffRes$cval))
-    diffRes<-diffRes[xi,]
-    diffRes<-diffRes[order(diffRes$cval, decreasing=TRUE),]
-    ans<-rownames(diffRes[1:topX,])
+    diffRes<-diffRes[xi,] # exclude the NAs. Select the rows that does not have NAs
+
+    diffRes<-diffRes[order(diffRes$cval, decreasing=TRUE),] #order based on classification value largest to lowest
+    ans<-rownames(diffRes[1:topX,]) # get the top 20 genes
+
     if(bottom){
       ans<-append(ans, rownames( diffRes[nrow(diffRes) - ((topX-1):0),]))
     }
@@ -192,32 +190,23 @@ getClassGenes<-function(
   }
 
 
-#' find candidate classifier-worthy genes
+#' Find candidate classifier-worthy genes
 #'
-#' find candidate classifier-worthy genes
+#' Find classifier-worthy genes for each cancer category to train the classifier
 #'
-#' @param expDat expDat
-#' @param sampTab sampTab
-#' @param dLevel dLevel
-#' @param topX topX
-#' @param dThresh dThresh
-#' @param alpha1 alpha1
-#' @param alpha2 alpha2
-#' @param mu mu
+#' @param expDat a matrix of normalized expressiond data from \code{\link{trans_prop}}
+#' @param sampTab a dataframe of the sample table
+#' @param dLevel a string indicating the column name in sample table that contains the cancer category
+#' @param topX an integer indicating the number of top classification genes to select for training
+#' @param dThresh a number representing the detection threshold
+#' @param alpha1 a number representing proportion of cells in which a gene must be considered detected (as defined in geneStats)
+#' @param alpha2 a number representing lower proportion of cells for genes that must have higher expression level
+#' @param mu a number represeting threshold for average expression level of genes passing the lower proportion criteria
 #'
-#' @return list of cgenes and grps
+#' @return a list containing two lists: a list of classifier worthy genes named 'cgenes' and a list of cancer category named 'grps'
 #'
 #' @export
-findClassyGenes<-function(
-	expDat,
-	 sampTab,
-	 dLevel,
-	 topX=25,
-	 dThresh=0,
-	 alpha1=0.05,
-	 alpha2=.001,
-	 mu=2)
-{
+findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.05, alpha2=.001, mu=2) {
 	gsTrain<-sc_statTab(expDat, dThresh=dThresh)
 	ggenes<-sc_filterGenes(gsTrain, alpha1=alpha1, alpha2=alpha2, mu=mu)
 	grps<-as.vector(sampTab[,dLevel])
@@ -263,43 +252,23 @@ expDat){
 	pairDat
 }
 
-
-#' weighted subtraction from mapped reades, applied to all
-#'
-#' Simulate expression profile of  _total_ mapped reads
-#' @param expRaw matrix of total mapped reads per gene/transcript
-#' @param total numeric post transformation sum of read counts
-#'
-#' @return vector of downsampled read mapped to genes/transcripts
-#'
-#' @export
-weighted_down<-function(
-	expRaw,
- 	total,
- 	dThresh=0
- ){
-    expCountDnW<-apply(expRaw, 2, downSampleW, total=total, dThresh=dThresh)
-    #log(1+expCountDnW)
-    expCountDnW
-  }
-
 #' divide each column by sum of that column then scale to xFact and log it
 #'
 #' divide each column by sum of that column then scale to xFact and log it
-#' @param expDat expDat
-#' @param xFact xFact
 #'
-#' @return vector of downsampled read mapped to genes/transcripts
+#' @param expDat a matrix of weighted down expression data
+#' @param xFact a number representing scaling factor
+#'
+#' @return a matrix of downsampled read mapped to genes/transcripts
 #'
 #' @export
-trans_prop<-function(
-	expDat,
- 	xFact=1e5
-){
+trans_prop<-function(expDat, xFact=1e5){
   ans<-matrix(0, nrow=nrow(expDat), ncol=ncol(expDat));
+
   for(i in seq(ncol(expDat))){
     ans[,i]<-expDat[,i]/sum(expDat[,i]);
   }
+
   ans<-ans*xFact;
   colnames(ans)<-colnames(expDat);
   rownames(ans)<-rownames(expDat);
@@ -317,24 +286,23 @@ trans_prop<-function(
 #' @param nRand =50 num of randomized profiles to make
 #' @param ntrees =2000 number of trees to build
 
-#' @return RF
+#' @return Random Forest Classifier object
 #' @export
 #'
-makeClassifier<-function(
-  expTrain,
-  genes,
-  groups,
-  nRand=50,
-  ntrees=2000){
+makeClassifier<-function(expTrain,
+                         genes,
+                         groups,
+                         nRand=50,
+                         ntrees=2000){
 
-
-	randDat<-randomize(expTrain, num=nRand)
+	randDat<-randomize(expTrain, num=nRand) # randomizes the
 	expTrain<-cbind(expTrain, randDat)
 
 	allgenes<-rownames(expTrain)
 
 	missingGenes<-setdiff(unique(genes), allgenes)
-	cat("Number of mussing genes ", length(missingGenes),"\n")
+
+	cat("Number of missing genes ", length(missingGenes),"\n")
 	ggenes<-intersect(unique(genes), allgenes)
 	randomForest(t(expTrain[ggenes,]), as.factor(c(groups, rep("rand", ncol(randDat)))), ntree=ntrees)
 
@@ -368,7 +336,6 @@ rf_classPredict<-function(rfObj, expQuery, numRand=50) {
 #' To generate random profiles by providing random permutations of the data matrix
 #' @param expDat the data matrix
 #' @param num number of random profiles
-#'
 #' @return a randomized matrix
 #' @export
 randomize<-function(expDat, num=50) {
@@ -387,7 +354,7 @@ randomize<-function(expDat, num=50) {
 
 #' Make complete gene-to-gene comparison
 #'
-#' This function will compare the genes in genepair sample by sample in the expression matrix.
+#' This function will compare the genes in genePairs vector sample by sample in the expression matrix.
 #'
 #' @param expDat the expression matrix
 #' @param genePairs a vector with gene pairs
@@ -395,6 +362,7 @@ randomize<-function(expDat, num=50) {
 #' @return A matrix indicating whether the first gene in the gene pair has a greater expression than the second gene in the gene pair
 #'
 #' @export
+#'
 query_transform <- function(expDat, genePairs) {
 	genes<-strsplit(genePairs, "_")
   ans<-matrix(0, nrow=length(genes), ncol=ncol(expDat))

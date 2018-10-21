@@ -18,7 +18,7 @@ makeClassifier(expTrain, genes, groups, nRand = 50, ntrees = 2000)
 \item{ntrees}{=2000 number of trees to build}
 }
 \value{
-RF
+Random Forest Classifier object
 }
 \description{
 rmake a classifier, with a randomized class too

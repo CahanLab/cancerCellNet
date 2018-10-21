@@ -2,18 +2,20 @@
 % Please edit documentation in R/utils.R
 \name{downSampleW}
 \alias{downSampleW}
-\title{weighted subtraction from mapped reades}
+\title{Weighted subtraction from mapped reades}
 \usage{
 downSampleW(vector, total = 1e+05, dThresh = 0)
 }
 \arguments{
-\item{vector}{of total mapped reads per gene/transcript}
+\item{vector}{a vector of total mapped reads per gene/transcript}
 
-\item{total}{post transformation sum of read counts}
+\item{total}{the sum of the read counts after transformation}
+
+\item{dThresh}{the threshold at which anything lower is 0 after transformation. Usually 0}
 }
 \value{
 vector of downsampled read mapped to genes/transcripts
 }
 \description{
-Simulate expression profile of  _total_ mapped reads
+Simulate expression profile of  _total_ mapped reads as a way to normalize the counts
 }

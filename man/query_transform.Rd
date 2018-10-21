@@ -15,5 +15,5 @@ query_transform(expDat, genePairs)
 A matrix indicating whether the first gene in the gene pair has a greater expression than the second gene in the gene pair
 }
 \description{
-This function will compare the genes in genepair sample by sample in the expression matrix.
+This function will compare the genes in genePairs vector sample by sample in the expression matrix.
 }

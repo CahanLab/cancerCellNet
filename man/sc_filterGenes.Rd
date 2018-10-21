@@ -2,22 +2,22 @@
 % Please edit documentation in R/utils.R
 \name{sc_filterGenes}
 \alias{sc_filterGenes}
-\title{find genes that pass criteria}
+\title{Find Genes that Pass Criteria}
 \usage{
 sc_filterGenes(geneStats, alpha1 = 0.1, alpha2 = 0.01, mu = 2)
 }
 \arguments{
-\item{geneStats}{result of running sc_statTab}
+\item{geneStats}{a matrix containing stats of genes generated from running \code{\link{sc_statTab}}}
 
-\item{alpha1}{proportion of cells in which a gene must be considered detected (as defined in geneStats)}
+\item{alpha1}{a number representing proportion of cells in which a gene must be considered detected (as defined in geneStats)}
 
-\item{alpha2}{lower proportion of cells for genes that must have higher expression level}
+\item{alpha2}{a number representing lower proportion of cells for genes that must have higher expression level}
 
-\item{mu}{threshold, average expression level of genes passing the lower proportion criteria}
+\item{mu}{a number represeting threshold for average expression level of genes passing the lower proportion criteria}
 }
 \value{
-vector of gene symbols
+a vector of gene symbols
 }
 \description{
-based on idea that reliably detected genes will either be detected in many cells, or highly expressed in a small cels of cells (or both
+Based on idea that reliably detected genes will either be detected in many cells, or highly expressed in a small number of cells or both
 }

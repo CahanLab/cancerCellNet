@@ -7,12 +7,12 @@
 gnrAll(expDat, cellLabels)
 }
 \arguments{
-\item{expDat}{expDat}
+\item{expDat}{a matrix of normalized gene expression taken from \code{\link(trans_prop)}}
 
-\item{cellLabels}{named vector of cell groups}
+\item{cellLabels}{a vector of all the named vector of cancer categories}
 }
 \value{
-list of diffExp data framnes
+list of dataFrames containing pval, cval and holm for each gene in each cancer category
 }
 \description{
 ind genes higher in a cluster compared to all other cells

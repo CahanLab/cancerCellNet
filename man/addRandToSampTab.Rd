@@ -2,7 +2,7 @@
 % Please edit documentation in R/graphics.R
 \name{addRandToSampTab}
 \alias{addRandToSampTab}
-\title{add "random" profiles to the meta sample table to assist with plotting}
+\title{Add Random Profiles}
 \usage{
 addRandToSampTab(classRes, sampTab, desc, id = "cell_name")
 }
@@ -19,7 +19,7 @@ addRandToSampTab(classRes, sampTab, desc, id = "cell_name")
 meta sample table containing the random profiles
 }
 \description{
-This will add the random profiles generated from \code{\link{rf_classPredict}} to the meta sample table
+Add the random profiles generated from \code{\link{rf_classPredict}} to the meta sample table
 }
 \examples{
 stValRand<-addRandToSampTab(classRes_val, stVal, "description2", "sample_name")

@@ -10,9 +10,13 @@ ccn_hmClass(classMat, grps = NULL, isBig = FALSE, cRow = FALSE,
 \arguments{
 \item{classMat}{classification matrix generated from \code{\link{rf_classPredict}}}
 
-\item{isBig}{is this a big heatmap? TRUE or FALSE}
+\item{isBig}{TRUE if this is a big heatmap}
 
-\item{cluster_cols}{cluster_cols}
+\item{cRow}{Boolean values determining if rows should be clustered}
+
+\item{cCol}{Boolean values determining if columns should be clustered}
+
+\item{scale}{}
 }
 \value{
 nothing

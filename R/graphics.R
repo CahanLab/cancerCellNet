@@ -129,8 +129,12 @@ cn_HmClass<-function
 #' This function generates a heatmap of the classification result for visualization
 #'
 #' @param classMat classification matrix generated from \code{\link{rf_classPredict}}
-#' @param isBig is this a big heatmap? TRUE or FALSE
-#' @param cluster_cols cluster_cols
+#' @param grps
+#' @param isBig TRUE if this is a big heatmap
+#' @param cRow Boolean values determining if rows should be clustered
+#' @param cCol Boolean values determining if columns should be clustered
+#' @param fontsize_row
+#' @param scale
 #'
 #' @return nothing
 #'
@@ -138,15 +142,7 @@ cn_HmClass<-function
 #' ccn_HmClass(cnRes, isBig=TRUE)
 #'
 #' @export
-ccn_hmClass<-function(
-  classMat,
-  grps=NULL, ## vector of cellnames -> grp label
-  isBig=FALSE,
-  cRow=FALSE,
-  cCol=FALSE,
-  fontsize_row=4,
-  scale=FALSE
-){
+ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, fontsize_row=4, scale=FALSE){
 
   cools<-colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
   bcol<-'white';
@@ -157,6 +153,7 @@ ccn_hmClass<-function(
   if(is.null(grps)){
   	cn_HmClass(classMat,isBig=isBig)
   }
+
   else{
 
 	grps<-grps[order(grps)]
@@ -190,10 +187,10 @@ ccn_hmClass<-function(
 
 
 #' @title
-#' add "random" profiles to the meta sample table to assist with plotting
+#' Add Random Profiles
 #'
 #' @description
-#' This will add the random profiles generated from \code{\link{rf_classPredict}} to the meta sample table
+#' Add the random profiles generated from \code{\link{rf_classPredict}} to the meta sample table
 #'
 #' @param classRes the classification matrix generated from \code{\link{rf_classPredict}}
 #' @param sampTab the meta sample table

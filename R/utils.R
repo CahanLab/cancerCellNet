@@ -7,15 +7,13 @@
 #'
 #' ind genes higher in a cluster compared to all other cells
 #'
-#' @param expDat expDat
-#' @param cellLabels named vector of cell groups
+#' @param expDat a matrix of normalized gene expression taken from \code{\link(trans_prop)}
+#' @param cellLabels a vector of all the named vector of cancer categories
 #'
-#' @return list of diffExp data framnes
+#' @return list of dataFrames containing pval, cval and holm for each gene in each cancer category
 #'
 #' @export
-gnrAll<-function(
-  expDat,
-  cellLabels){
+gnrAll<-function(expDat, cellLabels){
 
   myPatternG<-sc_sampR_to_pattern(as.character(cellLabels))
   specificSets<-lapply(myPatternG, sc_testPattern, expDat=expDat)
@@ -29,9 +27,12 @@ gnrAll<-function(
 }
 
 
+#'
+#' @param sampR a vector of the sample catgories
+#'
+#' @return a list of vectors indicating mapping of each cancer type in the sampR vector
 #' @export
-sc_sampR_to_pattern<-function#
-(sampR){
+sc_sampR_to_pattern<-function(sampR){
   d_ids<-unique(as.vector(sampR));
   nnnc<-length(sampR);
 #  ans<-matrix(nrow=length(d_ids), ncol=nnnc);
@@ -45,16 +46,20 @@ sc_sampR_to_pattern<-function#
 }
 
 
+
 #' @export
 sc_testPattern<-function(pattern, expDat){
   pval<-vector();
   cval<-vector();
-  geneids<-rownames(expDat);
+
+  geneids<-rownames(expDat); # get the gene names of the exp matrix
+
   llfit<-ls.print(lsfit(pattern, t(expDat)), digits=25, print=FALSE);
+
   xxx<-matrix( unlist(llfit$coef), ncol=8,byrow=TRUE);
-  ccorr<-xxx[,6];
-  cval<- sqrt(as.numeric(llfit$summary[,2])) * sign(ccorr);
-  pval<-as.numeric(xxx[,8]);
+  ccorr<-xxx[,6]; # t-value of X coefficient
+  cval<- sqrt(as.numeric(llfit$summary[,2])) * sign(ccorr); # R squared
+  pval<-as.numeric(xxx[,8]); # p-value of X coefficient
 
   #qval<-qvalue(pval)$qval;
   holm<-p.adjust(pval, method='holm');
@@ -62,24 +67,21 @@ sc_testPattern<-function(pattern, expDat){
   data.frame(row.names=geneids, pval=pval, cval=cval,holm=holm);
 }
 
-#' find genes that pass criteria
+#' @title
+#' Find Genes that Pass Criteria
 #'
-#' based on idea that reliably detected genes will either be detected in many cells, or highly expressed in a small cels of cells (or both
+#' @description
+#' Based on idea that reliably detected genes will either be detected in many cells, or highly expressed in a small number of cells or both
 #'
-#' @param geneStats result of running sc_statTab
-#' @param alpha1 proportion of cells in which a gene must be considered detected (as defined in geneStats)
-#' @param alpha2 lower proportion of cells for genes that must have higher expression level
-#' @param mu threshold, average expression level of genes passing the lower proportion criteria
+#' @param geneStats a matrix containing stats of genes generated from running \code{\link{sc_statTab}}
+#' @param alpha1 a number representing proportion of cells in which a gene must be considered detected (as defined in geneStats)
+#' @param alpha2 a number representing lower proportion of cells for genes that must have higher expression level
+#' @param mu a number represeting threshold for average expression level of genes passing the lower proportion criteria
 #'
-#' @return vector of gene symbols
-#'
+#' @return a vector of gene symbols
 #' @export
 #'
-sc_filterGenes<-function
-(geneStats,
- alpha1=0.1,
- alpha2=0.01,
- mu=2){
+sc_filterGenes<-function(geneStats, alpha1=0.1, alpha2=0.01, mu=2){
   passing1<-rownames(geneStats[geneStats$alpha>alpha1,])
   notPassing<-setdiff(rownames(geneStats), passing1)
   geneStats<-geneStats[notPassing,]
@@ -111,13 +113,22 @@ sc_filterCells<-function
 
 
 
+#' @title
+#' Generate a Stats Table
+#' @description
+#' To make a stats table with alpha, mu, overall mean, coefficient of variance, fano factor, max value, standard deviation
+#' @param expDat a matrix of gene expression values generated from \code{\link{trans_prop}}
+#' @param dThresh a number indication the threshold for detection
+#'
+#' @return a dataframe containing alpha, mu, overall mean, coefficient of variance, fano factor, max value,
+#' and standard deviation of the expression matrix
+#'
 #' @export
-sc_statTab<-function# make a gene stats table (i.e. alpha, mu, etc)
-(expDat, # expression matrix
- dThresh=0 # threshold for detection
- ){
+sc_statTab<-function(expDat, dThresh=0){
 
   statTab<-data.frame()
+
+  # below generates various statistical values
   muAll<-sc_compMu(expDat, threshold=dThresh);
   alphaAll<-sc_compAlpha(expDat,threshold=dThresh);
   meanAll<-apply(expDat, 1, mean);
@@ -130,32 +141,46 @@ sc_statTab<-function# make a gene stats table (i.e. alpha, mu, etc)
   statTabAll;
 }
 
-
-# compute alpha given detection threshold
+#' @title
+#' Compute Alpha
+#' @description
+#' Compute Alpha of expression matrix given detection threshold
+#'
+#' @param expMat a matrix containing gene expression data
+#' @param threshold a number indicating the detection threshold
+#' @param pseudo logical indicating if it is going to be pseudo alpha or real alpha
+#'
+#' @return a list of alphas for the genes in expression matrix
 #' @export
-sc_compAlpha<-function
-(expMat,
- threshold=0,
-  pseudo=FALSE){
+sc_compAlpha<-function(expMat, threshold=0,pseudo=FALSE){
 
+  # identify the index of vectors greater than threshold
   indexFunction<-function(vector, threshold){
     names(which(vector>threshold));
   }
 
   indexes<-apply(expMat, 1, indexFunction, threshold);
+
   alphas<-unlist(lapply(indexes, length));
+
   ans<-alphas/ncol(expMat)
+
   if(pseudo){
     ans<-(alphas+1)/(ncol(expMat)+1)
   }
   ans
 }
 
-# compute Mu given threshold
+#' @title
+#' compute Mu
+#' @description
+#' compute Mu given threshold of the expression matrix
+#' @param expMat a matrix with gene expressions data
+#' @param threshold a number indicating the threshold at which gene expression below does not count
+#'
+#' @return a list of Mus for individual gene in the expression matrix
 #' @export
-sc_compMu<-function
-(expMat,
- threshold=0){
+sc_compMu<-function(expMat, threshold=0){
 
   afunct<-function(vector, threshold){
     mean( vector[which(vector>threshold)] );
@@ -173,109 +198,96 @@ repNA<-function
   vector;
 }
 
-#compute fano factor on vector
+#' @title
+#' Compute Fano Factor
+#' @description
+#' Compute fano factor for vector
+#' @param vector a vector
+#' @return the fano factor
 sc_fano<-function
 (vector){
   var(vector)/mean(vector);
 }
 
 # compute coeef of variation on vector
+#' @title Compute Coefficient of Variation
+#' @description Compute the coefficient of variation of a vector
+#' @param vector a vector
+#'
+#' @return the coefficient of variation
 sc_cov<-function
 (vector){
   sd(vector)/mean(vector);
 }
 
 
-
-
-#' weighted subtraction from mapped reades
+#' Weighted subtraction from mapped reades
 #'
-#' Simulate expression profile of  _total_ mapped reads
-#' @param vector of total mapped reads per gene/transcript
-#' @param total post transformation sum of read counts
+#' Simulate expression profile of  _total_ mapped reads as a way to normalize the counts
+#'
+#' @param vector a vector of total mapped reads per gene/transcript
+#' @param total the sum of the read counts after transformation
+#' @param dThresh the threshold at which anything lower is 0 after transformation. Usually 0
 #'
 #' @return vector of downsampled read mapped to genes/transcripts
-#'
 #' @export
-downSampleW<-function
-(vector,
- total=1e5,
- dThresh=0){
+downSampleW<-function(vector, total=1e5, dThresh=0){
 
-  totalSignal<-sum(vector)
-  wAve<-vector/totalSignal
-###  resid<-sum(vector)-total #num to subtract from sample
+  totalSignal<-sum(vector) # get the sum of the vector
+  wAve<-vector/totalSignal #
+
   resid<-totalSignal-total #num to subtract from sample
   residW<-wAve*resid # amount to substract from each gene
+
   ans<-vector-residW
   ans[which(ans<dThresh)]<-0
   ans
 }
 
 
-#' weighted subtraction from mapped reades, applied to all
+#' Weighted subtraction from mapped reades, apply to all columns
 #'
 #' Simulate expression profile of  _total_ mapped reads
 #' @param expRaw matrix of total mapped reads per gene/transcript
 #' @param total numeric post transformation sum of read counts
+#' @param dThresh the threshold at which anything lower than that is 0
 #'
-#' @return vector of downsampled read mapped to genes/transcripts
+#' @return matrix of downsampled read mapped to genes/transcripts
 #'
 #' @export
-weighted_down<-function
-(expRaw,
- total,
- dThresh=0
- ){
+weighted_down<-function(expRaw, total=1e5, dThresh=0){
     expCountDnW<-apply(expRaw, 2, downSampleW, total=total, dThresh=dThresh)
-    #log(1+expCountDnW)
     expCountDnW
   }
 
 
-#' @export
-trans_prop<-function
-(expDat,
- xFact=1e5
-){
-  ans<-matrix(0, nrow=nrow(expDat), ncol=ncol(expDat));
-  for(i in seq(ncol(expDat))){
-    ans[,i]<-expDat[,i]/sum(expDat[,i]);
-  }
-  ans<-ans*xFact;
-  colnames(ans)<-colnames(expDat);
-  rownames(ans)<-rownames(expDat);
-  log(1+ans)
-}
-
-
-#' split a sample table into training and validation
+#' @title
+#' Split Sample Table
 #'
-#' split a sample table into training and validation
-#' @param sampTab sampTab
-#' @param ncells ncells
-#' @param dLevel dLevel
-#'
-#' @return list of train and val
-#'
+#' @description
+#' Split a sample table into training set and validation set.
+#' @param sampTab sample table (DataFrame)
+#' @param ncells number of samples for training in each category (Integer)
+#' @param dLevel the column name with the classification categories (String)
+#' @return a list containing training sample table and validation sample table
 #' @examples
 #' stList<-splitCommon(stTrain, ncells=25, dLevel="description1")
 #' @export
-splitCommon<-function(
-  sampTab,
-  ncells,
-  dLevel="description1"){
-  cts<-unique(as.vector(sampTab[,dLevel]))
+splitCommon<-function(sampTab, ncells, dLevel="description1"){
+
+  cts<-unique(as.vector(sampTab[,dLevel])) #receive the names of the categories
   trainingids<-vector()
+
   for(ct in cts){
     cat(ct,": ")
     stX<-sampTab[sampTab[,dLevel]==ct,]
     ccount<-nrow(stX)-3
     ccount<-min(ccount, ncells)
     cat(nrow(stX),"\n")
-    trainingids<-append(trainingids, sample(rownames(stX), ccount))
+    trainingids<-append(trainingids, sample(rownames(stX), ccount)) # randomly samples ccount of training samples
   }
-  val_ids<-setdiff(rownames(sampTab), trainingids)
+
+  val_ids<-setdiff(rownames(sampTab), trainingids) # the samples that are not used to training are used for validation
   list(train=sampTab[trainingids,], val=sampTab[val_ids,])
 }
 

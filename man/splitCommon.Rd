@@ -2,22 +2,22 @@
 % Please edit documentation in R/utils.R
 \name{splitCommon}
 \alias{splitCommon}
-\title{split a sample table into training and validation}
+\title{Split Sample Table}
 \usage{
 splitCommon(sampTab, ncells, dLevel = "description1")
 }
 \arguments{
-\item{sampTab}{sampTab}
+\item{sampTab}{sample table (DataFrame)}
 
-\item{ncells}{ncells}
+\item{ncells}{number of samples for training in each category (Integer)}
 
-\item{dLevel}{dLevel}
+\item{dLevel}{the column name with the classification categories (String)}
 }
 \value{
-list of train and val
+a list containing training sample table and validation sample table
 }
 \description{
-split a sample table into training and validation
+Split a sample table into training set and validation set.
 }
 \examples{
 stList<-splitCommon(stTrain, ncells=25, dLevel="description1")
