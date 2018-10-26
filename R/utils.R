@@ -3,92 +3,6 @@
 
 # commonly used or misc functions
 
-#' find genes higher in a cluster compared to all other cells
-#'
-#' ind genes higher in a cluster compared to all other cells
-#'
-#' @param expDat a matrix of normalized gene expression taken from \code{\link(trans_prop)}
-#' @param cellLabels a vector of all the named vector of cancer categories
-#'
-#' @return list of dataFrames containing pval, cval and holm for each gene in each cancer category
-#'
-#' @export
-gnrAll<-function(expDat, cellLabels){
-
-  myPatternG<-sc_sampR_to_pattern(as.character(cellLabels))
-  specificSets<-lapply(myPatternG, sc_testPattern, expDat=expDat)
-  cat("Done testing\n")
-
-#  grpOrder<-myGrpSort(cellLabels)
-
-#  specificSets[grpOrder]
-
-  specificSets
-}
-
-
-#'
-#' @param sampR a vector of the sample catgories
-#'
-#' @return a list of vectors indicating mapping of each cancer type in the sampR vector
-#' @export
-sc_sampR_to_pattern<-function(sampR){
-  d_ids<-unique(as.vector(sampR));
-  nnnc<-length(sampR);
-#  ans<-matrix(nrow=length(d_ids), ncol=nnnc);
-  ans<-list()
-  for(d_id in d_ids){
-    x<-rep(0,nnnc);
-    x[which(sampR==d_id)]<-1;
-    ans[[d_id]]<-x;
-  }
-  ans
-}
-
-
-
-#' @export
-sc_testPattern<-function(pattern, expDat){
-  pval<-vector();
-  cval<-vector();
-
-  geneids<-rownames(expDat); # get the gene names of the exp matrix
-
-  llfit<-ls.print(lsfit(pattern, t(expDat)), digits=25, print=FALSE);
-
-  xxx<-matrix( unlist(llfit$coef), ncol=8,byrow=TRUE);
-  ccorr<-xxx[,6]; # t-value of X coefficient
-  cval<- sqrt(as.numeric(llfit$summary[,2])) * sign(ccorr); # R squared
-  pval<-as.numeric(xxx[,8]); # p-value of X coefficient
-
-  #qval<-qvalue(pval)$qval;
-  holm<-p.adjust(pval, method='holm');
-  #data.frame(row.names=geneids, pval=pval, cval=cval, qval=qval, holm=holm);
-  data.frame(row.names=geneids, pval=pval, cval=cval,holm=holm);
-}
-
-#' @title
-#' Find Genes that Pass Criteria
-#'
-#' @description
-#' Based on idea that reliably detected genes will either be detected in many cells, or highly expressed in a small number of cells or both
-#'
-#' @param geneStats a matrix containing stats of genes generated from running \code{\link{sc_statTab}}
-#' @param alpha1 a number representing proportion of cells in which a gene must be considered detected (as defined in geneStats)
-#' @param alpha2 a number representing lower proportion of cells for genes that must have higher expression level
-#' @param mu a number represeting threshold for average expression level of genes passing the lower proportion criteria
-#'
-#' @return a vector of gene symbols
-#' @export
-#'
-sc_filterGenes<-function(geneStats, alpha1=0.1, alpha2=0.01, mu=2){
-  passing1<-rownames(geneStats[geneStats$alpha>alpha1,])
-  notPassing<-setdiff(rownames(geneStats), passing1)
-  geneStats<-geneStats[notPassing,]
-  c(passing1, rownames(geneStats[which(geneStats$alpha>alpha2 & geneStats$mu>mu),]))
-}
-
-
 #' find cells that pass criteria
 #'
 #' based purely on umis
@@ -110,187 +24,12 @@ sc_filterCells<-function
   rownames(stX[stX$umis<qThresh,])
 }
 
-
-
-
-#' @title
-#' Generate a Stats Table
-#' @description
-#' To make a stats table with alpha, mu, overall mean, coefficient of variance, fano factor, max value, standard deviation
-#' @param expDat a matrix of gene expression values generated from \code{\link{trans_prop}}
-#' @param dThresh a number indication the threshold for detection
-#'
-#' @return a dataframe containing alpha, mu, overall mean, coefficient of variance, fano factor, max value,
-#' and standard deviation of the expression matrix
-#'
-#' @export
-sc_statTab<-function(expDat, dThresh=0){
-
-  statTab<-data.frame()
-
-  # below generates various statistical values
-  muAll<-sc_compMu(expDat, threshold=dThresh);
-  alphaAll<-sc_compAlpha(expDat,threshold=dThresh);
-  meanAll<-apply(expDat, 1, mean);
-  covAll<-apply(expDat, 1, sc_cov);
-  fanoAll<-apply(expDat,1, sc_fano);
-  maxAll<-apply(expDat, 1, max);
-  sdAll<-apply(expDat, 1, sd);
-
-  statTabAll<-data.frame(gene=rownames(expDat), mu=muAll, alpha=alphaAll, overall_mean=meanAll, cov=covAll, fano=fanoAll, max_val=maxAll, sd=sdAll)
-  statTabAll;
-}
-
-#' @title
-#' Compute Alpha
-#' @description
-#' Compute Alpha of expression matrix given detection threshold
-#'
-#' @param expMat a matrix containing gene expression data
-#' @param threshold a number indicating the detection threshold
-#' @param pseudo logical indicating if it is going to be pseudo alpha or real alpha
-#'
-#' @return a list of alphas for the genes in expression matrix
-#' @export
-sc_compAlpha<-function(expMat, threshold=0,pseudo=FALSE){
-
-  # identify the index of vectors greater than threshold
-  indexFunction<-function(vector, threshold){
-    names(which(vector>threshold));
-  }
-
-  indexes<-apply(expMat, 1, indexFunction, threshold);
-
-  alphas<-unlist(lapply(indexes, length));
-
-  ans<-alphas/ncol(expMat)
-
-  if(pseudo){
-    ans<-(alphas+1)/(ncol(expMat)+1)
-  }
-  ans
-}
-
-#' @title
-#' compute Mu
-#' @description
-#' compute Mu given threshold of the expression matrix
-#' @param expMat a matrix with gene expressions data
-#' @param threshold a number indicating the threshold at which gene expression below does not count
-#'
-#' @return a list of Mus for individual gene in the expression matrix
-#' @export
-sc_compMu<-function(expMat, threshold=0){
-
-  afunct<-function(vector, threshold){
-    mean( vector[which(vector>threshold)] );
-  }
-
-  mus<-unlist(apply(expMat, 1, afunct, threshold))
-  mus[is.na(mus)]<-0;
-  mus;
-}
-
 # replavce NAs with 0
 repNA<-function
 (vector){
   vector[which(is.na(vector))]<-0;
   vector;
 }
-
-#' @title
-#' Compute Fano Factor
-#' @description
-#' Compute fano factor for vector
-#' @param vector a vector
-#' @return the fano factor
-sc_fano<-function
-(vector){
-  var(vector)/mean(vector);
-}
-
-# compute coeef of variation on vector
-#' @title Compute Coefficient of Variation
-#' @description Compute the coefficient of variation of a vector
-#' @param vector a vector
-#'
-#' @return the coefficient of variation
-sc_cov<-function
-(vector){
-  sd(vector)/mean(vector);
-}
-
-
-#' Weighted subtraction from mapped reades
-#'
-#' Simulate expression profile of  _total_ mapped reads as a way to normalize the counts
-#'
-#' @param vector a vector of total mapped reads per gene/transcript
-#' @param total the sum of the read counts after transformation
-#' @param dThresh the threshold at which anything lower is 0 after transformation. Usually 0
-#'
-#' @return vector of downsampled read mapped to genes/transcripts
-#' @export
-downSampleW<-function(vector, total=1e5, dThresh=0){
-
-  totalSignal<-sum(vector) # get the sum of the vector
-  wAve<-vector/totalSignal #
-
-  resid<-totalSignal-total #num to subtract from sample
-  residW<-wAve*resid # amount to substract from each gene
-
-  ans<-vector-residW
-  ans[which(ans<dThresh)]<-0
-  ans
-}
-
-
-#' Weighted subtraction from mapped reades, apply to all columns
-#'
-#' Simulate expression profile of  _total_ mapped reads
-#' @param expRaw matrix of total mapped reads per gene/transcript
-#' @param total numeric post transformation sum of read counts
-#' @param dThresh the threshold at which anything lower than that is 0
-#'
-#' @return matrix of downsampled read mapped to genes/transcripts
-#'
-#' @export
-weighted_down<-function(expRaw, total=1e5, dThresh=0){
-    expCountDnW<-apply(expRaw, 2, downSampleW, total=total, dThresh=dThresh)
-    expCountDnW
-  }
-
-
-#' @title
-#' Split Sample Table
-#'
-#' @description
-#' Split a sample table into training set and validation set.
-#' @param sampTab sample table (DataFrame)
-#' @param ncells number of samples for training in each category (Integer)
-#' @param dLevel the column name with the classification categories (String)
-#' @return a list containing training sample table and validation sample table
-#' @examples
-#' stList<-splitCommon(stTrain, ncells=25, dLevel="description1")
-#' @export
-splitCommon<-function(sampTab, ncells, dLevel="description1"){
-
-  cts<-unique(as.vector(sampTab[,dLevel])) #receive the names of the categories
-  trainingids<-vector()
-
-  for(ct in cts){
-    cat(ct,": ")
-    stX<-sampTab[sampTab[,dLevel]==ct,]
-    ccount<-nrow(stX)-3
-    ccount<-min(ccount, ncells)
-    cat(nrow(stX),"\n")
-    trainingids<-append(trainingids, sample(rownames(stX), ccount)) # randomly samples ccount of training samples
-  }
-
-  val_ids<-setdiff(rownames(sampTab), trainingids) # the samples that are not used to training are used for validation
-  list(train=sampTab[trainingids,], val=sampTab[val_ids,])
-}
-
 
 #' @export
 getGenesFromGO<-function# return the entrez gene ids of a given a GOID, for now assumes mouse
@@ -559,4 +298,48 @@ cn_correctZmat<-function
   zmat<-apply(zmat,2, myfuncInf)
   zmat[is.na(zmat)]<-0
   zmat
+}
+
+
+#' @title
+#' Convert Long Expression Table
+#'
+#' @description
+#' Convert long gene expression/count table into wide dataframe to proceed to the next step
+#' of training classifier or validating samples.
+#'
+#' @param longDf a dataframe of gene expression/count in long table format
+#' @param SampCol the name of the column containing sample names
+#' @param geneCol the name of the column containing gene names
+#' @param geneExpcol the name of the column containing gene counts or expression
+#' @param geneNaOmit TRUE if you want to omit the genes with NA
+#'
+#' @return a list containing the gene expression dataframe in wide table format and a dataframe of omitted genes if geneNaOmit is TRUE
+#' Otherwise, just returns gene Expression matrix in wide table
+#' @export
+#'
+#' @importFrom stringr str_replace
+#'
+convertLongTab <- function(longDf, SampCol, geneCol, geneExpCol, geneNaOmit = TRUE) {
+  longDf_extract <- data.frame(longDf[, c(SampCol, geneCol, geneExpCol) ])
+  exp_tab_rs <- reshape(longDf_extract, idvar = geneCol, timevar = SampCol, direction = "wide")
+  colnames(exp_tab_rs) <- stringr::str_replace(colnames(exp_tab_rs), paste0(geneExpCol, "."), "")
+  rownames(exp_tab_rs) = exp_tab_rs[, geneCol]
+  exp_tab_rs[, geneCol] = NULL
+
+  exp_tab_omitted <- data.frame()
+
+  if (geneNaOmit == TRUE) {
+    exp_tab_clean = na.omit(exp_tab_rs);
+
+    exp_tab_omitted = exp_tab_rs[!(rownames(exp_tab_rs) %in% rownames(exp_tab_clean)), ]
+
+    output = list(wideTable = exp_tab_clean, omittedGenesTable = exp_tab_omitted);
+
+  }
+  else {
+    output = exp_tab_rs
+  }
+
+  output
 }
