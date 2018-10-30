@@ -13,6 +13,7 @@ gnrBP<-function(expDat, cellLabels,topX=50){
   ans<-vector()
 
   myPatternG<-sc_sampR_to_pattern(as.character(cellLabels))
+
   for(i in seq(length(myPatternG))){
     cat(i,"\n")
     xres<-sc_testPattern(myPatternG[[i]], expDat=expDat)
@@ -21,3 +22,5 @@ gnrBP<-function(expDat, cellLabels,topX=50){
   }
   unique(ans)
 }
+
+

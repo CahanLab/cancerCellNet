@@ -1,9 +1,13 @@
-#' makes vector of gene pairs, iterates over this and computes pairDat, sc_testPattern, then, at the end, findBestPairs
+#' @title
+#' Find the best gene pairs for training
+#'
+#' @description
+#' Find the gene pairs that most distinguish a cancer group from the rest
 #'
 #' @param expDat expDat
 #' @param cell_labels named vector, value is grp, name is cell name
 #' @param topX 50
-#'
+#' @param sliceSize
 #' @return vector of gene-pair names
 #'
 #' @export
@@ -14,8 +18,11 @@ ptGetTop<-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
   cat("Making pairTable\n")
   ngenes<-nrow(expDat)
   genes<-rownames(expDat)
+
   genes1<-vector()
   genes2<-vector()
+
+  #there is probably a faster way to do this since this is O(n^2)
   for(i in 1:ngenes){
     for(j in 1:ngenes){
       if(j>i){
@@ -33,8 +40,9 @@ ptGetTop<-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
   # setup tmp ans list of sc_testPattern
   cat("setup ans and make pattern\n")
   grps<-unique(cell_labels)
-  myPatternG<-sc_sampR_to_pattern(as.character(cell_labels))
+  myPatternG<-sc_sampR_to_pattern(as.character(cell_labels)) #map each cancer categories into 0 and 1
   statList<-list()
+
   for(grp in grps){
     statList[[grp]]<-data.frame()
   }
@@ -44,26 +52,34 @@ ptGetTop<-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
   nPairs = nrow(pairTab)
   cat("nPairs = ",nPairs,"\n")
   str = 1
-  stp = min(c(sliceSize, nPairs))
+  stp = min(c(sliceSize, nPairs)) #get the smaller one of number of pairs vs slice size
+
   while(str <= nPairs){
+
+    #if the slice size is greater than nPairs due to the error from user's end
     if(stp>nPairs){
       stp <- nPairs
     }
+
     cat(str,"-", stp,"\n")
     tmpTab<-pairTab[str:stp,]
+
     tmpPdat<-ptSmall(expDat, tmpTab)
 
+    # linearly fit the expDat with Patterns to find good gene pairs
+    # add those into the correspnding groups for the subsetted tempPdat
     for(gi in seq(length(myPatternG))){
-
       grp<-grps[[gi]]
       statList[[grp]]<-rbind( statList[[grp]], sc_testPattern(myPatternG[[gi]], expDat=tmpPdat) )
     }
 
 
-    str = stp+1
-    stp = str + sliceSize - 1
+    str = stp+1 #current starting position
+    stp = str + sliceSize - 1 #the ending position
   }
+
   cat("compile results\n")
+
   for(grp in grps){
     tmpAns<-findBestPairs(statList[[grp]], topX)
     ans<-append(ans, tmpAns)
@@ -71,12 +87,17 @@ ptGetTop<-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
   unique(ans)
 }
 
+
+#' @title
+#' Pair Transform on small scale
+#' @description
+#' Performs gene pair comparison on a smaller subset to conserve RAM
 #'
+#' @param expDat the gene expression dataframe
+#' @param pTab the gene pair table generated as one of the intermediate step from \code{\link{ptGetTop}}
 #'
-#'
-ptSmall<-function
-(expDat,
- pTab){
+#' @return a dataframe with gene pairs as rows and samples as columns
+ptSmall<-function(expDat, pTab){
   npairs = nrow(pTab)
   ans<-matrix(0, nrow=npairs, ncol=ncol(expDat))
   genes1<-as.vector(pTab$genes1)
@@ -91,19 +112,17 @@ ptSmall<-function
   ans
 }
 
-#' finds the best pairs to use
+#' @title
+#' Find best pairs
+#' @description
+#' Perform finding the best and diverse set of gene pairs for training
 #'
-#' @param xdiff xdiff
-#' @param n number of pairs
-#' @param maxPer indicates the number of pairs that a gene is allowed to be in
+#' @param xdiff statList of a certain group generated as an intermediate step from \code{\link{ptGetTop}}
+#' @param n the number of top pairs
+#' @param maxPer indicates the maximum number of pairs that a gene is allowed to be in
 #'
-#' @return vector of good pairs
-#'
-#' @export
-findBestPairs<-function # find best and diverse set of pairs
-(xdiff,
- n=50,
- maxPer=3){
+#' @return vector of suitable gene pairs
+findBestPairs<-function(xdiff, n=50,maxPer=3){
 
   xdiff<-xdiff[order(xdiff$cval, decreasing=TRUE),]
   genes<-unique(unlist(strsplit(rownames(xdiff), "_")))
@@ -114,16 +133,25 @@ findBestPairs<-function # find best and diverse set of pairs
   ans<-vector()
   xdiff_index<-1
   pair_names<-rownames(xdiff)
+
   while(i < n ){
     tmpAns<-pair_names[xdiff_index]
     tgp <- unlist(strsplit(tmpAns, "_"))
+
     if( (countList[ tgp[1] ] < maxPer) & (countList[ tgp[2] ] < maxPer )){
+
       ans<-append(ans, tmpAns)
       countList[ tgp[1] ] <- countList[ tgp[1] ]+ 1
       countList[ tgp[2] ] <- countList[ tgp[2] ]+ 1
+
       i<-i+1
     }
     xdiff_index <- xdiff_index + 1
   }
+
+  #return
   ans
 }
+
+
+
