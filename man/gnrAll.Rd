@@ -2,13 +2,12 @@
 % Please edit documentation in R/findClassyGenes.R
 \name{gnrAll}
 \alias{gnrAll}
-\title{find genes higher in a cluster compared to all other cells
-find genes higher in a cluster compared to all other cells}
+\title{Find Genes in Clusters compare to other categories}
 \usage{
 gnrAll(expDat, cellLabels)
 }
 \arguments{
-\item{expDat}{a matrix of normalized gene expression taken from \code{\link(trans_prop)}}
+\item{expDat}{a matrix of normalized gene expression taken from \code{\link{trans_prop}}}
 
 \item{cellLabels}{a vector of all the named vector of cancer categories}
 }
@@ -16,6 +15,5 @@ gnrAll(expDat, cellLabels)
 list of dataFrames containing pval, cval and holm for each gene in each cancer category
 }
 \description{
-find genes higher in a cluster compared to all other cells
-find genes higher in a cluster compared to all other cells
+Find genes higher in a cluster compared to all other cells
 }

@@ -2,34 +2,34 @@
 % Please edit documentation in R/hm_gpa_sel.R
 \name{hm_gpa_sel}
 \alias{hm_gpa_sel}
-\title{heatmap genes and groups}
+\title{Heatmap of the genes and groups}
 \usage{
 hm_gpa_sel(expDat, genes, grps, maxPerGrp = 100, cRow = FALSE,
   cCol = FALSE, limits = c(0, 10), toScale = FALSE,
   fontsize_row = 4, reOrderCells = FALSE)
 }
 \arguments{
-\item{expDat}{expDat}
+\item{expDat}{normalized expression matrix from \code{\link{trans_prop}}}
 
-\item{genes}{genes}
+\item{genes}{classification worth genes from \code{\link{findClassyGenes}}}
 
-\item{grps}{vector of cellnames -> grp label}
+\item{grps}{a vector that maps sample names to a cancer category}
 
-\item{maxPerGrp}{100}
+\item{maxPerGrp}{the number max samples per group}
 
-\item{cRow}{=FALSE,}
+\item{cRow}{TRUE if the rows should be clustered}
 
-\item{cCol}{=FALSE,}
+\item{cCol}{TRUE if the columns should be clustered}
 
-\item{limits}{=c(0,10),}
+\item{limits}{a vector of size 2 indicating the lowest and highest range for expression level}
 
-\item{toScale}{=FALSE,}
+\item{toScale}{TRUE if the data should be scaled}
 
-\item{fontsize_row}{=4}
+\item{fontsize_row}{the font size for the row labels}
 }
 \value{
-pheatmap
+a heatmap of genes and their groups
 }
 \description{
-heatmap genes and groups
+Generate a heatmap with classification worthy genes and cancer groups
 }

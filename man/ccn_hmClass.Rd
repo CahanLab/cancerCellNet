@@ -10,16 +10,20 @@ ccn_hmClass(classMat, grps = NULL, isBig = FALSE, cRow = FALSE,
 \arguments{
 \item{classMat}{classification matrix generated from \code{\link{rf_classPredict}}}
 
+\item{grps}{a vector that maps samples to a group}
+
 \item{isBig}{TRUE if this is a big heatmap}
 
-\item{cRow}{Boolean values determining if rows should be clustered}
+\item{cRow}{TRUE if rows should be clustered}
 
-\item{cCol}{Boolean values determining if columns should be clustered}
+\item{cCol}{TRUE if columns should be clustered}
 
-\item{scale}{}
+\item{fontsize_row}{the font size}
+
+\item{scale}{FALSE if the highest value is 1 and the lowest is 0}
 }
 \value{
-nothing
+classification heatmap
 }
 \description{
 This function generates a heatmap of the classification result for visualization

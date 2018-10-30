@@ -45,22 +45,20 @@ sc_filterGenes<-function(geneStats, alpha1=0.1, alpha2=0.01, mu=2){
   c(passing1, rownames(geneStats[which(geneStats$alpha>alpha2 & geneStats$mu>mu),]))
 }
 
-#' find genes higher in a cluster compared to all other cells
-#' find genes higher in a cluster compared to all other cells
-#' @param expDat a matrix of normalized gene expression taken from \code{\link(trans_prop)}
+#' @title
+#' Find Genes in Clusters compare to other categories
+#' @description
+#' Find genes higher in a cluster compared to all other cells
+#' @param expDat a matrix of normalized gene expression taken from \code{\link{trans_prop}}
 #' @param cellLabels a vector of all the named vector of cancer categories
 #' @return list of dataFrames containing pval, cval and holm for each gene in each cancer category
 #' @export
 gnrAll<-function(expDat, cellLabels){
-
   myPatternG<-sc_sampR_to_pattern(as.character(cellLabels))
   specificSets<-lapply(myPatternG, sc_testPattern, expDat=expDat)
   cat("Done testing\n")
-
   #  grpOrder<-myGrpSort(cellLabels)
-
   #  specificSets[grpOrder]
-
   specificSets
 }
 

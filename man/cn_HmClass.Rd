@@ -2,22 +2,27 @@
 % Please edit documentation in R/ccn_hmClass.R
 \name{cn_HmClass}
 \alias{cn_HmClass}
-\title{simple heatmap of the classification result}
+\title{Simple heatmap of the classification result}
 \usage{
-cn_HmClass(classRes, isBig = FALSE)
+cn_HmClass(classRes, isBig = FALSE, cRow = FALSE, cCol = FALSE,
+  fontsize_row = 4, scale = FALSE)
 }
 \arguments{
-\item{isBig}{is this a big heatmap? TRUE or FALSE}
+\item{isBig}{TRUE if this is a big heatmap}
 
-\item{cnRes}{returned from cn_sapply}
+\item{cRow}{TRUE if rows should be clustered}
+
+\item{cCol}{TRUE if columns should be clustered}
+
+\item{fontsize_row}{the font size}
+
+\item{scale}{FALSE if the highest value is 1 and the lowest is 0}
+
+\item{classMat}{classification matrix generated from \code{\link{rf_classPredict}}}
 }
 \value{
-nothing
+classification heatmap
 }
 \description{
-Heatmap of the classification result.
-}
-\examples{
-cn_HmClass(cnRes, isBig=TRUE)
-
+Heatmap of the classification result that does not have an explicit group.
 }
