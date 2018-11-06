@@ -5,7 +5,8 @@
 \title{Heatmap of the classification result}
 \usage{
 ccn_hmClass(classMat, grps = NULL, isBig = FALSE, cRow = FALSE,
-  cCol = FALSE, fontsize_row = 4, scale = FALSE)
+  cCol = FALSE, fontsize_row = 4, fontsize_col = 4, main = NA,
+  scale = FALSE)
 }
 \arguments{
 \item{classMat}{classification matrix generated from \code{\link{rf_classPredict}}}
@@ -18,7 +19,11 @@ ccn_hmClass(classMat, grps = NULL, isBig = FALSE, cRow = FALSE,
 
 \item{cCol}{TRUE if columns should be clustered}
 
-\item{fontsize_row}{the font size}
+\item{fontsize_row}{the font size of the row}
+
+\item{fontsize_col}{the font size of the columns}
+
+\item{main}{the title of the heatmap}
 
 \item{scale}{FALSE if the highest value is 1 and the lowest is 0}
 }

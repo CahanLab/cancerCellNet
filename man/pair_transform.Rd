@@ -10,7 +10,7 @@ pair_transform(expDat)
 \item{expDat}{raw count expression table with cgenes}
 }
 \value{
-a dataframe with individual gene comparsion on rows and samples as columns
+a dataframe with individual gene pairs on rows and samples as columns
 }
 \description{
 Make complete gene to gene comparison for all the classification worthy genes among each sample

@@ -2,20 +2,20 @@
 % Please edit documentation in R/ptGetTop.R
 \name{findBestPairs}
 \alias{findBestPairs}
-\title{finds the best pairs to use}
+\title{Find best pairs}
 \usage{
 findBestPairs(xdiff, n = 50, maxPer = 3)
 }
 \arguments{
-\item{xdiff}{xdiff}
+\item{xdiff}{statList of a certain group generated as an intermediate step from \code{\link{ptGetTop}}}
 
-\item{n}{number of pairs}
+\item{n}{the number of top pairs}
 
-\item{maxPer}{indicates the number of pairs that a gene is allowed to be in}
+\item{maxPer}{indicates the maximum number of pairs that a gene is allowed to be in}
 }
 \value{
-vector of good pairs
+vector of suitable gene pairs
 }
 \description{
-finds the best pairs to use
+Perform finding the best and diverse set of gene pairs for training
 }

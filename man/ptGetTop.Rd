@@ -2,7 +2,7 @@
 % Please edit documentation in R/ptGetTop.R
 \name{ptGetTop}
 \alias{ptGetTop}
-\title{makes vector of gene pairs, iterates over this and computes pairDat, sc_testPattern, then, at the end, findBestPairs}
+\title{Find the best gene pairs for training}
 \usage{
 ptGetTop(expDat, cell_labels, topX = 50, sliceSize = 5000)
 }
@@ -17,5 +17,5 @@ ptGetTop(expDat, cell_labels, topX = 50, sliceSize = 5000)
 vector of gene-pair names
 }
 \description{
-makes vector of gene pairs, iterates over this and computes pairDat, sc_testPattern, then, at the end, findBestPairs
+Find the gene pairs that most distinguish a cancer group from the rest
 }

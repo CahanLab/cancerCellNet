@@ -5,7 +5,7 @@
 \title{Simple heatmap of the classification result}
 \usage{
 cn_HmClass(classRes, isBig = FALSE, cRow = FALSE, cCol = FALSE,
-  fontsize_row = 4, scale = FALSE)
+  fontsize_row = 4, fontsize_col = 4, main = NA, scale = FALSE)
 }
 \arguments{
 \item{isBig}{TRUE if this is a big heatmap}

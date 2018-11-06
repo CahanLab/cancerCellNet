@@ -4,20 +4,22 @@
 #' This function generates a heatmap of the classification result for visualization
 #'
 #' @param classMat classification matrix generated from \code{\link{rf_classPredict}}
-#' @param grps a vector that maps samples to a group 
+#' @param grps a vector that maps samples to a group
 #' @param isBig TRUE if this is a big heatmap
 #' @param cRow TRUE if rows should be clustered
 #' @param cCol TRUE if columns should be clustered
-#' @param fontsize_row the font size 
-#' @param scale FALSE if the highest value is 1 and the lowest is 0 
+#' @param fontsize_row the font size of the row
+#' @param fontsize_col the font size of the columns
+#' @param main the title of the heatmap
+#' @param scale FALSE if the highest value is 1 and the lowest is 0
 #'
-#' @return classification heatmap 
+#' @return classification heatmap
 #'
 #' @examples
 #' ccn_HmClass(cnRes, isBig=TRUE)
 #'
 #' @export
-ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, fontsize_row=4, scale=FALSE){
+ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, fontsize_row=4, fontsize_col=4, main=NA, scale=FALSE){
 
   cools<-colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
   bcol<-'white';
@@ -25,9 +27,9 @@ ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, 
     bcol<-NA;
   }
 
-  # if no groups specified, use simple heatmap 
+  # if no groups specified, use simple heatmap
   if(is.null(grps)){
-    cn_HmClass(classMat,isBig=isBig, cRow=cRow, cCol=cCol, fontsize_row=fontsize_row)
+    cn_HmClass(classMat,isBig=isBig, cRow=cRow, cCol=cCol, fontsize_row=fontsize_row, fontsize_col=fontsize_col, main=main)
   }
 
   else{
@@ -51,35 +53,36 @@ ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, 
       mymax<-1
     }
 
-    pheatmap(classMat, 
-             col=cools,  
-             breaks=seq(from=mymin, to=mymax, length.out=100), 
-             cluster_rows = cRow, 
+    pheatmap(classMat,
+             col=cools,
+             breaks=seq(from=mymin, to=mymax, length.out=100),
+             cluster_rows = cRow,
              cluster_cols = cCol,
-             show_colnames = FALSE, 
+             show_colnames = FALSE,
              annotation_names_row = FALSE,
              ##        annotation_col = annTab,
              annotation_col = xx,
-             annotation_names_col = FALSE, annotation_colors = anno_colors, fontsize_row=fontsize_row)
+             main = main,
+             annotation_names_col = FALSE, annotation_colors = anno_colors, fontsize_row=fontsize_row, fontsize_col=fontsize_col)
   }
 
 }
 
 #' Simple heatmap of the classification result
 #'
-#' Heatmap of the classification result that does not have an explicit group. 
-#' 
+#' Heatmap of the classification result that does not have an explicit group.
+#'
 #' @param classMat classification matrix generated from \code{\link{rf_classPredict}}
 #' @param isBig TRUE if this is a big heatmap
 #' @param cRow TRUE if rows should be clustered
 #' @param cCol TRUE if columns should be clustered
-#' @param fontsize_row the font size 
-#' @param scale FALSE if the highest value is 1 and the lowest is 0 
+#' @param fontsize_row the font size
+#' @param scale FALSE if the highest value is 1 and the lowest is 0
 #'
-#' @return classification heatmap 
+#' @return classification heatmap
 #'
 #' @export
-cn_HmClass<-function(classRes, isBig=FALSE, cRow=FALSE, cCol=FALSE, fontsize_row=4, scale=FALSE){
+cn_HmClass<-function(classRes, isBig=FALSE, cRow=FALSE, cCol=FALSE, fontsize_row=4, fontsize_col=4, main=NA, scale=FALSE){
   cools<-colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
   bcol<-'white';
 
@@ -100,7 +103,9 @@ cn_HmClass<-function(classRes, isBig=FALSE, cRow=FALSE, cCol=FALSE, fontsize_row
            breaks=seq(from=mymin, to=mymax, length.out=100),
            border_color=bcol,
            cluster_rows = cRow,
-           cluster_cols = cCol, 
-           fontsize_row = fontsize_row)
+           cluster_cols = cCol,
+           main=main,
+           fontsize_row = fontsize_row,
+           fontsize_col = fontsize_col)
   # classification heatmap
 }
