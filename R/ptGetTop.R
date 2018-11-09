@@ -87,6 +87,117 @@ ptGetTop<-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
   unique(ans)
 }
 
+#' @title
+#' Find the best gene pairs for training (new code)
+#' @description
+#' Find the gene pairs that most distinguish a cancer group from the rest
+#'
+#' @param expDat expDat
+#' @param cell_labels named vector, value is grp, name is cell name
+#' @param topX 50
+#' @param sliceSize
+#' @return vector of gene-pair names
+#'
+#' @export
+ptGetTop_new<-function
+(expDat,
+ cell_labels,
+ topX=50,
+ sliceSize = 5e3){
+
+  ans<-vector()
+  genes<-rownames(expDat)
+
+  ncores <- detectCores()
+  mcCores <- 1
+  if(ncores>1){
+    mcCores <- ncores - 1
+  }
+  cat(ncores, "  --> ", mcCores,"\n")
+
+  # make a data frame of pairs of genes that will be sliced later
+  if(FALSE){
+    cat("Making pairTable\n")
+    ngenes<-nrow(expDat)
+    genes<-rownames(expDat)
+    genes1<-vector()
+    genes2<-vector()
+    for(i in 1:ngenes){ # replace with combn?
+      for(j in 1:ngenes){
+        if(j>i){
+          genes1<-append(genes1, genes[i])
+          genes2<-append(genes2, genes[j])
+        }
+      }
+    }
+
+    pairTab = data.frame(genes1=genes1, genes2=genes2)
+    pairNames<-paste(pairTab[,1], "_",pairTab[,2], sep='')
+    pairTab <- cbind(pairTab, pairName=pairNames)
+  }
+
+  pairTab<-makePairTab(genes)
+
+  ###
+  # setup tmp ans list of sc_testPattern
+  cat("setup ans and make pattern\n")
+  grps<-unique(cell_labels)
+  myPatternG<-sc_sampR_to_pattern(as.character(cell_labels))
+  statList<-list()
+  for(grp in grps){
+    statList[[grp]]<-data.frame()
+  }
+
+  # make the pairedDat, and run sc_testPattern
+  cat("make pairDat on slice and test\n")
+  nPairs = nrow(pairTab)
+  cat("nPairs = ",nPairs,"\n")
+  str = 1
+  stp = min(c(sliceSize, nPairs))
+  while(str <= nPairs){
+    if(stp>nPairs){
+      stp <- nPairs
+    }
+    cat(str,"-", stp,"\n")
+    tmpTab<-pairTab[str:stp,]
+    tmpPdat<-ptSmall(expDat, tmpTab)
+
+    ### new
+
+    tmpAns<-mclapply(myPatternG, sc_testPattern, expDat=tmpPdat, mc.cores=mcCores)
+    ### names(tmpAns) <- grps
+
+    ###for(gi in seq(length(myPatternG))){
+    ###	grp<-grps[[gi]]
+    ###	statList[[grp]]<-rbind( statList[[grp]], sc_testPattern(myPatternG[[gi]], expDat=tmpPdat) )
+    ### }
+
+    for(gi in seq(length(myPatternG))){
+      grp<-grps[[gi]]
+      #cat(i, " grp: ",grp,"\n")
+      statList[[grp]]<-rbind( statList[[grp]],  tmpAns[[grp]])
+    }
+
+
+    str = stp+1
+    stp = str + sliceSize - 1
+  }
+
+  cat("compile results\n")
+  for(grp in grps){
+    tmpAns<-findBestPairs(statList[[grp]], topX)
+    ans<-append(ans, tmpAns)
+  }
+  unique(ans)
+}
+makePairTab<-function(genes){
+  pTab<-t(combn(genes, 2))
+  colnames(pTab)<-c("genes1", "genes2")
+  pTab<-cbind(pTab, pairName=paste(pTab[,1], "_",pTab[,2], sep=''))
+  pTab
+}
+
+
 
 #' @title
 #' Pair Transform on small scale
