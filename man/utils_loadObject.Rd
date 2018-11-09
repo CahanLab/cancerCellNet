@@ -13,5 +13,5 @@ utils_loadObject(fname)
 A R object
 }
 \description{
-Load an R object
+Load an R object.
 }

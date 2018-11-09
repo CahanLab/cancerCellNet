@@ -12,8 +12,9 @@ query_transform(expDat, genePairs)
 \item{genePairs}{a vector with gene pairs}
 }
 \value{
-A matrix indicating whether the first gene in the gene pair has a greater expression than the second gene in the gene pair
+A matrix of the gene to gene comparison results. 1 indicates the first gene has higher expression than the second gene in the gene pair. 0 indicates the
+second gene has higher expression than the first gene in the gene pair.
 }
 \description{
-This function will compare the genes in genePairs vector sample by sample in the expression matrix.
+Performs gene to gene comparison of each gene pairs in the expression table.
 }
