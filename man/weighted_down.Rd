@@ -2,7 +2,7 @@
 % Please edit documentation in R/weighted_down.R
 \name{weighted_down}
 \alias{weighted_down}
-\title{Weighted subtraction from mapped reades, apply to all columns}
+\title{Down Sample Gene Expressions}
 \usage{
 weighted_down(expRaw, total = 1e+05, dThresh = 0)
 }
@@ -17,5 +17,6 @@ weighted_down(expRaw, total = 1e+05, dThresh = 0)
 matrix of downsampled read mapped to genes/transcripts
 }
 \description{
-Simulate expression profile of  _total_ mapped reads
+Weighted subtraction from mapped reads and simulate expression profile of  _total_ mapped reads
+for normalization.
 }

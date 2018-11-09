@@ -2,7 +2,7 @@
 % Please edit documentation in R/addRandToSampTab.R
 \name{addRandToSampTab}
 \alias{addRandToSampTab}
-\title{Add Random Profiles}
+\title{Add Random Profiles to Sample Table}
 \usage{
 addRandToSampTab(classRes, sampTab, desc, id = "cell_name")
 }
@@ -11,7 +11,7 @@ addRandToSampTab(classRes, sampTab, desc, id = "cell_name")
 
 \item{sampTab}{the meta sample table}
 
-\item{desc}{the "column name" of the column containing the sample descriptions in the meta sample table}
+\item{desc}{the column name of the column containing the sample categories in the meta sample table}
 
 \item{id}{the column name of the column containing the sample names in the meta sample table}
 }
@@ -19,7 +19,8 @@ addRandToSampTab(classRes, sampTab, desc, id = "cell_name")
 meta sample table containing the random profiles
 }
 \description{
-Add the random profiles generated from \code{\link{rf_classPredict}} to the meta sample table
+Add the random profiles generated from \code{\link{rf_classPredict}} to the sample table
+for classification of the random profiles.
 }
 \examples{
 stValRand<-addRandToSampTab(classRes_val, stVal, "description2", "sample_name")

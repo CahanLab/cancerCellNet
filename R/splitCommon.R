@@ -1,14 +1,15 @@
 #' @title
-#' Split Sample Table
+#' @title
+#' Split Sample Table Randomly
 #'
 #' @description
-#' Split a sample table into training set and validation set.
-#' @param sampTab sample table (DataFrame)
-#' @param ncells number of samples for training in each category (Integer)
-#' @param dLevel the column name with the classification categories (String)
+#' Split the sample table into training set and validation set in random fashion.
+#'
+#' @param sampTab sample table
+#' @param ncells number of samples for training in each category
+#' @param dLevel the column name with the classification categories
 #' @return a list containing training sample table and validation sample table
-#' @examples
-#' stList<-splitCommon(stTrain, ncells=25, dLevel="description1")
+#'
 #' @export
 splitCommon<-function(sampTab, ncells, dLevel="description1"){
 

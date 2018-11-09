@@ -1,6 +1,8 @@
-#' divide each column by sum of that column then scale to xFact and log it
+#' @title
+#' Log scaled downsampled expression
 #'
-#' divide each column by sum of that column then scale to xFact and log it
+#' @description
+#' Divide each column by sum of that column then scale to xFact and log it for more normalization.
 #'
 #' @param expDat a matrix of weighted down expression data
 #' @param xFact a number representing scaling factor

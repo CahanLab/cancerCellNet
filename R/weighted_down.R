@@ -1,6 +1,10 @@
-#' Weighted subtraction from mapped reades, apply to all columns
+#' @title
+#' Down Sample Gene Expressions
 #'
-#' Simulate expression profile of  _total_ mapped reads
+#' @description
+#' Weighted subtraction from mapped reads and simulate expression profile of  _total_ mapped reads
+#' for normalization.
+#'
 #' @param expRaw matrix of total mapped reads per gene/transcript
 #' @param total numeric post transformation sum of read counts
 #' @param dThresh the threshold at which anything lower than that is 0
@@ -22,7 +26,6 @@ weighted_down<-function(expRaw, total=1e5, dThresh=0){
 #' @param dThresh the threshold at which anything lower is 0 after transformation. Usually 0
 #'
 #' @return vector of downsampled read mapped to genes/transcripts
-#' @export
 downSampleW<-function(vector, total=1e5, dThresh=0){
 
   totalSignal<-sum(vector) # get the sum of the vector

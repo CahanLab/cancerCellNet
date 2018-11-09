@@ -2,7 +2,7 @@
 % Please edit documentation in R/trans_prop.R
 \name{trans_prop}
 \alias{trans_prop}
-\title{divide each column by sum of that column then scale to xFact and log it}
+\title{Log scaled downsampled expression}
 \usage{
 trans_prop(expDat, xFact = 1e+05)
 }
@@ -15,5 +15,5 @@ trans_prop(expDat, xFact = 1e+05)
 a matrix of downsampled read mapped to genes/transcripts
 }
 \description{
-divide each column by sum of that column then scale to xFact and log it
+Divide each column by sum of that column then scale to xFact and log it for more normalization.
 }

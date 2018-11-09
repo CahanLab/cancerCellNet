@@ -7,11 +7,13 @@
 ptGetTop(expDat, cell_labels, topX = 50, sliceSize = 5000)
 }
 \arguments{
-\item{expDat}{expDat}
+\item{expDat}{raw expression data}
 
 \item{cell_labels}{named vector, value is grp, name is cell name}
 
-\item{topX}{50}
+\item{topX}{number of}
+
+\item{sliceSize}{}
 }
 \value{
 vector of gene-pair names

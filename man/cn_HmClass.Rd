@@ -21,7 +21,7 @@ cn_HmClass(classRes, isBig = FALSE, cRow = FALSE, cCol = FALSE,
 \item{classMat}{classification matrix generated from \code{\link{rf_classPredict}}}
 }
 \value{
-classification heatmap
+simpler classification heatmap without groups colored
 }
 \description{
 Heatmap of the classification result that does not have an explicit group.

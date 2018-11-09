@@ -1,13 +1,13 @@
 #' @title
 #' Find the best gene pairs for training
-#'
 #' @description
 #' Find the gene pairs that most distinguish a cancer group from the rest
 #'
-#' @param expDat expDat
+#' @param expDat raw expression data
 #' @param cell_labels named vector, value is grp, name is cell name
-#' @param topX 50
+#' @param topX number of
 #' @param sliceSize
+#'
 #' @return vector of gene-pair names
 #'
 #' @export

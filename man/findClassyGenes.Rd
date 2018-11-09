@@ -2,7 +2,7 @@
 % Please edit documentation in R/findClassyGenes.R
 \name{findClassyGenes}
 \alias{findClassyGenes}
-\title{Find candidate classifier-worthy genes}
+\title{Find Classifier-Worthy Gene Candidates}
 \usage{
 findClassyGenes(expDat, sampTab, dLevel, topX = 25, dThresh = 0,
   alpha1 = 0.05, alpha2 = 0.001, mu = 2)

@@ -2,23 +2,20 @@
 % Please edit documentation in R/splitCommon.R
 \name{splitCommon}
 \alias{splitCommon}
-\title{Split Sample Table}
+\title{Split Sample Table Randomly}
 \usage{
 splitCommon(sampTab, ncells, dLevel = "description1")
 }
 \arguments{
-\item{sampTab}{sample table (DataFrame)}
+\item{sampTab}{sample table}
 
-\item{ncells}{number of samples for training in each category (Integer)}
+\item{ncells}{number of samples for training in each category}
 
-\item{dLevel}{the column name with the classification categories (String)}
+\item{dLevel}{the column name with the classification categories}
 }
 \value{
 a list containing training sample table and validation sample table
 }
 \description{
-Split a sample table into training set and validation set.
-}
-\examples{
-stList<-splitCommon(stTrain, ncells=25, dLevel="description1")
+Split the sample table into training set and validation set in random fashion.
 }

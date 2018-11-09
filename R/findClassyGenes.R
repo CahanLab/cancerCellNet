@@ -1,5 +1,6 @@
-#' Find candidate classifier-worthy genes
-#'
+#' @title
+#' Find Classifier-Worthy Gene Candidates
+#' @description
 #' Find classifier-worthy genes for each cancer category to train the classifier
 #'
 #' @param expDat a matrix of normalized expressiond data from \code{\link{trans_prop}}
@@ -36,8 +37,6 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
 #' @param alpha2 a number representing lower proportion of cells for genes that must have higher expression level
 #' @param mu a number represeting threshold for average expression level of genes passing the lower proportion criteria
 #' @return a vector of gene symbols
-#' @export
-#'
 sc_filterGenes<-function(geneStats, alpha1=0.1, alpha2=0.01, mu=2){
   passing1<-rownames(geneStats[geneStats$alpha>alpha1,])
   notPassing<-setdiff(rownames(geneStats), passing1)
@@ -52,7 +51,6 @@ sc_filterGenes<-function(geneStats, alpha1=0.1, alpha2=0.01, mu=2){
 #' @param expDat a matrix of normalized gene expression taken from \code{\link{trans_prop}}
 #' @param cellLabels a vector of all the named vector of cancer categories
 #' @return list of dataFrames containing pval, cval and holm for each gene in each cancer category
-#' @export
 gnrAll<-function(expDat, cellLabels){
   myPatternG<-sc_sampR_to_pattern(as.character(cellLabels))
   specificSets<-lapply(myPatternG, sc_testPattern, expDat=expDat)
@@ -70,8 +68,6 @@ gnrAll<-function(expDat, cellLabels){
 #' @param bottom logic if true use the top x genes with - cvals
 #'
 #' @return a vector of genes that are good for training classifier for that category
-#'
-#' @export
 getClassGenes<-function(diffRes, topX=25, bottom=TRUE) {
   #exclude NAs
   xi<-which(!is.na(diffRes$cval))

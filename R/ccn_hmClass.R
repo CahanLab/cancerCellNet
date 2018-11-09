@@ -18,6 +18,8 @@
 #' @examples
 #' ccn_HmClass(cnRes, isBig=TRUE)
 #'
+#' @importFrom pheatmap pheatmap
+#'
 #' @export
 ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, fontsize_row=4, fontsize_col=4, main=NA, scale=FALSE){
 
@@ -53,7 +55,7 @@ ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, 
       mymax<-1
     }
 
-    pheatmap(classMat,
+    pheatmap::pheatmap(classMat,
              col=cools,
              breaks=seq(from=mymin, to=mymax, length.out=100),
              cluster_rows = cRow,
@@ -68,8 +70,10 @@ ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, 
 
 }
 
+#' @title
 #' Simple heatmap of the classification result
 #'
+#' @description
 #' Heatmap of the classification result that does not have an explicit group.
 #'
 #' @param classMat classification matrix generated from \code{\link{rf_classPredict}}
@@ -79,9 +83,7 @@ ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, 
 #' @param fontsize_row the font size
 #' @param scale FALSE if the highest value is 1 and the lowest is 0
 #'
-#' @return classification heatmap
-#'
-#' @export
+#' @return simpler classification heatmap without groups colored
 cn_HmClass<-function(classRes, isBig=FALSE, cRow=FALSE, cCol=FALSE, fontsize_row=4, fontsize_col=4, main=NA, scale=FALSE){
   cools<-colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
   bcol<-'white';
@@ -98,7 +100,7 @@ cn_HmClass<-function(classRes, isBig=FALSE, cRow=FALSE, cCol=FALSE, fontsize_row
     mymax<-1
   }
 
-  pheatmap(classRes,
+  pheatmap::pheatmap(classRes,
            col=cools,
            breaks=seq(from=mymin, to=mymax, length.out=100),
            border_color=bcol,
