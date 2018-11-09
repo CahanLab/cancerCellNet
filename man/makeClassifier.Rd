@@ -2,26 +2,24 @@
 % Please edit documentation in R/makeClassifier.R
 \name{makeClassifier}
 \alias{makeClassifier}
-\title{make a classifier, with a randomized class too
-make a classifier, with a randomized class too}
+\title{Make Classifier}
 \usage{
 makeClassifier(expTrain, genes, groups, nRand = 50, ntrees = 2000)
 }
 \arguments{
-\item{expTrain}{training data}
+\item{expTrain}{transformed training data from \code{\link{query_transform}}}
 
-\item{genes}{vector of genes to use as predictors}
+\item{genes}{vector of gene pairs from \code{\link{ptGetTop}} used as predictors}
 
-\item{groups}{named vector of cells to groups or classes}
+\item{groups}{named vector of cells to cancer categories}
 
-\item{nRand}{=50 num of randomized profiles to make}
+\item{nRand}{number of randomized profiles to make}
 
-\item{ntrees}{=2000 number of trees to build}
+\item{ntrees}{number of trees to build}
 }
 \value{
 Random Forest Classifier object
 }
 \description{
-make a classifier, with a randomized class too
-make a classifier, with a randomized class too
+Create a random forest classifier with the transformed training data from \code{\link{query_transform}}.
 }
