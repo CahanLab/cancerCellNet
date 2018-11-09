@@ -2,7 +2,7 @@
 % Please edit documentation in R/rf_classPredict.R
 \name{rf_classPredict}
 \alias{rf_classPredict}
-\title{Classify the samples}
+\title{Classify Query Samples}
 \usage{
 rf_classPredict(rfObj, expQuery, numRand = 50)
 }
@@ -11,11 +11,11 @@ rf_classPredict(rfObj, expQuery, numRand = 50)
 
 \item{expQuery}{transformed query data created from \code{\link{query_transform}}}
 
-\item{numRand}{number of random profiles wish to create}
+\item{numRand}{number of random profiles to add into the classification}
 }
 \value{
 a classification matrix of the query data
 }
 \description{
-This functions will classify the query samples using the random forest object created from \code{\link{makeClassifier}}
+Classify the transformed query data using the random forest classifier.
 }
