@@ -17,15 +17,15 @@
 findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.05, alpha2=.001, mu=2) {
   gsTrain<-sc_statTab(expDat, dThresh=dThresh)
   ggenes<-sc_filterGenes(gsTrain, alpha1=alpha1, alpha2=alpha2, mu=mu)
+
   grps<-as.vector(sampTab[,dLevel])
   names(grps)<-rownames(sampTab)
+
   xdiff<-gnrAll(expDat[ggenes,], grps)
   cgenes<-lapply(xdiff, getClassGenes, topX=topX)
   cgenes<-unique(unlist(cgenes))
   list(cgenes=cgenes, grps=grps)
 }
-
-
 
 #' @title
 #' Find Genes that Pass Criteria

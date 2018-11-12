@@ -1,3 +1,9 @@
+#' @title
+#' Create Template
+#'
+#' @description
+#' Create a template of the cancer sample in terms of cancer category.
+#'
 #' @param sampR a vector of the sample catgories
 #'
 #' @return a list of vectors indicating mapping of each cancer type in the sampR vector
