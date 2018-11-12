@@ -186,3 +186,48 @@ test_that("Test SC_filterGenes", {
   }
 })
 
+# cannot think of meaningful tests
+test_that("Test sampR_to_pattner", {
+
+  # never mind, it's kind of trivial. Until I find more meaningful test, I will leave it blank
+  cat1 = rep("cancer1", 4)
+  cat2 = rep("cancer2", 7)
+  cat3 = rep("caner3", 2)
+
+
+
+})
+
+# cannot think of meaningful tests as well
+test_that("Test testPattern", {
+  # almost trivial as well. I will come back when I think of a better test
+
+
+})
+
+test_that("Error case for findClassGenes", {
+
+  set.seed(626) # set random seed to generate
+  test_df = data.frame(replicate(10, sample(1:4, 50, rep=TRUE)))
+  col_name = c()
+  for (i in 1:ncol(test_df)){
+    col_name = c(col_name, paste0("sample", i))
+  }
+  colnames(test_df) = col_name
+  row_name = c()
+  for (i in 1:nrow(test_df)) {
+    row_name = c(row_name, paste0("gene", i))
+  }
+  rownames(test_df) = row_name
+
+  cat1 = rep("cancer1", 5)
+  cat2 = rep("cancer2", 7)
+  cat3 = rep("cancer3", 3)
+
+  bigCat = c(cat1, cat2, cat3)
+  test_sampTab = data.frame(categories = bigCat)
+
+  expect_error(findClassyGenes(expDat = test_df, sampTab = test_sampTab))
+
+
+})

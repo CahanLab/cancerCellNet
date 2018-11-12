@@ -14,7 +14,7 @@ findClassyGenes(expDat, sampTab, dLevel, topX = 25, dThresh = 0,
 
 \item{dLevel}{a string indicating the column name in sample table that contains the cancer category}
 
-\item{topX}{an integer indicating the number of top classification genes to select for training}
+\item{topX}{an integer indicating the number of top positive classification genes for each category to select for training. Will also select topX number of negative classification genes.}
 
 \item{dThresh}{a number representing the detection threshold}
 

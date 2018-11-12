@@ -6,7 +6,7 @@
 #' @param expDat a matrix of normalized expressiond data from \code{\link{trans_prop}}
 #' @param sampTab a dataframe of the sample table
 #' @param dLevel a string indicating the column name in sample table that contains the cancer category
-#' @param topX an integer indicating the number of top classification genes to select for training
+#' @param topX an integer indicating the number of top positive classification genes for each category to select for training. Will also select topX number of negative classification genes.
 #' @param dThresh a number representing the detection threshold
 #' @param alpha1 a number representing proportion of cells in which a gene must be considered detected (as defined in geneStats)
 #' @param alpha2 a number representing lower proportion of cells for genes that must have higher expression level
@@ -15,6 +15,14 @@
 #' @return a list containing two lists: a list of classifier worthy genes named 'cgenes' and a list of cancer category named 'grps'
 #' @export
 findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.05, alpha2=.001, mu=2) {
+  if((dLevel %in% colnames(sampTab)) == FALSE) {
+    stop("Please enter the correct column name for sampTab that indicates the categories")
+  }
+
+  if((topX * 2 > nrow(expDat)) == TRUE) {
+    stop(paste0("Please enter a topX value smaller than ", as.integer(nrow(expDat) / 2)))
+  }
+
   gsTrain<-sc_statTab(expDat, dThresh=dThresh)
   ggenes<-sc_filterGenes(gsTrain, alpha1=alpha1, alpha2=alpha2, mu=mu)
 
