@@ -36,11 +36,10 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
 #' @param alpha2 a number representing lower proportion of cells for genes that must have higher expression level
 #' @param mu a number represeting threshold for average expression level of genes passing the lower proportion criteria
 #' @return a vector of gene symbols
+#' @export
 sc_filterGenes<-function(geneStats, alpha1=0.1, alpha2=0.01, mu=2){
-  passing1<-rownames(geneStats[geneStats$alpha>alpha1,])
-  notPassing<-setdiff(rownames(geneStats), passing1)
-  geneStats<-geneStats[notPassing,]
-  c(passing1, rownames(geneStats[which(geneStats$alpha>alpha2 & geneStats$mu>mu),]))
+  #return
+  rownames(geneStats[(geneStats$alpha > alpha1) | (geneStats$alpha > alpha2 & geneStats$mu > mu), ])
 }
 
 #' @title

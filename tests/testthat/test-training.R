@@ -116,3 +116,73 @@ test_that("Test my implementation of computing Alpha with Patrick's ", {
 
 })
 
+
+test_that("Let's test the implementation of compMu", {
+  set.seed(626) # set random seed to generate
+  test_df = data.frame(replicate(10, sample(1:4, 50, rep=TRUE)))
+  col_name = c()
+  for (i in 1:ncol(test_df)){
+    col_name = c(col_name, paste0("sample", i))
+  }
+  colnames(test_df) = col_name
+  row_name = c()
+  for (i in 1:nrow(test_df)) {
+    row_name = c(row_name, paste0("gene", i))
+  }
+  rownames(test_df) = row_name
+
+
+  # test the sc_compmu aspect of statTab
+  # i didn't test from 1:3 because my test is desigend such that NaN occurs. I don't want to completely
+  # rewrite the function
+  for (i in 1:2) {
+    test_statTab = sc_statTab(test_df, i)
+
+    myFunc <- function(vector, threshold) {
+      mean(vector[which(vector > threshold)])
+    }
+
+    myFunc_apply = apply(test_df, 1, myFunc, threshold = i)
+    for(a in 1:length(test_statTab$mu)) {
+
+      expect_equal(test_statTab$mu[a], myFunc_apply[[a]])
+    }
+  }
+})
+
+test_that("Test SC_filterGenes", {
+  set.seed(626) # set random seed to generate
+  test_df = data.frame(replicate(10, sample(1:4, 50, rep=TRUE)))
+  col_name = c()
+  for (i in 1:ncol(test_df)){
+    col_name = c(col_name, paste0("sample", i))
+  }
+  colnames(test_df) = col_name
+  row_name = c()
+  for (i in 1:nrow(test_df)) {
+    row_name = c(row_name, paste0("gene", i))
+  }
+  rownames(test_df) = row_name
+
+  # patrick's implementation
+  patrick_filterGenes<-function(geneStats, alpha1=0.1, alpha2=0.01, mu=2){
+    passing1<-rownames(geneStats[geneStats$alpha>alpha1,])
+    notPassing<-setdiff(rownames(geneStats), passing1)
+    geneStats<-geneStats[notPassing,]
+    c(passing1, rownames(geneStats[which(geneStats$alpha>alpha2 & geneStats$mu>mu),]))
+
+    myTest = testStatTab[(testStatTab$alpha > 0.6) | (testStatTab$alpha > 0 & testStatTab$mu > 3), ]
+
+  }
+
+  testStatTab = sc_statTab(test_df, 1)
+  test_filter = sc_filterGenes(testStatTab, alpha1 = 0.6, alpha2 = 0, mu = 3)
+
+  myTest = patrick_filterGenes(test_df, alpha1 = 0.6, alpha2 = 0, mu = 3)
+
+  for(i in 1:length(test_filter)) {
+    test_filter = sort(test_filter)
+    expect_equal(sort(rownames(myTest))[i], sort(test_filter)[i])
+  }
+})
+

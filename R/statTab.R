@@ -26,6 +26,7 @@ sc_statTab<-function(expDat, dThresh=0){
 #' @title
 #' compute Mu
 #' @description
+#'
 #' compute Mu given threshold of the expression matrix
 #' @param expMat a matrix with gene expressions data
 #' @param threshold a number indicating the threshold at which gene expression below does not count
@@ -35,7 +36,7 @@ sc_statTab<-function(expDat, dThresh=0){
 sc_compMu<-function(expMat, threshold=0){
 
   afunct<-function(vector, threshold){
-    mean( vector[which(vector>threshold)] );
+    mean(vector[which(vector>threshold)]);
   }
 
   mus<-unlist(apply(expMat, 1, afunct, threshold))
