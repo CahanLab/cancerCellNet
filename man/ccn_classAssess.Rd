@@ -2,7 +2,7 @@
 % Please edit documentation in R/ccn_classAssess.R
 \name{ccn_classAssess}
 \alias{ccn_classAssess}
-\title{Assess classifiers based on validation data}
+\title{Assessment of Classifier}
 \usage{
 ccn_classAssess(ct_scores, stVal, classLevels = "description2",
   dLevelSID = "sample_id", resolution = 0.005)
@@ -12,9 +12,9 @@ ccn_classAssess(ct_scores, stVal, classLevels = "description2",
 
 \item{stVal}{sample table}
 
-\item{classLevels}{column name of stVal to use as ground truth to assess classifiers}
+\item{classLevels}{column name of the sample table indicating the categories to be used as ground truth to assess classifiers}
 
-\item{dLevelSID}{column to indicate sample id}
+\item{dLevelSID}{column name of the sample table that indicates sample id}
 
 \item{resolution}{increment at which to evalutate classification}
 }
@@ -22,5 +22,5 @@ ccn_classAssess(ct_scores, stVal, classLevels = "description2",
 list of data frames with threshold, sens, precision
 }
 \description{
-Assess classifiers based on validation data
+Assess classifiers using validation data
 }

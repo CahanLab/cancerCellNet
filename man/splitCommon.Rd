@@ -4,7 +4,7 @@
 \alias{splitCommon}
 \title{Split Sample Table Randomly}
 \usage{
-splitCommon(sampTab, ncells, dLevel = "description1")
+splitCommon(sampTab, ncells = NA, dLevel)
 }
 \arguments{
 \item{sampTab}{sample table}

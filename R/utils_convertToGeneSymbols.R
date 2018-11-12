@@ -10,15 +10,17 @@
 #' @param typeMusGene TRUE if the gene identifier is in mouse gene symbols
 #'
 #' @return a list containing the converted experssion table as the first element and the expression table with genes that cannot be converted with our conversion dataset
+#'
+#' @export
 utils_convertToGeneSymbols <- function(expdf, typeENST = FALSE, typeENSG= FALSE, typeMusGene = FALSE) {
 
   #catch errors
   if (typeENSG + typeENST + typeMusGene > 1) {
-    message("Please only indicate one type of conversion");
+    stop("Please only indicate one type of conversion");
   }
   #catch errors
   if (typeENSG + typeENST + typeMusGene == 0) {
-    message("Please indicate one type of conversion");
+    stop("Please assign one type of conversion");
   }
 
 
@@ -27,25 +29,31 @@ utils_convertToGeneSymbols <- function(expdf, typeENST = FALSE, typeENSG= FALSE,
     expdf_extract = expdf[rownames(expdf) %in% convertMatrix$ensembl_transcript_id, ]
     expdf_leftover = expdf[!(rownames(expdf_extract) %in% rownames(expdf)),  ]
 
-    tempName = data.frame(ensembl_transcript_id = rownames(expdf_extract))
-    tempName = merge(tempName, convertMatrix, "ensembl_transcript_id")
+    cgenes<-intersect(as.vector(convertMatrix$ensembl_transcript_id), rownames(expdf_extract))
+    convertMatrix <- convertMatrix[convertMatrix$ensembl_transcript_id == cgenes, ]
+    rownames(convertMatrix)<-as.vector(convertMatrix$ensembl_transcript_id) # find the ensemblTrID
 
-    rownames(expdf_extract) = tempName$gene_symbol
+
+    expdf_extract<-as.matrix(expdf_extract[cgenes,])
+
+    rownames(expdf_extract)<-as.vector(convertMatrix[cgenes,]$gene_symbol)
 
     returnList = list(convertedDF = expdf_extract, unableToConvert = expdf_leftover)
 
   } else if (typeENSG == TRUE) {
     convertMatrix = conversionList[[2]]
-
     expdf_extract = expdf[rownames(expdf) %in% convertMatrix$ensembl_gene_id, ]
     expdf_leftover = expdf[!(rownames(expdf_extract) %in% rownames(expdf)),  ]
 
-    tempName = data.frame(ensembl_gene_id = rownames(expdf_extract))
-    tempName = merge(tempName, convertMatrix, "ensembl_gene_id")
+    cgenes<-intersect(as.vector(convertMatrix$ensembl_gene_id), rownames(expdf_extract))
+    convertMatrix <- convertMatrix[convertMatrix$ensembl_gene_id == cgenes, ]
+    rownames(convertMatrix) <- as.vector(convertMatrix$ensembl_gene_id)
 
-    rownames(expdf_extract) = tempName$gene_symbol
+    expdf_extract<-as.matrix(expdf_extract[cgenes,])
+    rownames(expdf_extract)<-as.vector(convertMatrix[cgenes,]$gene_symbol)
 
     returnList = list(convertedDF = expdf_extract, unableToConvert = expdf_leftover)
+
   } else if (typeMusGene == TRUE) {
     convertMatrix = conversionList[[3]]
 
@@ -55,7 +63,12 @@ utils_convertToGeneSymbols <- function(expdf, typeENST = FALSE, typeENSG= FALSE,
     tempName = data.frame(mouse_gene = rownames(expdf_extract))
     tempName = merge(tempName, convertMatrix, "mouse_gene")
 
-    rownames(expdf_extract) = tempName$gene_symbol
+    cgenes<-intersect(as.vector(convertMatrix$mouse_gene), rownames(expdf_extract))
+    convertMatrix <- convertMatrix[convertMatrix$mouse_gene == cgenes, ]
+
+    rownames(convertMatrix)<-as.vector(convertMatrix$mouse_gene) # find the mouseGeneID
+    expdf_extract<-as.matrix(expdf_extract[cgenes,])
+    rownames(expdf_extract)<-as.vector(convertMatrix[cgenes,]$gene_symbol)
 
     returnList = list(convertedDF = expdf_extract, unableToConvert = expdf_leftover)
   }

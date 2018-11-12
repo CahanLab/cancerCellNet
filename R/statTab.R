@@ -1,4 +1,3 @@
-
 #' @title
 #' Generate a Stats Table
 #' @description
@@ -8,7 +7,6 @@
 #'
 #' @return a dataframe containing alpha, mu, overall mean, coefficient of variance, fano factor, max value,
 #' and standard deviation of the expression matrix
-#'
 #' @export
 sc_statTab<-function(expDat, dThresh=0){
   statTab<-data.frame()
@@ -58,21 +56,20 @@ sc_compMu<-function(expMat, threshold=0){
 #' @return a list of alphas for the genes in expression matrix
 #' @export
 sc_compAlpha<-function(expMat, threshold=0,pseudo=FALSE){
-
   # identify the index of vectors greater than threshold
-  indexFunction<-function(vector, threshold){
-    names(which(vector>threshold));
+  lengthFunction<-function(vector, threshold){
+    length(which(vector>threshold));
   }
 
-  indexes<-apply(expMat, 1, indexFunction, threshold);
+  alphas <- apply(expMat, 1, lengthFunction, threshold)
 
-  alphas<-unlist(lapply(indexes, length));
+  ans <- alphas/ncol(expMat)
 
-  ans<-alphas/ncol(expMat)
-
-  if(pseudo){
-    ans<-(alphas+1)/(ncol(expMat)+1)
+  if (pseudo) {
+    ans <- (alphas+1) / (ncol(expMat) + 1)
   }
+
+  #return
   ans
 }
 
@@ -82,8 +79,8 @@ sc_compAlpha<-function(expMat, threshold=0,pseudo=FALSE){
 #' Compute fano factor for vector
 #' @param vector a vector
 #' @return the fano factor
-sc_fano<-function
-(vector){
+#' @export
+sc_fano<-function(vector){
   var(vector)/mean(vector);
 }
 
@@ -93,7 +90,7 @@ sc_fano<-function
 #' @param vector a vector
 #'
 #' @return the coefficient of variation
-sc_cov<-function
-(vector){
+#' @export
+sc_cov<-function(vector){
   sd(vector)/mean(vector);
 }

@@ -2,18 +2,18 @@
 % Please edit documentation in R/plot_class_PRs.R
 \name{plot_class_PRs}
 \alias{plot_class_PRs}
-\title{Plot results of cn_classAssess}
+\title{Plot precision recall curve per category}
 \usage{
 plot_class_PRs(assessed)
 }
 \arguments{
-\item{assessed}{result of runnung cn_classAssess}
+\item{assessed}{result of running \code{\link{ccn_classAssess}}}
 }
 \value{
 ggplot pbject
 }
 \description{
-Plot one precision recall curve per CT
+Plotting the results of ccn_classAssess
 }
 \examples{
 testAssTues<-cn_splitMakeAssess(stTrain, expTrain, ctGRNs, prop=.5)

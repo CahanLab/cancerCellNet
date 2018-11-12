@@ -13,7 +13,6 @@
 #' @param mu a number represeting threshold for average expression level of genes passing the lower proportion criteria
 #'
 #' @return a list containing two lists: a list of classifier worthy genes named 'cgenes' and a list of cancer category named 'grps'
-#'
 #' @export
 findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.05, alpha2=.001, mu=2) {
   gsTrain<-sc_statTab(expDat, dThresh=dThresh)
@@ -60,8 +59,9 @@ gnrAll<-function(expDat, cellLabels){
   specificSets
 }
 
+#' @title
 #' Find Classy Genes
-#'
+#' @description
 #' Extract genes suitable for training classifier
 #' @param diffRes a dataframe with pval, cval, holm, and rownames as the gene names
 #' @param topX a number dicataing the number of genes to select for training classifier

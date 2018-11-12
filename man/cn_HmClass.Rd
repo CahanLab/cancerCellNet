@@ -14,7 +14,11 @@ cn_HmClass(classRes, isBig = FALSE, cRow = FALSE, cCol = FALSE,
 
 \item{cCol}{TRUE if columns should be clustered}
 
-\item{fontsize_row}{the font size}
+\item{fontsize_row}{the font size of the row labels}
+
+\item{fontsize_col}{the font size of the column labels}
+
+\item{main}{the title of the heatmap}
 
 \item{scale}{FALSE if the highest value is 1 and the lowest is 0}
 

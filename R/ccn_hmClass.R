@@ -80,7 +80,9 @@ ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, 
 #' @param isBig TRUE if this is a big heatmap
 #' @param cRow TRUE if rows should be clustered
 #' @param cCol TRUE if columns should be clustered
-#' @param fontsize_row the font size
+#' @param fontsize_row the font size of the row labels
+#' @param fontsize_col the font size of the column labels
+#' @param main the title of the heatmap
 #' @param scale FALSE if the highest value is 1 and the lowest is 0
 #'
 #' @return simpler classification heatmap without groups colored

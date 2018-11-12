@@ -15,7 +15,7 @@
 #' @param fontsize_row the font size for the row labels
 #'
 #' @return a heatmap of genes and their groups
-#'
+#' @importFrom RColorBrewer brewer.pal
 #' @export
 hm_gpa_sel<-function(expDat, genes, grps, maxPerGrp=100, cRow=FALSE, cCol=FALSE, limits=c(0,10), toScale=FALSE, fontsize_row=4, reOrderCells=FALSE){
 

@@ -1,26 +1,24 @@
-#' Assess classifiers based on validation data
+#' @title
+#' Assessment of Classifier
 #'
-#' Assess classifiers based on validation data
+#' @description
+#' Assess classifiers using validation data
+#'
 #' @param ct_scores matrix of classification scores, rows = classifiers, columns = samples, colnames=sampleids
 #' @param stVal sample table
-#' @param classLevels column name of stVal to use as ground truth to assess classifiers
+#' @param classLevels column name of the sample table indicating the categories to be used as ground truth to assess classifiers
+#' @param dLevelSID column name of the sample table that indicates sample id
 #' @param resolution increment at which to evalutate classification
-#' @param dLevelSID column to indicate sample id
 #'
 #' @return list of data frames with threshold, sens, precision
 #' @export
-ccn_classAssess<-function# make PR data frames for each classifier
-(ct_scores,# matrix of classification scores, rows = classifiers, columns = samples, colnames=sampleids
- stVal, # sampletable
- classLevels="description2",
- dLevelSID="sample_id",
- resolution=0.005 # increment at which to evalutate classification
-){
+ccn_classAssess<-function(ct_scores, stVal, classLevels="description2", dLevelSID="sample_id", resolution=0.005){
   allPRs<-list()
   evalAll<-matrix(0, nrow=nrow(ct_scores),ncol=2)
   classifications<-rownames(ct_scores)
   rownames(stVal)<-as.vector(stVal[,dLevelSID])
   i<-1;
+
   for(xname in classifications){
     classification<-classifications[i]
     tmpPR <- cn_eval(ct_scores[xname,],
@@ -33,16 +31,17 @@ ccn_classAssess<-function# make PR data frames for each classifier
   allPRs
 }
 
-#' run cn_clPerf across thresholds
+#' determine performance of classification at given threshold
 #'
-#' run cn_clPerf across thresholds
-#' @param vect named vector
-#' @param dLevel description level
-#' @param classification classification matrix
-#' @param threshs seq of pval cutoffs
+#' determine performance of classification at given threshold
+#' @param vect vector of values
+#' @param sampTab sample table
+#' @param dLevel colname
+#' @param classification actual classification
+#' @param thresh threshold above which to make a call
 #' @param dLevelSID column to indicate sample id
 #'
-#' @return return a data frame of the number of TP, FN, FP, and TN, and pval cutoff
+#' @return vector of TP FN FP TN
 cn_eval<-function# return a data frame of the number of TP, FN, FP, and TN, and pval cutoff
 (vect, # named vector
  sampTab,
@@ -69,18 +68,16 @@ cn_eval<-function# return a data frame of the number of TP, FN, FP, and TN, and 
   ans;
 }
 
-
-#' determine performance of classification at given threshold
+#' run cn_clPerf across thresholds
 #'
-#' determine performance of classification at given threshold
-#' @param vect vector of values
-#' @param sampTab sample table
-#' @param dLevel colname
-#' @param classification actual classification
-#' @param thresh threshold above which to make a call
+#' run cn_clPerf across thresholds
+#' @param vect named vector
+#' @param dLevel description level
+#' @param classification classification matrix
+#' @param threshs seq of pval cutoffs
 #' @param dLevelSID column to indicate sample id
 #'
-#' @return vector of TP FN FP TN
+#' @return return a data frame of the number of TP, FN, FP, and TN, and pval cutoff
 cn_clPerf<-function # assumes rownames(sampTab) == sampTab identifier used as colname for vect
 (vect,
  sampTab,

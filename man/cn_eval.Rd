@@ -2,25 +2,27 @@
 % Please edit documentation in R/ccn_classAssess.R
 \name{cn_eval}
 \alias{cn_eval}
-\title{run cn_clPerf across thresholds}
+\title{determine performance of classification at given threshold}
 \usage{
 cn_eval(vect, sampTab, dLevel, classification, threshs = seq(0, 1, by =
   0.05), dLevelSID = "sample_id")
 }
 \arguments{
-\item{vect}{named vector}
+\item{vect}{vector of values}
 
-\item{dLevel}{description level}
+\item{sampTab}{sample table}
 
-\item{classification}{classification matrix}
+\item{dLevel}{colname}
 
-\item{threshs}{seq of pval cutoffs}
+\item{classification}{actual classification}
 
 \item{dLevelSID}{column to indicate sample id}
+
+\item{thresh}{threshold above which to make a call}
 }
 \value{
-return a data frame of the number of TP, FN, FP, and TN, and pval cutoff
+vector of TP FN FP TN
 }
 \description{
-run cn_clPerf across thresholds
+determine performance of classification at given threshold
 }
