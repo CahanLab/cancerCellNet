@@ -22,21 +22,22 @@ hm_gpa_sel<-function(expDat, genes, grps, maxPerGrp=100, cRow=FALSE, cCol=FALSE,
 
   allgenes<-rownames(expDat)
   missingGenes<-setdiff(genes, allgenes) # find the genes that are not classification worthy
+
   if(length(missingGenes)>0){
     cat("Missing genes: ", paste0(missingGenes, collapse=","), "\n")
-    genes<-intersect(genes, allgenes) #this line might be redundent since all the cgenes are gathered from ths
+    genes<-intersect(genes, allgenes) #this line might be redundent since all the cgenes are gathered from allgenes
   }
 
-  value<-expDat[genes,] #select the dataframe with cgenes
+  value<-expDat[genes,] #select the matrix with cgenes
 
   if(toScale){
-    value <- t(scale(t(value))) #scales the dataframe
+    value <- t(scale(t(value))) #scales the matrix
   }
 
   value[value < limits[1]] <- limits[1] # ensures 0 is the smallest
   value[value > limits[2]] <- limits[2] # ensures 10 is the highest
 
-  groupNames<-unique(grps)
+  groupNames<-unique(grps) # gather the names of the groups
 
   if(reOrderCells){
     grps<-grps[order(grps)]
@@ -71,7 +72,7 @@ hm_gpa_sel<-function(expDat, genes, grps, maxPerGrp=100, cRow=FALSE, cCol=FALSE,
   xx<-data.frame(group=as.factor(grps))
   rownames(xx)<-cells
 
-  val_col <- colorRampPalette(rev(brewer.pal(n = 12,name = "Spectral")))(25)
+  val_col <- colorRampPalette(rev(RColorBrewer::brewer.pal(n = 12,name = "Spectral")))(25)
   #val_col <- colorRampPalette(brewer.pal(n = 12,name = "Spectral"))(100)
 
   pheatmap(value, cluster_rows = cRow, cluster_cols = cCol, color=val_col,

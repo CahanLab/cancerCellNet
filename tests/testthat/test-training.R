@@ -59,7 +59,6 @@ test_that("Let's test the splitCommons functions", {
 
 })
 
-
 test_that("Test my implementation of computing Alpha with Patrick's ", {
 
   # Patrick's implementation had a tiny bug. When we set the threshold to 0
@@ -115,7 +114,6 @@ test_that("Test my implementation of computing Alpha with Patrick's ", {
 
 
 })
-
 
 test_that("Let's test the implementation of compMu", {
   set.seed(626) # set random seed to generate
@@ -229,5 +227,34 @@ test_that("Error case for findClassGenes", {
 
   expect_error(findClassyGenes(expDat = test_df, sampTab = test_sampTab))
 
+})
+
+test_that("ptGetTop comparison between the old one and the new one", {
+  # one suggestion
+  set.seed(626) # set random seed to generate
+  test_df = data.frame(replicate(10, sample(1:4, 50, rep=TRUE)))
+  col_name = c()
+  for (i in 1:ncol(test_df)){
+    col_name = c(col_name, paste0("sample", i))
+  }
+  colnames(test_df) = col_name
+  row_name = c()
+  for (i in 1:nrow(test_df)) {
+    row_name = c(row_name, paste0("gene", i))
+  }
+  rownames(test_df) = row_name
+
+  grp = list("c1", "c1", "c2", "c2", "c3", "c3", "c4", "c4", "c5", "c5")
+  names(grp) = colnames(test_df)
+
+
+  result = ptGetTop(expDat = test_df, topX = 20, cell_labels = grp)
+  result2 = ptGetTop_new(expDat = test_df, topX = 20, cell_labels = grp)
+
+  expect_equal(sort(result), sort(result2))
+
+  for (i in 1:length(result)) {
+    expect_equal(sort(result)[i], sort(result2)[i])
+  }
 
 })

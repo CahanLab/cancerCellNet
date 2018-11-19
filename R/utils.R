@@ -101,10 +101,12 @@ GEP_makeMean<-function
 }
 
 
+#' @title
 #' find transcript factors
 #'
+#' @description
 #' find transcript factors
-#' @param annotation
+#' @param annotation the annotation
 #' @param species defaul is 'Hs', can also be 'Mm;
 #' @param ontology default is BP
 #'

@@ -2,18 +2,18 @@
 % Please edit documentation in R/ptGetTop.R
 \name{ptGetTop}
 \alias{ptGetTop}
-\title{Find the best gene pairs for training}
+\title{Find the best gene pairs for training (new code)}
 \usage{
 ptGetTop(expDat, cell_labels, topX = 50, sliceSize = 5000)
 }
 \arguments{
-\item{expDat}{raw expression data}
+\item{expDat}{expDat}
 
 \item{cell_labels}{named vector, value is grp, name is cell name}
 
-\item{topX}{number of}
+\item{topX}{50}
 
-\item{sliceSize}{}
+\item{sliceSize}{the size of the slice. Default at 5e3}
 }
 \value{
 vector of gene-pair names

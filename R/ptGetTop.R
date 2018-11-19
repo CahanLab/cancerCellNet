@@ -11,7 +11,7 @@
 #' @return vector of gene-pair names
 #'
 #' @export
-ptGetTop<-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
+ptGetTop_old<-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
   ans<-vector()
 
   # make a data frame of pairs of genes that will be sliced later
@@ -95,20 +95,16 @@ ptGetTop<-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
 #' @param expDat expDat
 #' @param cell_labels named vector, value is grp, name is cell name
 #' @param topX 50
-#' @param sliceSize
+#' @param sliceSize the size of the slice. Default at 5e3
 #' @return vector of gene-pair names
 #'
 #' @export
-ptGetTop_new<-function
-(expDat,
- cell_labels,
- topX=50,
- sliceSize = 5e3){
+ptGetTop<-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
 
   ans<-vector()
   genes<-rownames(expDat)
 
-  ncores <- detectCores()
+  ncores <- parallel::detectCores() # detect the number of corse in the system
   mcCores <- 1
   if(ncores>1){
     mcCores <- ncores - 1
@@ -116,29 +112,8 @@ ptGetTop_new<-function
   cat(ncores, "  --> ", mcCores,"\n")
 
   # make a data frame of pairs of genes that will be sliced later
-  if(FALSE){
-    cat("Making pairTable\n")
-    ngenes<-nrow(expDat)
-    genes<-rownames(expDat)
-    genes1<-vector()
-    genes2<-vector()
-    for(i in 1:ngenes){ # replace with combn?
-      for(j in 1:ngenes){
-        if(j>i){
-          genes1<-append(genes1, genes[i])
-          genes2<-append(genes2, genes[j])
-        }
-      }
-    }
-
-    pairTab = data.frame(genes1=genes1, genes2=genes2)
-    pairNames<-paste(pairTab[,1], "_",pairTab[,2], sep='')
-    pairTab <- cbind(pairTab, pairName=pairNames)
-  }
-
   pairTab<-makePairTab(genes)
 
-  ###
   # setup tmp ans list of sc_testPattern
   cat("setup ans and make pattern\n")
   grps<-unique(cell_labels)
@@ -153,7 +128,8 @@ ptGetTop_new<-function
   nPairs = nrow(pairTab)
   cat("nPairs = ",nPairs,"\n")
   str = 1
-  stp = min(c(sliceSize, nPairs))
+  stp = min(c(sliceSize, nPairs)) # detect what is smaller the slice size or npairs
+
   while(str <= nPairs){
     if(stp>nPairs){
       stp <- nPairs
@@ -164,7 +140,12 @@ ptGetTop_new<-function
 
     ### new
 
-    tmpAns<-mclapply(myPatternG, sc_testPattern, expDat=tmpPdat, mc.cores=mcCores)
+    if (Sys.info()[['sysname']] == "Windows") {
+      tmpAns<-lapply(myPatternG, sc_testPattern, expDat=tmpPdat)
+    }
+    else {
+      tmpAns<-mclapply(myPatternG, sc_testPattern, expDat=tmpPdat, mc.cores=mcCores) # this code cannot run on windows
+    }
     ### names(tmpAns) <- grps
 
     ###for(gi in seq(length(myPatternG))){
@@ -190,6 +171,13 @@ ptGetTop_new<-function
   }
   unique(ans)
 }
+
+#' @title
+#' Make the pair tabs
+#' @description
+#' Generate all the combination of gene pairs
+#'
+#' @param genes a vector of all the genes in the expression matrix
 makePairTab<-function(genes){
   pTab<-t(combn(genes, 2))
   colnames(pTab)<-c("genes1", "genes2")
@@ -211,15 +199,15 @@ makePairTab<-function(genes){
 ptSmall<-function(expDat, pTab){
   npairs = nrow(pTab)
   ans<-matrix(0, nrow=npairs, ncol=ncol(expDat))
-  genes1<-as.vector(pTab$genes1)
-  genes2<-as.vector(pTab$genes2)
+  genes1<-as.vector(pTab[, "genes1"])
+  genes2<-as.vector(pTab[, "genes2"])
 
   for(i in seq(nrow(pTab))){
     #cat(genes1[i], ": ", genes2[i],"\n")
     ans[i,]<-as.numeric(expDat[genes1[i],]>expDat[genes2[i],])
   }
   colnames(ans)<-colnames(expDat)
-  rownames(ans)<-as.vector(pTab$pairName)
+  rownames(ans)<-as.vector(pTab[, "pairName"])
   ans
 }
 

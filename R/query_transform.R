@@ -12,6 +12,8 @@
 #'
 #' @export
 query_transform <- function(expDat, genePairs) {
+
+  expDat <- as.matrix(expDat)
   genes<-strsplit(genePairs, "_") # split the gene pairs into seperate genes
   ans<-matrix(0, nrow=length(genes), ncol=ncol(expDat))
 
