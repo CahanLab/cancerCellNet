@@ -4,7 +4,7 @@
 \alias{addRandToSampTab}
 \title{Add Random Profiles to Sample Table}
 \usage{
-addRandToSampTab(classRes, sampTab, desc, id = "cell_name")
+addRandToSampTab(classRes, sampTab, desc, id)
 }
 \arguments{
 \item{classRes}{the classification matrix generated from \code{\link{rf_classPredict}}}
