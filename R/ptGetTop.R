@@ -96,10 +96,12 @@ ptGetTop_old<-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
 #' @param cell_labels named vector, value is grp, name is cell name
 #' @param topX 50
 #' @param sliceSize the size of the slice. Default at 5e3
+#'
+#' @import parallel
 #' @return vector of gene-pair names
 #'
 #' @export
-ptGetTop<-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
+ptGetTop <-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
 
   ans<-vector()
   genes<-rownames(expDat)
@@ -113,6 +115,10 @@ ptGetTop<-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
 
   # make a data frame of pairs of genes that will be sliced later
   pairTab<-makePairTab(genes)
+
+  if(topX > nrow(pairTab)) {
+    stop(paste0("The data set has ", nrow(pairTab), " total combination of gene pairs. Please select a smaller topX."))
+  }
 
   # setup tmp ans list of sc_testPattern
   cat("setup ans and make pattern\n")
@@ -144,7 +150,7 @@ ptGetTop<-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
       tmpAns<-lapply(myPatternG, sc_testPattern, expDat=tmpPdat)
     }
     else {
-      tmpAns<-mclapply(myPatternG, sc_testPattern, expDat=tmpPdat, mc.cores=mcCores) # this code cannot run on windows
+      tmpAns<-parallel::mclapply(myPatternG, sc_testPattern, expDat=tmpPdat, mc.cores=mcCores) # this code cannot run on windows
     }
     ### names(tmpAns) <- grps
 

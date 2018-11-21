@@ -15,7 +15,7 @@
 #' @examples
 #' stValRand<-addRandToSampTab(classRes_val, stVal, "description2", "sample_name")
 #' @export
-addRandToSampTab<-function(classRes, sampTab, desc, id="cell_name") {
+addRandToSampTab<-function(classRes, sampTab, desc, id) {
   cNames<-colnames(classRes)
   snames<-rownames(sampTab)
 

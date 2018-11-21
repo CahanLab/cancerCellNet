@@ -13,7 +13,7 @@
 #' @export
 query_transform <- function(expDat, genePairs) {
 
-  expDat <- as.matrix(expDat)
+  expDat <- as.matrix(expDat) # additional, in case that expDat is in dataframe which is very likely
   genes<-strsplit(genePairs, "_") # split the gene pairs into seperate genes
   ans<-matrix(0, nrow=length(genes), ncol=ncol(expDat))
 

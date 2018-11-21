@@ -18,7 +18,7 @@ makeClassifier<-function(expTrain, genes, groups, nRand=50, ntrees=2000){
   expTrain<-cbind(expTrain, randDat)
 
   allgenes<-rownames(expTrain)
-  missingGenes<-setdiff(unique(genes), allgenes)
+  missingGenes<-setdiff(unique(genes), allgenes) # I don't think this line does anyhting
   cat("Number of missing genes ", length(missingGenes),"\n")
   ggenes<-intersect(unique(genes), allgenes)
 

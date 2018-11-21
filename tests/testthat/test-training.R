@@ -248,8 +248,8 @@ test_that("ptGetTop comparison between the old one and the new one", {
   names(grp) = colnames(test_df)
 
 
-  result = ptGetTop(expDat = test_df, topX = 20, cell_labels = grp)
-  result2 = ptGetTop_new(expDat = test_df, topX = 20, cell_labels = grp)
+  result = ptGetTop_old(expDat = test_df, topX = 20, cell_labels = grp)
+  result2 = ptGetTop(expDat = test_df, topX = 20, cell_labels = grp)
 
   expect_equal(sort(result), sort(result2))
 
@@ -258,3 +258,27 @@ test_that("ptGetTop comparison between the old one and the new one", {
   }
 
 })
+
+test_that("ptGetTop Error case. xTop TOO Large", {
+  # one suggestion
+  set.seed(626) # set random seed to generate
+  test_df = data.frame(replicate(10, sample(1:4, 50, rep=TRUE)))
+  col_name = c()
+  for (i in 1:ncol(test_df)){
+    col_name = c(col_name, paste0("sample", i))
+  }
+  colnames(test_df) = col_name
+  row_name = c()
+  for (i in 1:nrow(test_df)) {
+    row_name = c(row_name, paste0("gene", i))
+  }
+  rownames(test_df) = row_name
+
+  grp = list("c1", "c1", "c2", "c2", "c3", "c3", "c4", "c4", "c5", "c5")
+  names(grp) = colnames(test_df)
+
+  expect_error(ptGetTop(expDat = test_df, topX = 9e100, cell_labels = grp))
+
+})
+
+

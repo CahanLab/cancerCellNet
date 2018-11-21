@@ -31,8 +31,10 @@ ccn_classAssess<-function(ct_scores, stVal, classLevels="description2", dLevelSI
   allPRs
 }
 
+#' @title
 #' determine performance of classification at given threshold
 #'
+#' @description
 #' determine performance of classification at given threshold
 #' @param vect vector of values
 #' @param sampTab sample table
@@ -42,14 +44,7 @@ ccn_classAssess<-function(ct_scores, stVal, classLevels="description2", dLevelSI
 #' @param dLevelSID column to indicate sample id
 #'
 #' @return vector of TP FN FP TN
-cn_eval<-function# return a data frame of the number of TP, FN, FP, and TN, and pval cutoff
-(vect, # named vector
- sampTab,
- dLevel, # description level)
- classification,
- threshs=seq(0,1,by=0.05), # pval cutoffs
- dLevelSID="sample_id"
-){
+cn_eval<-function(vect, sampTab, dLevel, classification, threshs=seq(0,1,by=0.05), dLevelSID="sample_id"){
   ans<-matrix(0,nrow=length(threshs), ncol=9)
   for(i in seq(length(threshs))){
     thresh<-threshs[i]
