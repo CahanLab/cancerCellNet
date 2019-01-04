@@ -3,7 +3,7 @@
 #' @description
 #' Find classifier-worthy genes for each cancer category to train the classifier
 #'
-#' @param expDat a matrix of normalized expressiond data from \code{\link{trans_prop}}
+#' @param expDat a matrix of normalized expression data from \code{\link{trans_prop}}
 #' @param sampTab a dataframe of the sample table
 #' @param dLevel a string indicating the column name in sample table that contains the cancer category
 #' @param topX an integer indicating the number of top positive classification genes for each category to select for training. Will also select topX number of negative classification genes.
