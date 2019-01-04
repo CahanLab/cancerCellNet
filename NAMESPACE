@@ -2,6 +2,7 @@
 
 export(GEP_makeMean)
 export(addRandToSampTab)
+export(avgGeneCat)
 export(ccn_classAssess)
 export(ccn_hmClass)
 export(cn_correctZmat)
