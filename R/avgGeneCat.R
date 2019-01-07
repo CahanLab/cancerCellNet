@@ -17,7 +17,7 @@ avgGeneCat<-function(expDat, sampTab, dLevel, sampID){
 
    for (cat in unique(sampTab[, dLevel])) {
 
-      tempExpDat = expDat[, sampTab[sampTab[, dLevel] == "TCGA-BRCA", sampID]]
+      tempExpDat = expDat[, sampTab[sampTab[, dLevel] == cat, sampID]]
 
       tempMatrix = matrix(apply(tempExpDat, 1, mean), ncol = 1, nrow = length(apply(tempExpDat, 1, mean)))
 
