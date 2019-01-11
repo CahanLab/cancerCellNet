@@ -4,7 +4,7 @@
 #' To compile an expression table for comparison
 #'
 #' @param queryExpTab a matrix of normalized expression query data from \code{\link{trans_prop}}
-#' @param avgGeneTab a matrix of averaged expression of training data from \code{\link{avgGeneCat}}
+#' @param avgGeneTab a matrix of averaged expression of training data from \code{\link{avgGeneCat}}.
 #' @param querySample a vector or string indicating the query samples
 #' @param trainingCat a vector or string indicating the categories of the training data
 #' @param geneSamples a vector or string indicating the genes of interest

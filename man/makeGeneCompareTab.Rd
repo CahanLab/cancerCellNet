@@ -10,7 +10,7 @@ makeGeneCompareTab(queryExpTab, avgGeneTab, querySample = NULL,
 \arguments{
 \item{queryExpTab}{a matrix of normalized expression query data from \code{\link{trans_prop}}}
 
-\item{avgGeneTab}{a matrix of averaged expression of training data from \code{\link{avgGeneCat}}}
+\item{avgGeneTab}{a matrix of averaged expression of training data from \code{\link{avgGeneCat}}.}
 
 \item{querySample}{a vector or string indicating the query samples}
 
