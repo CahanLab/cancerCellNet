@@ -16,7 +16,7 @@ avgGeneCat(expDat, sampTab, dLevel, sampID)
 \item{sampID}{the name of the column that contains sample ID}
 }
 \value{
-a matrix containing the average of
+a list containing average matrix and standard matrix
 }
 \description{
 Averaging the gene expression level for each category
