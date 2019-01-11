@@ -9,7 +9,7 @@
 #' testAssTues<-cn_splitMakeAssess(stTrain, expTrain, ctGRNs, prop=.5)
 #' plot_class_PRs(testAssTues$ROCs)
 #'
-#' @importFrom ggplot2 ggplot
+#' @import ggplot2
 #' @export
 plot_class_PRs<-function(assessed){
   ctts<-names(assessed)
