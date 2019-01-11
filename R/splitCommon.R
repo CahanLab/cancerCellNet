@@ -32,8 +32,11 @@ splitCommon<-function(sampTab, ncells=NA, dLevel){
     stX<-sampTab[sampTab[,dLevel]==ct,]
 
     # Error catching mechanism
-    if (nrow(stX) <= ncells || ncells <= 0) {
-      stop(paste0("Category ", ct,nrow(stX), " samples. Please pick the positive samller number for the amount of samples for training. "))
+    if (nrow(stX) < ncells) {
+      stop(paste0("Category ", ct, " has ", nrow(stX), " samples. Please pick a samller number for ncells. "))
+    }
+    if (ncells <= 0) {
+      stop(paste0("Category ", ct, " has ", nrow(stX), " samples. Please pick a number above 0 for ncells. "))
     }
     # ccount<-nrow(stX)-3 # I don't think I need this line
     # ccount<-min(ccount, ncells) # I don't think I need this line as well
