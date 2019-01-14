@@ -27,45 +27,45 @@ utils_convertToGeneSymbols <- function(expTab, typeENST = FALSE, typeENSG= FALSE
   if (typeENST == TRUE) {
     convertMatrix = conversionList[[1]]
 
-    nOGgenes = nrow(expTab) # the number of original genes 
+    nOGgenes = nrow(expTab) # the number of original genes
     rownames(convertMatrix) = as.vector(convertMatrix$ensembl_transcript_id)
     cgenes = intersect(as.vector(convertMatrix$ensembl_transcript_id), rownames(expTab))
     expTab = as.matrix(expTab[cgenes,])
     rownames(expTab) = as.vector(convertMatrix[cgenes,]$gene_symbol)
 
-    nGenesFailed = nOGgense - nrow(expTab)
+    nGenesFailed = nOGgenes - nrow(expTab)
     print(paste0("Could not convert ", nGenesFailed, " genes."))
 
-    returnMatrix = expTab 
+    returnMatrix = expTab
 
   } else if (typeENSG == TRUE) {
     convertMatrix = conversionList[[2]]
 
-    nOGgenes = nrow(expTab) # the number of original genes 
+    nOGgenes = nrow(expTab) # the number of original genes
     rownames(convertMatrix) = as.vector(convertMatrix$ensembl_gene_id)
     cgenes = intersect(as.vector(convertMatrix$ensembl_gene_id), rownames(expTab))
     expTab = as.matrix(expTab[cgenes,])
     rownames(expTab) = as.vector(convertMatrix[cgenes,]$gene_symbol)
 
-    nGenesFailed = nOGgense - nrow(expTab)
+    nGenesFailed = nOGgenes - nrow(expTab)
     print(paste0("Could not convert ", nGenesFailed, " genes."))
 
-    returnMatrix = expTab 
+    returnMatrix = expTab
 
   } else if (typeMusGene == TRUE) {
     convertMatrix = conversionList[[3]]
 
-    nOGgenes = nrow(expTab) # the number of original genes 
+    nOGgenes = nrow(expTab) # the number of original genes
     rownames(convertMatrix) = as.vector(convertMatrix$mouse_gene)
     cgenes = intersect(as.vector(convertMatrix$mouse_gene), rownames(expTab))
-    
+
     expTab = as.matrix(expTab[cgenes,])
     rownames(expTab) = as.vector(convertMatrix[cgenes,]$gene_symbol)
 
-    nGenesFailed = nOGgense - nrow(expTab)
+    nGenesFailed = nOGgenes - nrow(expTab)
     print(paste0("Could not convert ", nGenesFailed, " genes."))
 
-    returnMatrix = expTab 
+    returnMatrix = expTab
   }
   #return
   returnList
