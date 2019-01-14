@@ -68,5 +68,5 @@ utils_convertToGeneSymbols <- function(expTab, typeENST = FALSE, typeENSG= FALSE
     returnMatrix = expTab
   }
   #return
-  returnList
+  returnMatrix
 }
