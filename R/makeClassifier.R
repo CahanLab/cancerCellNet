@@ -14,7 +14,9 @@
 #' @return Random Forest Classifier object
 #' @export
 makeClassifier<-function(expTrain, genes, groups, nRand=50, ntrees=2000){
-  randDat<-randomize(expTrain, num=nRand) # randomizes the
+  #randDat<-randomize(expTrain, num=nRand) # OG randomize
+  randDat<-ModifiedRandomize(expTrain, num=nRand)
+
   expTrain<-cbind(expTrain, randDat)
 
   allgenes<-rownames(expTrain)
