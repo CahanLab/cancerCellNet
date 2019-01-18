@@ -16,12 +16,12 @@ broadClass_predict<-function(cnProc, expDat, nrand = 2) {
    cgenes<-ccnList[['cgenes']]
    xpairs<-ccnList[['xpairs']]
 
-   print("Loaded in the cnProc")
+   cat("Loaded in the cnProc\n")
 
    expValTrans<-query_transform(expVal[cgenes,], xpairs)
    classRes_val<-rf_classPredict(rf_tsp, expValTrans, numRand=nrand)
 
-   print("All Done")
+   cat("All Done\n")
 
    #return 
    classRes_val
