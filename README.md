@@ -16,12 +16,12 @@ This is a cursory walk-thru for using cancerCellNet. In addition to the R packag
 ```R
 library(devtools)
 install_github("pcahan1/cancerCellNet", ref="master", auth="your_token_here")
-library(cancerCellNet)
+install.packages("pheatmap")
+install.packages("RColorBrewer")
+install.packages("randomForest")
+install.packages("ggplot2")
 
-library(RColorBrewer)
-library(pheatmap)
-library(randomForest)
-library(ggplot2)
+library(cancerCellNet)
 ```
 
 ### Fetch the required files if you have not already donwloaded them

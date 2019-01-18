@@ -1,25 +1,25 @@
 #' @title
-#' Broad Class Training 
+#' Broad Class Training
 #' @description
-#' Tranining broad class classifier 
-#' @param stTrain a dataframe that matches the samples with category 
-#' @param expTrain the expression matrix 
-#' @param colName_cat the name of the column that contains categories 
-#' @param colName_samp the name of the column that contains sample names 
-#' @param nTopGenes the number of classification genes per category 
-#' @param nTopGenePairs the number of top gene pairs per category 
-#' @param nRand number of random profiles generate for training 
-#' @param nTrees number of trees for random forest classifier 
-#' @param weightDown_total numeric post transformation sum of read counts for weighted_down function 
-#' @param weightedDown_dThresh the threshold at which anything lower than that is 0 for weighted_down function 
+#' Tranining broad class classifier
+#' @param stTrain a dataframe that matches the samples with category
+#' @param expTrain the expression matrix
+#' @param colName_cat the name of the column that contains categories
+#' @param colName_samp the name of the column that contains sample names
+#' @param nTopGenes the number of classification genes per category
+#' @param nTopGenePairs the number of top gene pairs per category
+#' @param nRand number of random profiles generate for training
+#' @param nTrees number of trees for random forest classifier
+#' @param weightDown_total numeric post transformation sum of read counts for weighted_down function
+#' @param weightedDown_dThresh the threshold at which anything lower than that is 0 for weighted_down function
 #' @param transprop_xFact scaling factor for transprop
-#' 
+#'
 #' @return a list containing normalized expression data, classification gene list, cnPRoc
-#' @export 
+#' @export
 broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp, nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5) {
 
    if (class(stTrain) != "data.frame") {
-      stTrain = as.data.frame(stTrain) 
+      stTrain = as.data.frame(stTrain)
    }
 
    rownames(stTrain) = stTrain[, colName_samp]
@@ -49,9 +49,9 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp, nTopGen
    tspRF = makeClassifier(pdTrain[xpairs,], genes=xpairs, groups=grps, nRand = nRand, ntrees = nTrees)
    cnProc = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= grps, "classifier" = tspRF)
 
-   returnList = list("expTnorm" = expTnorm, "cgenes_list" = cgenes, "cnProc" = cnProc)
+   returnList = list("expTnorm" = expTnorm, "sampTab" = stTrain, "cgenes_list" = cgenes, "cnProc" = cnProc)
 
    cat("All Done\n")
-   #return 
+   #return
    returnList
 }
