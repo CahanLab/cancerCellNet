@@ -18,7 +18,7 @@ sdGeneCat<-function(expDat, sampTab, dLevel, sampID){
 
   for (cat in unique(sampTab[, dLevel])) {
 
-    tempExpDat = expDat[, sampTab[sampTab[, dLevel] == cat, sampID]]
+    tempExpDat = expDat[, as.vector(sampTab[sampTab[, dLevel] == cat, sampID])]
 
     #calculates the standard deviation
     tempStd = matrix(apply(tempExpDat, 1, sd), ncol = 1, nrow = length(apply(tempExpDat, 1, sd)))

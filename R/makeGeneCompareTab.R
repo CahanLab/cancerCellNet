@@ -16,10 +16,13 @@ makeGeneCompareTab<-function(queryExpTab, avgGeneTab, querySample = NULL, traini
 
   if(is.null(querySample) == TRUE) {
     filteredQuery = queryExpTab[geneSamples, ]
-
+    querySample = colnames(filteredQuery)
   }
   else if(all(querySample %in% colnames(queryExpTab)) == FALSE) {
     filteredQuery = queryExpTab[geneSamples, ]
+    querySample = colnames(filteredQuery)
+    print("Please enter sample names that are in the query table")
+
   }
   else {
     filteredQuery = queryExpTab[geneSamples, querySample]
@@ -28,9 +31,14 @@ makeGeneCompareTab<-function(queryExpTab, avgGeneTab, querySample = NULL, traini
   #
   if(is.null(trainingCat) == TRUE) {
     filteredGeneTab = avgGeneTab[geneSamples, ]
+    trainingCat = colnames(filteredGeneTab)
   }
   else if(all(trainingCat %in% colnames(avgGeneTab)) == FALSE) { #maybe modified it later
     filteredGeneTab = avgGeneTab[geneSamples, ]
+    trainingCat = colnames(filteredGeneTab)
+
+    print("Please enter proper category names that are in the filtered gene table")
+
   }
   else {
     filteredGeneTab = avgGeneTab[geneSamples, trainingCat]
@@ -39,7 +47,10 @@ makeGeneCompareTab<-function(queryExpTab, avgGeneTab, querySample = NULL, traini
   if(all(rownames(filteredQuery) == rownames(filteredGeneTab)) == TRUE) {
     print("All Good")
   }
+
+  returnLabel = c(querySample, trainingCat)
   returnMatrix = cbind(filteredQuery, filteredGeneTab)
+  colnames(returnMatrix) = returnLabel
   #return
   returnMatrix
 }

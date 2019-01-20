@@ -47,7 +47,7 @@ plotGeneComparison<-function(expDat, fontsize_row = 6, cRows = FALSE, cCols = FA
   rownames(xx)<-cells
 
   # val_col <- colorRampPalette(rev(RColorBrewer::brewer.pal(n = 12,name = "Spectral")))(25)
-  val_col<-colorRampPalette(c("light yellow" ,"red"))( 100 )
+  val_col<-colorRampPalette(rev(RColorBrewer::brewer.pal(n = 12,name = "Spectral")))(25)
   pheatmap(value, color=val_col, cluster_row = cRows, cluster_cols = cCols,
            show_colnames = FALSE, annotation_names_row = FALSE,
            ##        annotation_col = annTab,
