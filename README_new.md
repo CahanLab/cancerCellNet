@@ -2,6 +2,7 @@
 
 [Shortcut to Setup CCN](#setup_ccn)
 [Shortcut to Broad Training CCN](#broadTrain_ccn)
+[Shortcut to Subclass Training CCN](#subTrain_ccn)
 
 #### <a name="setup_ccn">Setting up CCN</a>
 ```R
@@ -24,12 +25,12 @@ download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/stHeld
 
 ```
 
-### <a name="broadTrain_ccn">Broad Category Training</a>
+### <a name="broadTrain_ccn">Broad Class Training</a>
 ```R
 library(cancerCellNet)
 expGDC = utils_loadObject("expGDC_raw_20190118.rda")
 exampleSampTab = utils_loadObject("ExampleSampTab_20190118.rda")
-iGenes = utils_loadObject("intersecting_genes.rda")
+iGenes = utils_loadObject("intersecting_genes_20190120.rda")
 
 exampleSampTab
 ```
@@ -53,8 +54,21 @@ Randomly select 40 training samples in each broad category using "splitCommon" f
 names(returnBroad)
 [1] "expTnorm"    "sampTab"     "cgenes_list" "cnProc"
 ```
-In the returnBroad list, there are 4 items. "expTnorm" is the normalized expression matrix for the training samples. "sampTab" is the sample table of training samples. 
+In the returnBroad list, there are 4 items. "expTnorm" is the normalized expression matrix for the training samples. "sampTab" is the sample table of training samples. "cgenes_list" is a named list with all the genes belonging in each category. "cnProc" is a list that contains various components needed for prediction including the classifier object. 
 
+### <a name="subTrain_ccn">Subclass Training</a>
+To start the subclass training, you need the cnProc from the broad class training. 
+
+```R
+stList_sub = splitCommon(exampleSampTab, ncells=20, dLevel="SubClass")
+stTrain_sub = stList_sub[[1]]
+
+expTrain_sub = expGDC[iGenes, as.vector(stTrain_sub$SampleBarCodes)]
+cnProc_broad = returnBroad$cnProc
+
+returnSubClass = subClass_train(cnProc_broad = cnProc_broad, stTrain = stTrain_sub, expTrain = expTrain_sub, colName_broadCat = "BroadClass", colName_subClass = "SubClass", name_broadCat = "TCGA-BRCA", colName_samp="SampleBarCodes")
+save(returnSubClass, file="SubClassifier_return.rda")
+```
 
 
 
