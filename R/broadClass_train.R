@@ -33,6 +33,7 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp, nTopGen
 
    cgenesA<-cgenes[['cgenes']]
    grps<-cgenes[['grps']]
+   cgenes_list <- cgenes[['labelled_cgenes']]
 
    cat("There are ", length(cgenesA), " classification genes\n")
 
@@ -49,7 +50,7 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp, nTopGen
    tspRF = makeClassifier(pdTrain[xpairs,], genes=xpairs, groups=grps, nRand = nRand, ntrees = nTrees)
    cnProc = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= grps, "classifier" = tspRF)
 
-   returnList = list("expTnorm" = expTnorm, "sampTab" = stTrain, "cgenes_list" = cgenes, "cnProc" = cnProc)
+   returnList = list("expTnorm" = expTnorm, "sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc" = cnProc)
 
    cat("All Done\n")
    #return
