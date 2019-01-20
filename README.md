@@ -1,14 +1,23 @@
 # cancerCellNet (CCN)
 
 [Shortcut to Setup CCN](#setup_ccn)
+
 [Shortcut to Broad Training CCN](#broadTrain_ccn)
+
 [Shortcut to Subclass Training CCN](#subTrain_ccn)
+
 [Shortcut to Broad Validation CCN](#broadVal_ccn)
+
 [Shortcut to Subclass Validation CCN](#subVal_ccn)
+
 [Shortcut to Application of CCN](#app_BRCA)
+
 [Shortcut to Application of Broad Classifier on BRCA CCLE data](#app_broad)
+
 [Shortcut to Gene Visualization/Comparison Tool](#gene_comp)
+
 [Shortcut to subclass application on BRCA CCLE data](#sub_app)
+
 #### <a name="setup_ccn">Setting up CCN</a>
 ```R
 library(devtools)
