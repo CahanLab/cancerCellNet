@@ -30,11 +30,17 @@ install.packages("ggplot2")
 
 ### Fetch the required files if you have not already donwloaded them
 ```R
-download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/ccn_classifier_Jun_29_2018.rda", "ccn_classifier_Jun_29_2018.rda")
+download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/BroadClassifier_return_20190118.rda", "BroadClassifier_return_20190118.rda")
 
-download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/expHeldOut_Jun_30_2018.rda", "expHeldOut_Jun_29_2018.rda")
+download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/ExampleSampTab_20190118.rda", "ExampleSampTab_20190118.rda")
 
-download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/stHeldOut_Jun_30_2018.rda", "stHeldOut_Jun_29_2018.rda")
+download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/expGDC_raw_20190118.rda", "expGDC_raw_20190118.rda")
+
+download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/expGDC_raw_20190118.rda", "expGDC_raw_20190118.rda")
+
+download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/intersecting_genes_20190120.rda", "intersecting_genes_20190120.rda")
+
+download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/SubClassifier_return_20190118.rda", "SubClassifier_return_20190118.rda")
 ```
 
 ### <a name="broadTrain_ccn">Broad Class Training</a>
