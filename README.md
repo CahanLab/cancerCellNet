@@ -36,8 +36,6 @@ download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/Exampl
 
 download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/expGDC_raw_20190118.rda", "expGDC_raw_20190118.rda")
 
-download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/expGDC_raw_20190118.rda", "expGDC_raw_20190118.rda")
-
 download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/intersecting_genes_20190120.rda", "intersecting_genes_20190120.rda")
 
 download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/SubClassifier_return_20190118.rda", "SubClassifier_return_20190118.rda")
