@@ -59,6 +59,16 @@ subClass_trainNew<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, c
   randClassMatrix = classMatrix[, grep("rand", colnames(classMatrix))] # get the random class 
   classMatrix = classMatrix[, -grep("rand", colnames(classMatrix))]
 
+  weightIter = c(1:weight_broadClass)
+  for (weight in weightIter) {
+    classMatrix = rbind(classMatrix, classMatrix)
+    randClassMatrix = rbind(randClassMatrix, randClassMatrix)
+
+    newRowNames = c(rownames(classMatrix), paste0(rownames, "-", weight))
+    rownames(classMatrix) = newRowNames
+    rownames(randClassMatrix) = newRowNames
+  }
+
   cat("Start SubClass Query Transform\n")
   expValTrans = subClassQuery_transform(expDat = expTrain, cgenes = cgenesA, xpairs = xpairs, classMatrix = classMatrix)
   cat("Features have been selected\n")
