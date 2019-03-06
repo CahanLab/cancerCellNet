@@ -146,9 +146,9 @@ plot_class_PRs(assessmentDat) # plot out the PR curves
 ```
 ![](md_img/PR_sub_20190118.png)
 
-##<a name="app_BRCA">Application of classifiers</a>
+## <a name="app_BRCA">Application of classifiers</a>
 
-###<a name="app_broad">Application of Broad classifer on BRCA CCLE data </a>
+### <a name="app_broad">Application of Broad classifer on BRCA CCLE data </a>
 
 ```R
 library(cancerCellNet)
@@ -166,7 +166,7 @@ ccn_hmClass(classMatrix_broad, fontsize_row=10, fontsize_col = 8)
 ```
 ![](md_img/CCLE_BroadClass_20190118.png)
 
-###<a name="gene_comp">Gene Visualization/Comparison Tool</a>
+### <a name="gene_comp">Gene Visualization/Comparison Tool</a>
 ```R
 TCGA_geneAvg = avgGeneCat(expDat = expTnorm_broad, sampTab = sampTab_broad, dLevel = "BroadClass", sampID = "SampleBarCodes")
 BRCAnorm = trans_prop(weighted_down(BRCA_CCLE, 5e5, dThresh=0.25), 1e5)
@@ -186,7 +186,7 @@ barPlotGene(geneCompareMatrix, sdGeneCat = sdGene, gene = "TRPS1")
 ```
 ![](md_img/singleGeneExpressionBar_20190118.png)
 
-###<a name="sub_app">Subclassify BRCA CCLE data</a>
+### <a name="sub_app">Subclassify BRCA CCLE data</a>
 ```R
 broadReturn = utils_loadObject("BroadClassifier_return.rda")
 subReturn = utils_loadObject("SubClassifier_return.rda")
@@ -201,7 +201,8 @@ CCLE_evalOrd = CCLE_eval[, order(CCLE_eval[6, ])]
 ccn_hmClass(CCLE_evalOrd, fontsize_row=10, fontsize_col = 6)
 ```
 ![](md_img/subClass_CCLE_20190118.png)
-###<a name="GEMM_geneConvert">Classify GEMM data</a>
+
+### <a name="GEMM_geneConvert">Classify GEMM data</a>
 ```R
 library(cancerCellNet)
 
