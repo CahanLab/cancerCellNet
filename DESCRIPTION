@@ -15,6 +15,7 @@ Imports:
     AnnotationDbi,
     RColorBrewer,
     ggplot2,
-    parallel
+    parallel,
+    ComplexHeatmap
 Suggests: 
     testthat

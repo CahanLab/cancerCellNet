@@ -7,7 +7,7 @@ test_that("whether the utils_convertToGeneSymbols", {
   rownames(EnsToGene) = EnsToGene$ensembl_transcript_id
 
   #normal cases
-  ans = utils_convertToGeneSymbols(EnsToGene, typeENST = TRUE)[[1]]
+  ans = utils_convertToGeneSymbols(EnsToGene, typeENST = TRUE)
   expect_equal("OR4F5", as.character(rownames(ans)[1]))
   expect_equal("FO538757.3", as.character(rownames(ans)[2]))
   expect_equal("FO538757.2", as.character(rownames(ans)[3]))
@@ -16,7 +16,7 @@ test_that("whether the utils_convertToGeneSymbols", {
   rownames(EnsgToGene) = EnsgToGene$ensembl_gene_id
 
   #normal cases
-  ans = utils_convertToGeneSymbols(EnsgToGene, typeENSG = TRUE)[[1]]
+  ans = utils_convertToGeneSymbols(EnsgToGene, typeENSG = TRUE)
   expect_equal("RF00100", as.character(rownames(ans)[1]))
   expect_equal("RNU4-59P", as.character(rownames(ans)[2]))
   expect_equal("SNORD114-2", as.character(rownames(ans)[3]))
@@ -25,7 +25,7 @@ test_that("whether the utils_convertToGeneSymbols", {
   rownames(musToGene) = musToGene$mouse_gene
 
   #normal cases
-  ans = utils_convertToGeneSymbols(musToGene, typeMusGene = TRUE)[[1]]
+  ans = utils_convertToGeneSymbols(musToGene, typeMusGene = TRUE)
   expect_equal("SERPINB10", as.character(rownames(ans)[1]))
   expect_equal("HYI", as.character(rownames(ans)[2]))
   expect_equal("GBP7", as.character(rownames(ans)[3]))

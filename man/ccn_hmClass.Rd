@@ -6,7 +6,7 @@
 \usage{
 ccn_hmClass(classMat, grps = NULL, isBig = FALSE, cRow = FALSE,
   cCol = FALSE, fontsize_row = 4, fontsize_col = 4, main = NA,
-  scale = FALSE)
+  scale = FALSE, ...)
 }
 \arguments{
 \item{classMat}{classification matrix generated from \code{\link{rf_classPredict}}}
