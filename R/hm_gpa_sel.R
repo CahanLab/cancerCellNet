@@ -17,7 +17,7 @@
 #' @return a heatmap of genes and their groups
 #' @importFrom RColorBrewer brewer.pal
 #' @export
-hm_gpa_sel<-function(expDat, genes, grps, maxPerGrp=100, cRow=FALSE, cCol=FALSE, limits=c(0,10), toScale=FALSE, fontsize_row=4, reOrderCells=FALSE){
+hm_gpa_sel<-function(expDat, genes, grps, maxPerGrp=100, cRow=FALSE, cCol=FALSE, limits=c(0,10), toScale=FALSE, fontsize_row=4, reOrderCells=FALSE, ...){
 
 
   allgenes<-rownames(expDat)
@@ -79,5 +79,5 @@ hm_gpa_sel<-function(expDat, genes, grps, maxPerGrp=100, cRow=FALSE, cCol=FALSE,
            show_colnames = FALSE, annotation_names_row = FALSE,
            ##        annotation_col = annTab,
            annotation_col = xx,
-           annotation_names_col = FALSE, annotation_colors = anno_colors, fontsize_row=fontsize_row)
+           annotation_names_col = FALSE, annotation_colors = anno_colors, fontsize_row=fontsize_row, ...)
 }
