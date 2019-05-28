@@ -3,6 +3,90 @@
 
 # commonly used or misc functions
 
+#' find genes higher in a cluster compared to all other cells
+#'
+#' ind genes higher in a cluster compared to all other cells
+#'
+#' @param expDat expDat
+#' @param cellLabels named vector of cell groups
+#'
+#' @return list of diffExp data framnes
+#' 
+#' @export
+gnrAll<-function(
+  expDat,
+  cellLabels){
+
+  myPatternG<-sc_sampR_to_pattern(as.character(cellLabels))
+  specificSets<-lapply(myPatternG, sc_testPattern, expDat=expDat)
+  cat("Done testing\n")
+
+#  grpOrder<-myGrpSort(cellLabels)
+
+#  specificSets[grpOrder]
+
+  specificSets
+}
+
+
+#' @export
+sc_sampR_to_pattern<-function#
+(sampR){
+  d_ids<-unique(as.vector(sampR));
+  nnnc<-length(sampR);
+#  ans<-matrix(nrow=length(d_ids), ncol=nnnc);
+  ans<-list()
+  for(d_id in d_ids){
+    x<-rep(0,nnnc);
+    x[which(sampR==d_id)]<-1;
+    ans[[d_id]]<-x;
+  }
+  ans
+}
+
+
+#' @export
+sc_testPattern<-function(pattern, expDat){
+  pval<-vector();
+  cval<-vector();
+  geneids<-rownames(expDat);
+  llfit<-ls.print(lsfit(pattern, t(expDat)), digits=25, print=FALSE);
+  xxx<-matrix( unlist(llfit$coef), ncol=8,byrow=TRUE);
+  ccorr<-xxx[,6];
+  cval<- sqrt(as.numeric(llfit$summary[,2])) * sign(ccorr);
+  pval<-as.numeric(xxx[,8]);
+
+  #qval<-qvalue(pval)$qval;
+  holm<-p.adjust(pval, method='holm');
+  #data.frame(row.names=geneids, pval=pval, cval=cval, qval=qval, holm=holm);
+  data.frame(row.names=geneids, pval=pval, cval=cval,holm=holm);
+}
+
+#' find genes that pass criteria
+#'
+#' based on idea that reliably detected genes will either be detected in many cells, or highly expressed in a small cels of cells (or both
+#'
+#' @param geneStats result of running sc_statTab
+#' @param alpha1 proportion of cells in which a gene must be considered detected (as defined in geneStats)
+#' @param alpha2 lower proportion of cells for genes that must have higher expression level
+#' @param mu threshold, average expression level of genes passing the lower proportion criteria
+#'
+#' @return vector of gene symbols
+#' 
+#' @export
+#'
+sc_filterGenes<-function
+(geneStats,
+ alpha1=0.1,
+ alpha2=0.01,
+ mu=2){
+  passing1<-rownames(geneStats[geneStats$alpha>alpha1,])
+  notPassing<-setdiff(rownames(geneStats), passing1)
+  geneStats<-geneStats[notPassing,]
+  c(passing1, rownames(geneStats[which(geneStats$alpha>alpha2 & geneStats$mu>mu),]))
+}
+
+
 #' find cells that pass criteria
 #'
 #' based purely on umis
@@ -12,7 +96,7 @@
 #' @param maxValQuant quantile to select max threshold
 #'
 #' @return vector rownames(sampTab) meeting criteria
-#'
+#' 
 #' @export
 #'
 sc_filterCells<-function
@@ -24,6 +108,64 @@ sc_filterCells<-function
   rownames(stX[stX$umis<qThresh,])
 }
 
+
+
+
+#' @export
+sc_statTab<-function# make a gene stats table (i.e. alpha, mu, etc)
+(expDat, # expression matrix
+ dThresh=0 # threshold for detection
+ ){
+  
+  statTab<-data.frame()
+  muAll<-sc_compMu(expDat, threshold=dThresh);
+  alphaAll<-sc_compAlpha(expDat,threshold=dThresh);
+  meanAll<-apply(expDat, 1, mean);
+  covAll<-apply(expDat, 1, sc_cov);
+  fanoAll<-apply(expDat,1, sc_fano);
+  maxAll<-apply(expDat, 1, max);
+  sdAll<-apply(expDat, 1, sd);
+  
+  statTabAll<-data.frame(gene=rownames(expDat), mu=muAll, alpha=alphaAll, overall_mean=meanAll, cov=covAll, fano=fanoAll, max_val=maxAll, sd=sdAll)
+  statTabAll;
+}
+
+
+# compute alpha given detection threshold
+#' @export
+sc_compAlpha<-function 
+(expMat,
+ threshold=0,
+  pseudo=FALSE){
+  
+  indexFunction<-function(vector, threshold){
+    names(which(vector>threshold));
+  }
+  
+  indexes<-apply(expMat, 1, indexFunction, threshold);
+  alphas<-unlist(lapply(indexes, length));
+  ans<-alphas/ncol(expMat)
+  if(pseudo){
+    ans<-(alphas+1)/(ncol(expMat)+1)
+  }
+  ans
+}
+
+# compute Mu given threshold
+#' @export
+sc_compMu<-function 
+(expMat,
+ threshold=0){
+  
+  afunct<-function(vector, threshold){
+    mean( vector[which(vector>threshold)] );
+  } 
+  
+  mus<-unlist(apply(expMat, 1, afunct, threshold))
+  mus[is.na(mus)]<-0;
+  mus;
+}
+
 # replavce NAs with 0
 repNA<-function
 (vector){
@@ -31,10 +173,117 @@ repNA<-function
   vector;
 }
 
+#compute fano factor on vector
+sc_fano<-function
+(vector){
+  var(vector)/mean(vector);
+}
+
+# compute coeef of variation on vector
+sc_cov<-function
+(vector){
+  sd(vector)/mean(vector);
+}
+
+
+
+
+#' weighted subtraction from mapped reades
+#'
+#' Simulate expression profile of  _total_ mapped reads
+#' @param vector of total mapped reads per gene/transcript
+#' @param total post transformation sum of read counts
+#'
+#' @return vector of downsampled read mapped to genes/transcripts
+#'
+#' @export
+downSampleW<-function
+(vector,
+ total=1e5,
+ dThresh=0){ 
+
+  totalSignal<-sum(vector)
+  wAve<-vector/totalSignal
+###  resid<-sum(vector)-total #num to subtract from sample
+  resid<-totalSignal-total #num to subtract from sample
+  residW<-wAve*resid # amount to substract from each gene
+  ans<-vector-residW
+  ans[which(ans<dThresh)]<-0
+  ans
+}
+
+
+#' weighted subtraction from mapped reades, applied to all
+#'
+#' Simulate expression profile of  _total_ mapped reads
+#' @param expRaw matrix of total mapped reads per gene/transcript
+#' @param total numeric post transformation sum of read counts
+#'
+#' @return vector of downsampled read mapped to genes/transcripts
+#'
+#' @export
+weighted_down<-function
+(expRaw,
+ total,
+ dThresh=0
+ ){
+    expCountDnW<-apply(expRaw, 2, downSampleW, total=total, dThresh=dThresh)
+    #log(1+expCountDnW)
+    expCountDnW
+  }
+
+
+#' @export
+trans_prop<-function 
+(expDat,
+ xFact=1e5
+){
+  ans<-matrix(0, nrow=nrow(expDat), ncol=ncol(expDat));
+  for(i in seq(ncol(expDat))){
+    ans[,i]<-expDat[,i]/sum(expDat[,i]);    
+  }
+  ans<-ans*xFact;
+  colnames(ans)<-colnames(expDat);
+  rownames(ans)<-rownames(expDat);
+  log(1+ans)
+}
+
+
+#' split a sample table into training and validation
+#'
+#' split a sample table into training and validation
+#' @param sampTab sampTab
+#' @param ncells ncells
+#' @param dLevel dLevel
+#'
+#' @return list of train and val
+#'
+#' @examples
+#' stList<-splitCommon(stTrain, ncells=25, dLevel="description1")
+#' @export
+splitCommon<-function(
+  sampTab, 
+  ncells, 
+  dLevel="description1"){
+  cts<-unique(as.vector(sampTab[,dLevel]))
+  trainingids<-vector()
+  for(ct in cts){
+    cat(ct,": ")
+    stX<-sampTab[sampTab[,dLevel]==ct,]
+    ccount<-nrow(stX)-3
+    ccount<-min(ccount, ncells)
+    cat(nrow(stX),"\n")
+    trainingids<-append(trainingids, sample(rownames(stX), ccount))
+  }
+  val_ids<-setdiff(rownames(sampTab), trainingids)
+  list(train=sampTab[trainingids,], val=sampTab[val_ids,])
+}
+
+
 #' @export
 getGenesFromGO<-function# return the entrez gene ids of a given a GOID, for now assumes mouse
 (GOID, # GO id to find genes for
- annList
+ annList 
 ){
   sort(as.vector(unlist(annList[['egSymbols']][annList[['goegs']][[GOID]]])));
 }
@@ -56,15 +305,15 @@ GEP_makeMean<-function
  groupings,
  type='mean'
 ){
-
-
+  
+  
   ans<-data.frame();
   grps<-unique(groupings);
   if(type=='mean'){
     for(grp in grps){
       gi<-which(groupings==grp);
       if(length(gi)==1){
-
+        
         if(nrow(ans)==0){
           ans<-data.frame(exp[,gi]);
         }else{
@@ -94,27 +343,25 @@ GEP_makeMean<-function
       }
     }
   }
-
+  
   colnames(ans)<-grps;
   ans;
   ### data.frame of mean or median-ed data based on given groupings
 }
 
 
-#' @title
 #' find transcript factors
 #'
-#' @description
 #' find transcript factors
-#' @param annotation the annotation
+#' @param annotation
 #' @param species defaul is 'Hs', can also be 'Mm;
-#' @param ontology default is BP
+#' @param ontology default is BP 
 #'
 #' @return vector fo TF names
 #' @export
 #' @importFrom AnnotationDbi as.list
 #'
-find_genes_byGo<-function#
+find_genes_byGo<-function# 
 (annotation,
   species='Hs',
   onto="BP"
@@ -164,8 +411,8 @@ find_genes_byGo<-function#
 #'
 #' 1-PCC distance
 #' @param x numeric matrix
-#'
-#' @return distance matrix
+#' 
+#' @return distance matrix  
 #'
 #' @examples
 #' xdist<-utils_myDist(t(expDat))
@@ -178,6 +425,22 @@ utils_myDist<-function
   as.dist(1-cor(t(x)));
 }
 
+#' loads an R object when you don't know the name
+#'
+#' loads an R object when you don't know the name
+#' @param fname file
+#'
+#' @return variable
+#'
+#' @export
+utils_loadObject<-function
+(fname
+ ### file name
+){
+  x<-load(fname);
+  get(x);
+}
+
 #' strip whitespace from a string
 #'
 #' strip whitespace from a string
@@ -187,7 +450,7 @@ utils_myDist<-function
 #'
 #' @export
 utils_stripwhite<-function
-###
+### 
 (string
  #### string
  ){
@@ -201,7 +464,7 @@ utils_stripwhite<-function
 #'
 #' @export
 utils_myDate<-function
-###
+### 
 ()
 {
   format(Sys.time(), "%b_%d_%Y");
@@ -232,11 +495,11 @@ zscore<-function
 ### compute zscore
 (x,
  ### numeric vector
- meanVal,
- ### mean of distribution to compute zscore of x against
+ meanVal, 
+ ### mean of distribution to compute zscore of x against 
  sdVal
  ### standard deviation of distribution to compute zscore of x agains
- ){
+ ){ 
   (x-meanVal)/sdVal;
   ### zscore
 }
@@ -283,8 +546,3 @@ cn_correctZmat<-function
   zmat[is.na(zmat)]<-0
   zmat
 }
-
-
-
-
-

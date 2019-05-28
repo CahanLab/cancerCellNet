@@ -7,8 +7,6 @@
 find_genes_byGo(annotation, species = "Hs", onto = "BP")
 }
 \arguments{
-\item{annotation}{the annotation}
-
 \item{species}{defaul is 'Hs', can also be 'Mm;}
 
 \item{ontology}{default is BP}
