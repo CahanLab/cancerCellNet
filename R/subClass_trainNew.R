@@ -57,17 +57,30 @@ subClass_trainNew<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, c
 
   classMatrix = broadClass_predict(cnProc = cnProc_broad, expDat = expTrain, nrand = nRand)
   randClassMatrix = classMatrix[, grep("rand", colnames(classMatrix))] # get the random class 
-  classMatrix = classMatrix[, -grep("rand", colnames(classMatrix))]
+  classMatrix = classMatrix[, -grep("rand", colnames(classMatrix))] # get the non-random class 
 
-  weightIter = c(1:weight_broadClass)
-  for (weight in weightIter) {
-    classMatrix = rbind(classMatrix, classMatrix)
-    randClassMatrix = rbind(randClassMatrix, randClassMatrix)
 
-    newRowNames = c(rownames(classMatrix), paste0(rownames(classMatrix), "-", weight))
-    rownames(classMatrix) = newRowNames
-    rownames(randClassMatrix) = newRowNames
+  if (weight_broadClass > 1) {
+    print("Time to add weights")
+    originalRowNames = rownames(classMatrix)
+    originalClassMatrix = classMatrix 
+    originalRandClassMatrix = randClassMatrix
+
+    weightIter = c(1:(weight_broadClass - 1))
+    for (weight in weightIter) {
+      newRownames = paste0(originalRowNames, "-", weight)
+      additionalClassMatrix = originalClassMatrix
+      rownames(additionalClassMatrix) = newRownames
+      classMatrix = rbind(classMatrix, additionalClassMatrix)
+
+      additionalRandClassMatrix = originalRandClassMatrix
+      rownames(additionalRandClassMatrix) = newRownames
+      randClassMatrix = rbind(randClassMatrix, additionalRandClassMatrix)
+    }
+
+    print("finished adding weights")
   }
+  
 
   cat("Start SubClass Query Transform\n")
   expValTrans = subClassQuery_transform(expDat = expTrain, cgenes = cgenesA, xpairs = xpairs, classMatrix = classMatrix)
