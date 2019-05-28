@@ -111,17 +111,6 @@ ccn_hmClass(classMatrix_broad, grps=grps, fontsize_row=10)
 ```
 ![](md_img/Broad_Classification_20190118.png)
 
-You can also add gaps between each groups 
-```R
-breakVector = c() # create a vector of number indicating the column at which the gap will be placed 
-for (uniqueClass in unique(grps)) {
-   myBreak = max(which(grps %in% uniqueClass))
-   breakVector = c(breakVector, myBreak)
-}
-ccn_hmClass(classMatrix_broad, grps=grps, fontsize_row=10, gaps_col = breakVector) 
-```
-![](md_img/breakBroadHeatmap_20190507.png)
-
 You can also assess the performance of Broadclass classifier through PR cruves . 
 
 ```R
