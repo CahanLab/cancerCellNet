@@ -10,13 +10,7 @@
 #'
 #' @return an average matrix of the gene expressions
 #' @export
-avgGeneCat<-function(expDat, sampTab, dLevel, sampID = NULL){
-
-  if (is.null(sampID) == TRUE) {
-    sampID = "sampID"
-
-    sampTab[, sampID] = rownames(sampTab)
-  }
+avgGeneCat<-function(expDat, sampTab, dLevel, sampID){
 
    returnMatrix = matrix(nrow=nrow(expDat), ncol=0)
    rownames(returnMatrix) = rownames(expDat)

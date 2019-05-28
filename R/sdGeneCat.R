@@ -10,13 +10,7 @@
 #'
 #' @return a matrix of the standard deviation for gene expressions
 #' @export
-sdGeneCat<-function(expDat, sampTab, dLevel, sampID = NULL){
-
-  if (is.null(sampID) == TRUE) {
-    sampID = "sampID"
-
-    sampTab[, sampID] = rownames(sampTab)
-  }
+sdGeneCat<-function(expDat, sampTab, dLevel, sampID){
 
   stdMatrix = matrix(nrow=nrow(expDat), ncol=0)
   rownames(stdMatrix) = rownames(expDat)
