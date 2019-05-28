@@ -5,8 +5,8 @@
 \title{Sub-Class Training}
 \usage{
 subClass_train(cnProc_broad, stTrain, expTrain, colName_broadCat,
-  colName_subClass, name_broadCat, colName_samp = "row.names",
-  nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000,
+  colName_subClass, name_broadCat, colName_samp, nTopGenes = 20,
+  nTopGenePairs = 50, nRand = 40, nTrees = 1000,
   weightedDown_total = 5e+05, weightedDown_dThresh = 0.25,
   transprop_xFact = 1e+05)
 }

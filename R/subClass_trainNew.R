@@ -20,7 +20,7 @@
 #'
 #' @return a list containing normalized expression data, classification gene list, cnPRoc
 #' @export
-subClass_trainNew<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colName_subClass, name_broadCat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, weight_broadClass = 1) {
+subClass_trainNew<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colName_subClass, name_broadCat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 15, nTrees = 1000, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, weight_broadClass = 1) {
   if (class(stTrain) != "data.frame") {
     stTrain = as.data.frame(stTrain)
   }
@@ -52,11 +52,11 @@ subClass_trainNew<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, c
   xi<-setdiff(1:length(xpairs), grep("selection", xpairs))
   xpairs<-xpairs[xi]
 
-  system.time(pdTrain_rand<-query_transform(expTrain[cgenesA, ], xpairs)) 
+  system.time(pdTrain<-query_transform(expTrain[cgenesA, ], xpairs))
   cat("Finished pair transforming the data\n")
 
   classMatrix = broadClass_predict(cnProc = cnProc_broad, expDat = expTrain, nrand = nRand)
-  randClassMatrix = classMatrix[, grep("rand", colnames(classMatrix))] # get the random class 
+  randClassMatrix = classMatrix[, grep("rand", colnames(classMatrix))] # get the
   classMatrix = classMatrix[, -grep("rand", colnames(classMatrix))]
 
   cat("Start SubClass Query Transform\n")
@@ -68,10 +68,10 @@ subClass_trainNew<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, c
   newGrps = as.vector(stTrain[, colName_subClass])
   names(newGrps) = rownames(stTrain)
 
-  system.time(tspRF<-makeSubClassifier(expValTrans[newFeatures,], genes=newFeatures, groups=newGrps, nRand=nRand, ntrees=nTrees, randClassMatrix, pdTrain_rand))
+  system.time(tspRF<-makeClassifier(expValTrans[newFeatures,], genes=newFeatures, groups=newGrps, nRand=nRand, ntrees=nTrees))
   cat("Finished making the classifier \n")
 
-  cnProc_subClass = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= newGrps, newFeatures = "newFeatures",  "classifier" = tspRF[[1]], "trainingSamp" = tspRF[[2]], namedVector = tspRF[[3]])
+  cnProc_subClass = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= newGrps, newFeatures = "newFeatures",  "classifier" = tspRF)
 
   returnList = list("expTnorm" = expTnorm, "sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc_subClass" = cnProc_subClass)
 

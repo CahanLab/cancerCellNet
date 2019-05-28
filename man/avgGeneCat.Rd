@@ -4,7 +4,7 @@
 \alias{avgGeneCat}
 \title{Average Category Gene Expressions}
 \usage{
-avgGeneCat(expDat, sampTab, dLevel, sampID = NULL)
+avgGeneCat(expDat, sampTab, dLevel, sampID)
 }
 \arguments{
 \item{expDat}{the normalized expression table from \code{\link{trans_prop}}}
