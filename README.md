@@ -41,8 +41,6 @@ download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/expGDC
 download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/intersecting_genes_20190120.rda", "intersecting_genes_20190120.rda")
 
 download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/SubClassifier_return_20190118.rda", "SubClassifier_return_20190118.rda")
-
-download.file("https://s3.amazonaws.com/cnobjects/cancerCellNet/resources/GSE102598_LL_RNAseq_2017_rsem_est_counts_mm9_unique.csv", "GSE102598_LL_RNAseq_2017_rsem_est_counts_mm9_unique.csv")
 ```
 
 ### <a name="broadTrain_ccn">Broad Class Training</a>
