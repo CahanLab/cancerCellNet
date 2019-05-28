@@ -18,8 +18,6 @@
 
 [Shortcut to subclass application on BRCA CCLE data](#sub_app)
 
-[Shortcut to class application on PAAD GEMM data](#GEMM_geneConvert)
-
 #### <a name="setup_ccn">Setting up CCN</a>
 ```R
 library(devtools)
@@ -201,35 +199,4 @@ CCLE_evalOrd = CCLE_eval[, order(CCLE_eval[6, ])]
 ccn_hmClass(CCLE_evalOrd, fontsize_row=10, fontsize_col = 6)
 ```
 ![](md_img/subClass_CCLE_20190118.png)
-###<a name="GEMM_geneConvert">Classify GEMM data</a>
-```R
-library(cancerCellNet)
-
-GEMM_PAAD = read.csv("GSE102598_LL_RNAseq_2017_rsem_est_counts_mm9_unique.csv")
-rownames(GEMM_PAAD) = GEMM_PAAD$X
-GEMM_PAAD$X = NULL
-```
-![](md_img/GEMM_GeneOriginal.PNG)
-
-To perform classification on GEMM or any mouse RNA-seq, we would have to perform gene conversion from mouse genes to human genes 
-
-```R
-GEMM_geneConvert = utils_convertToGeneSymbols(expTab = GEMM_PAAD, typeMusGene = TRUE)
-```
-[1] "Could not convert 8393 genes."
-![](md_img/GEMM_GeneConverted.PNG)
-
-```R
-returnBroad = utils_loadObject("BroadClassifier_return_20190118.rda")
-
-expTnorm_broad = returnBroad[["expTnorm"]]
-sampTab_broad = returnBroad[["sampTab"]]
-cgenes_list_broad = returnBroad[["cgenes_list"]]
-cnProc_broad = returnBroad[["cnProc"]]
-
-classMatrix_broad = broadClass_predict(cnProc = cnProc_broad, expDat = GEMM_geneConvert, nrand = 2)
-ccn_hmClass(classMatrix_broad, fontsize_row=10, fontsize_col = 8)
-```
-![](md_img/GEMM_broad.png)
-
 
