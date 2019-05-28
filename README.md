@@ -217,36 +217,18 @@ ccn_hmClass(CCLE_evalOrd, fontsize_row=10, fontsize_col = 6)
 
 ### <a name="GEMM_geneConvert">Classify GEMM data</a>
 ```R
-<<<<<<< HEAD
 library(cancerCellNet)
 
 GEMM_PAAD = read.csv("GSE102598_LL_RNAseq_2017_rsem_est_counts_mm9_unique.csv")
 rownames(GEMM_PAAD) = GEMM_PAAD$X
 GEMM_PAAD$X = NULL
-=======
-system.time(xpairs<-ptGetTop(expTrain[cgenesA,], grps, topX=50, sliceSize=2000))
-   user  system elapsed 
-698.959 192.131 890.980 
-
-length(xpairs)
-[1] 948
->>>>>>> parent of fe7255b... add step to remove selection cassettes to readme
 ```
 ![](md_img/GEMM_GeneOriginal.PNG)
 
 To perform classification on GEMM or any mouse RNA-seq, we would have to perform gene conversion from mouse genes to human genes 
 
 ```R
-<<<<<<< HEAD
 GEMM_geneConvert = utils_convertToGeneSymbols(expTab = GEMM_PAAD, typeMusGene = TRUE)
-=======
-system.time(pdTrain<-query_transform(expTrain[cgenesA, ], xpairs))
-  user  system elapsed 
-  0.352   0.061   0.414 
-
-dim(pdTrain)
-
->>>>>>> parent of fe7255b... add step to remove selection cassettes to readme
 ```
 [1] "Could not convert 8393 genes."
 ![](md_img/GEMM_GeneConverted.PNG)
