@@ -59,8 +59,6 @@ subClass_trainNewRand<-function(cnProc_broad, stTrain, expTrain, colName_broadCa
   randClassMatrix = classMatrix[, grep("rand", colnames(classMatrix))] # get the random class 
   classMatrix = classMatrix[, -grep("rand", colnames(classMatrix))] # get the non-random class 
 
-
-
   
   if (weight_broadClass > 1) {
     print("Time to add weights")
