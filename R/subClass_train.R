@@ -16,11 +16,10 @@
 #' @param weightDown_total numeric post transformation sum of read counts for weighted_down function
 #' @param weightedDown_dThresh the threshold at which anything lower than that is 0 for weighted_down function
 #' @param transprop_xFact scaling factor for transprop
-#' @param weight_broadClass the amount of weight to be put on the broadclass results 
 #'
 #' @return a list containing normalized expression data, classification gene list, cnPRoc
 #' @export
-subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colName_subClass, name_broadCat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, weight_broadClass = 1) {
+subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colName_subClass, name_broadCat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5) {
    if (class(stTrain) != "data.frame") {
       stTrain = as.data.frame(stTrain)
    }
@@ -58,22 +57,6 @@ subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colN
 
    classMatrix = broadClass_predict(cnProc = cnProc_broad, expDat = expTrain)
    classMatrix = classMatrix[, -grep("rand", colnames(classMatrix))]
-
-   if (weight_broadClass > 1) {
-    print("Time to add weights")
-    originalRowNames = rownames(classMatrix)
-    originalClassMatrix = classMatrix 
-    weightIter = c(1:(weight_broadClass - 1))
-
-   for (weight in weightIter) {
-      newRownames = paste0(originalRowNames, "-", weight)
-      additionalClassMatrix = originalClassMatrix
-      rownames(additionalClassMatrix) = newRownames
-      classMatrix = rbind(classMatrix, additionalClassMatrix)
-    }
-
-    print("finished adding weights")
-  }
 
    cat("Start SubClass Query Transform\n")
    expValTrans = subClassQuery_transform(expDat = expTrain, cgenes = cgenesA, xpairs = xpairs, classMatrix = classMatrix)
