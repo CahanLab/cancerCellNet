@@ -64,7 +64,7 @@ subClass_trainNew<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, c
     classMatrix = rbind(classMatrix, classMatrix)
     randClassMatrix = rbind(randClassMatrix, randClassMatrix)
 
-    newRowNames = c(rownames(classMatrix), paste0(rownames(classMatrix), "-", weight))
+    newRowNames = c(rownames(classMatrix), paste0(rownames, "-", weight))
     rownames(classMatrix) = newRowNames
     rownames(randClassMatrix) = newRowNames
   }
