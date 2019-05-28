@@ -16,7 +16,7 @@ subClassQuery_transform<-function(expDat, cgenes, xpairs, classMatrix) {
 
    extraFeatures = classMatrix[, colnames(expValTrans)]
    if (all(colnames(expValTrans) == colnames(extraFeatures))) {
-      cat("All Good\n")
+      cat("Finished with subclass pairTransform\n")
    }
 
    returnMatrix = rbind(expValTrans, extraFeatures)

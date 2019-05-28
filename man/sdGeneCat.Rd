@@ -4,7 +4,7 @@
 \alias{sdGeneCat}
 \title{Standard Deviation Category Gene Expressions}
 \usage{
-sdGeneCat(expDat, sampTab, dLevel, sampID)
+sdGeneCat(expDat, sampTab, dLevel, sampID = NULL)
 }
 \arguments{
 \item{expDat}{the normalized expression table from \code{\link{trans_prop}}}
