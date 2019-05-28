@@ -21,7 +21,7 @@
 #' @importFrom pheatmap pheatmap
 #'
 #' @export
-ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, fontsize_row=4, fontsize_col=4, main=NA, scale=FALSE, ...){
+ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, fontsize_row=4, fontsize_col=4, main=NA, scale=FALSE){
 
   cools<-colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
   bcol<-'white';
@@ -65,8 +65,7 @@ ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, 
              ##        annotation_col = annTab,
              annotation_col = xx,
              main = main,
-             annotation_names_col = FALSE, annotation_colors = anno_colors, fontsize_row=fontsize_row, fontsize_col=fontsize_col,
-             ...)
+             annotation_names_col = FALSE, annotation_colors = anno_colors, fontsize_row=fontsize_row, fontsize_col=fontsize_col)
   }
 
 }
