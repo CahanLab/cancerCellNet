@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 Package: cancerCellNet
 Title: CellNet, for cancer
 Version: 0.2.0
@@ -20,15 +19,3 @@ Imports:
     ComplexHeatmap
 Suggests: 
     testthat
-=======
-Package: cancerCellNet
-Title: CellNet, for cancer
-Version: 0.2.0
-Authors@R: person("Patrick", "Cahan", email = "patrick.cahan@gmail.com", role = c("aut", "cre"))
-Description: CellNet, for cancer
-Depends: R (>= 3.3.1)
-License: MIT
-Encoding: UTF-8
-LazyData: true
-RoxygenNote: 6.0.1
->>>>>>> parent of 590b901... Documentation
