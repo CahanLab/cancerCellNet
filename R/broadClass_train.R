@@ -40,7 +40,7 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.nam
 
    cat("There are ", length(cgenesA), " classification genes\n")
 
-   system.time(xpairs<-ptGetTop(expTrain[cgenesA,], grps, topX=50, sliceSize=2000))
+   system.time(xpairs<-ptGetTop(expTrain[cgenesA,], grps, topX=nTopGenePairs, sliceSize=2000))
    cat("Finished finding top gene pairs\n")
 
    # some of these might include selection cassettes; remove them
