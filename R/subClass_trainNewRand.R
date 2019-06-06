@@ -1,5 +1,5 @@
 #' @title
-#' Sub-Class Training (New and maybe improved version)
+#' Sub-Class Training (New and maybe improved version) with merged rand category
 #' @description
 #' Tranining sub-class classifier
 #' @param cnProc_broad the broad cnProc from \code{\link{broadClass_train}}
