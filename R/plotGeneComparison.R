@@ -11,7 +11,7 @@
 #' @return a heatmap of gene expressions for the comparsion expression matrix
 #' @importFrom RColorBrewer brewer.pal
 #' @export
-plotGeneComparison<-function(expDat, fontsize_row = 6, cRows = FALSE, cCols = FALSE){
+plotGeneComparison<-function(expDat, fontsize_row = 6, cRows = FALSE, cCols = FALSE, ...){
   grps = as.vector(colnames(expDat))
   names(grps) = colnames(expDat)
   genes = rownames(expDat)
@@ -50,7 +50,8 @@ plotGeneComparison<-function(expDat, fontsize_row = 6, cRows = FALSE, cCols = FA
   val_col<-colorRampPalette(rev(RColorBrewer::brewer.pal(n = 12,name = "Spectral")))(25)
   pheatmap(value, color=val_col, cluster_row = cRows, cluster_cols = cCols,
            show_colnames = FALSE, annotation_names_row = FALSE,
-           ##        annotation_col = annTab,
            annotation_col = xx,
-           annotation_names_col = FALSE, annotation_colors = anno_colors, fontsize_row=fontsize_row)
+           annotation_names_col = FALSE,
+           annotation_colors = anno_colors,
+           fontsize_row=fontsize_row, ...)
 }
