@@ -37,7 +37,7 @@ subClass_hmClass <- function(subClassMat, broadClassMat, cScoreCat) {
                                                                                 gp = gpar(fill = "#66ADE5")),
 
                                                 height = unit(2, "cm"),
-                                                col = list("Classification Results" = xcol),
+                                                col = list("Broad Classification" = xcol),
                                                 show_annotation_name = TRUE,
                                                 annotation_name_offset = unit(9, "mm"), gap = unit(2, "mm"),
                                                 annotation_name_gp = par(ps = 0.01, font = 4, cex=0.8))
