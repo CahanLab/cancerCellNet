@@ -2,7 +2,7 @@
 % Please edit documentation in R/subClass_trainNewRand.R
 \name{subClass_trainNewRand}
 \alias{subClass_trainNewRand}
-\title{Sub-Class Training (New and maybe improved version)}
+\title{Sub-Class Training (New and maybe improved version) with merged rand category}
 \usage{
 subClass_trainNewRand(cnProc_broad, stTrain, expTrain, colName_broadCat,
   colName_subClass, name_broadCat, colName_samp = "row.names",

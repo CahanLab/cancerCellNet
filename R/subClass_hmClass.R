@@ -8,7 +8,7 @@
 #' @param cScoreCat the broad category that users want to display the classification score
 #' @return classification heatmap
 #'
-#' @import RColorBrewer
+#' @import RColorBrewer ComplexHeatmap circlize
 #'
 #' @export
 subClass_hmClass <- function(subClassMat, broadClassMat, cScoreCat) {
@@ -23,8 +23,10 @@ subClass_hmClass <- function(subClassMat, broadClassMat, cScoreCat) {
 
   }
 
-  cools<-colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
-  xcol <- colorRampPalette(rev(brewer.pal(n = 12,name = "Paired")))(length(unique(model_label)))
+  cools = colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
+  cools = circlize::colorRamp2(seq(0, 1,length.out = 100), cools)
+
+  xcol = colorRampPalette(rev(brewer.pal(n = 12,name = "Paired")))(length(unique(model_label)))
 
   names(xcol) = unique(model_label)
 
