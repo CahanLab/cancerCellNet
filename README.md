@@ -98,6 +98,8 @@ returnSubClass = subClass_train(cnProc_broad = cnProc_broad,
 
 save(returnSubClass, file="SubClassifier_return.rda")
 ```
+Using the randomCat parameter, you can indicate the subcategory in the sample table that you want the classifier to sample from to generate the rand profiles. You can also leave the randomCat as the default to indicate that there are no specific subcategory that you wish to sample from to add to rand category 
+
 ### <a name="broadVal_ccn">BroadClass Validation</a>
 
 ```R
@@ -149,7 +151,8 @@ stVal_Sub_ord = stVal_Sub[order(stVal_Sub$SubClass), ] #order by cateogry
 expVal_sub = expGDC[iGenes, rownames(stVal_Sub_ord)]
 
 cnProc_sub = returnSubClass$cnProc
-classMatrix_sub = subClass_predict(cnProc_broad, cnProc_sub, expVal_sub, nrand = 20)
+classMatrix_sub = subClass_predict(cnProc_broad, cnProc_sub, expVal_sub, nrand = 20, weight_broadClass = 1)
+
 ```
 To classify subclasses, you need the cnProc of broad class classifier. 
 
@@ -157,16 +160,19 @@ To classify subclasses, you need the cnProc of broad class classifier.
 stValRand_sub = addRandToSampTab(classMatrix_sub, stVal_Sub_ord, "SubClass", "SampleBarCodes")
 grps = as.vector(stValRand_sub$SubClass)
 names(grps)<-rownames(stValRand_sub)
+grps[grps == "Other_TCGA_CancerType"] = "rand" #include other TCGA cancer as part of rand
 ccn_hmClass(classMatrix_sub, grps=grps, fontsize_row=10)
+
 ```
-![](md_img/classHeat_subclass_20190118.png)
+![](md_img/subClass_TCGA.png)
 
 You can also assess the subclass classifier 
 ```R
+stValRand_sub[stValRand_sub$SubClass == "Other_TCGA_CancerType", "SubClass"] = "rand"
 assessmentDat = ccn_classAssess(classMatrix_sub, stValRand_sub, "SubClass","SampleBarCodes")
 plot_class_PRs(assessmentDat) # plot out the PR curves
 ```
-![](md_img/PR_sub_20190118.png)
+![](md_img/subTCGA_PR.png)
 
 ## <a name="app_BRCA">Application of classifiers</a>
 
