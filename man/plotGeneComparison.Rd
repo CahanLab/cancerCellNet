@@ -5,7 +5,7 @@
 \title{Gene expression plotting}
 \usage{
 plotGeneComparison(expDat, fontsize_row = 6, cRows = FALSE,
-  cCols = FALSE, ...)
+  cCols = FALSE, toScale = FALSE, ...)
 }
 \arguments{
 \item{expDat}{comparison expression matrix from \code{\link{makeGeneCompareTab}}}

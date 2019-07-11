@@ -1,5 +1,5 @@
 #' @title
-#' Sub-Class Training (New and maybe improved version) with merged rand category
+#' Sub-Class Training (new and improved version) with merged rand category
 #' @description
 #' Tranining sub-class classifier
 #' @param cnProc_broad the broad cnProc from \code{\link{broadClass_train}}
@@ -17,10 +17,10 @@
 #' @param weightedDown_dThresh the threshold at which anything lower than that is 0 for weighted_down function
 #' @param transprop_xFact scaling factor for transprop
 #' @param weight_broadClass the weight on the result of the broad classification as features for subclassifier
-#' @param randomCat the name of the random category 
-#' @return a list containing normalized expression data, classification gene list, cnPRoc
+#' @param randomCat the name of the category that users want to sample from to make rand
+#' @return a list containing normalized expression data, classification gene list, cnProc
 #' @export
-subClass_trainNewRand<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colName_subClass, name_broadCat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, weight_broadClass = 1, randomCat = NULL) {
+subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colName_subClass, name_broadCat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, weight_broadClass = 1, randomCat = NULL) {
   if (class(stTrain) != "data.frame") {
     stTrain = as.data.frame(stTrain)
   }
@@ -61,7 +61,7 @@ subClass_trainNewRand<-function(cnProc_broad, stTrain, expTrain, colName_broadCa
 
   
   if (weight_broadClass > 1) {
-    print("Time to add weights")
+    print("Adding weights to broadclass c-scores")
     originalRowNames = rownames(classMatrix)
     originalClassMatrix = classMatrix 
     originalRandClassMatrix = randClassMatrix
@@ -77,7 +77,7 @@ subClass_trainNewRand<-function(cnProc_broad, stTrain, expTrain, colName_broadCa
       randClassMatrix = rbind(randClassMatrix, additionalRandClassMatrix)
     }
 
-    print("finished adding weights")
+    print("Finished adding weights")
   }
   
 
