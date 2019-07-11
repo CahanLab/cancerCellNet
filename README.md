@@ -86,7 +86,16 @@ stTrain_sub = stList_sub[[1]]
 expTrain_sub = expGDC[iGenes, as.vector(stTrain_sub$SampleBarCodes)]
 cnProc_broad = returnBroad$cnProc
 
-returnSubClass = subClass_train(cnProc_broad = cnProc_broad, stTrain = stTrain_sub, expTrain = expTrain_sub, colName_broadCat = "BroadClass", colName_subClass = "SubClass", name_broadCat = "TCGA-BRCA", colName_samp="SampleBarCodes")
+returnSubClass = subClass_train(cnProc_broad = cnProc_broad,
+                                stTrain = stTrain_sub,
+                                expTrain = expTrain_sub,
+                                colName_broadCat = "BroadClass",
+                                colName_subClass = "SubClass",
+                                name_broadCat = "TCGA-BRCA",
+                                weight_broadClass = 1,
+                                colName_samp="SampleBarCodes",
+                                randomCat = "Other_TCGA_CancerType")
+
 save(returnSubClass, file="SubClassifier_return.rda")
 ```
 ### <a name="broadVal_ccn">BroadClass Validation</a>

@@ -2,9 +2,10 @@
 % Please edit documentation in R/subClass_predict.R
 \name{subClass_predict}
 \alias{subClass_predict}
-\title{Predict sub class query using broad class and subclass classifier}
+\title{Predict sub class query using broad class and subclass classifier (newer version)}
 \usage{
-subClass_predict(cnProc_broad, cnProc_sub, expDat, nrand = 2)
+subClass_predict(cnProc_broad, cnProc_sub, expDat, nrand = 2,
+  weight_broadClass = 1)
 }
 \arguments{
 \item{cnProc_broad}{the cnProc of the broad classifier}
@@ -12,6 +13,8 @@ subClass_predict(cnProc_broad, cnProc_sub, expDat, nrand = 2)
 \item{expDat}{the expression data of query data}
 
 \item{nrand}{the number of random profiles generate for evaluation process}
+
+\item{weight_broadClass}{the weight that will be put on the broadclass classification}
 
 \item{cnProc_subclass}{the cnProc of the subclass classifier}
 }
