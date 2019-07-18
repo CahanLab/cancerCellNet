@@ -12,7 +12,7 @@
 #' @return matrix of downsampled read mapped to genes/transcripts
 #'
 #' @export
-weighted_down<-function(expRaw, total=1e5, dThresh=0){
+weighted_down<-function(expRaw, total=1e5, dThresh=0) {
   expCountDnW<-apply(expRaw, 2, downSampleW, total=total, dThresh=dThresh)
   expCountDnW
 }

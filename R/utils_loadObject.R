@@ -6,7 +6,7 @@
 #' @return A R object
 #'
 #' @export
-utils_loadObject<-function (fname){
-  x<-load(fname);
-  get(x);
+utils_loadObject<-function(fname) {
+  x<-load(fname)
+  get(x)
 }
