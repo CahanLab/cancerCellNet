@@ -15,6 +15,10 @@ plot_class_PRs<-function(assessed){
   ctts<-names(assessed)
   df<-data.frame()
   for(ctt in ctts){
+    if(max(assessed[[ctt]][,'TP']) == 0){
+      next
+    }
+
     tmp<-assessed[[ctt]]
     tmp<-cbind(tmp, ctype=ctt)
     df<-rbind(df, tmp)
