@@ -99,7 +99,7 @@ subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colN
 
   cnProc_subClass = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= newGrps, newFeatures = "newFeatures",  "classifier" = tspRF[[1]], "trainingSamp" = tspRF[[2]], namedVector = tspRF[[3]])
 
-  returnList = list("expTnorm" = expTnorm, "sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc_subClass" = cnProc_subClass)
+  returnList = list("sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc_subClass" = cnProc_subClass)
 
   cat("All Done \n")
   # return

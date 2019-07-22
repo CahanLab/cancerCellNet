@@ -19,16 +19,16 @@
 broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5) {
 
    if (class(stTrain) != "data.frame") {
-      stTrain = as.data.frame(stTrain)
+      stTrain<-as.data.frame(stTrain)
    }
 
    if (colName_samp != "row.names") {
-     rownames(stTrain) = stTrain[, colName_samp]
+     rownames(stTrain)<-stTrain[, colName_samp]
    }
 
    cat("Sample table has been prepared\n")
 
-   expTnorm = trans_prop(weighted_down(expTrain, weightedDown_total, dThresh = weightedDown_dThresh), transprop_xFact)
+   expTnorm<-trans_prop(weighted_down(expTrain, weightedDown_total, dThresh = weightedDown_dThresh), transprop_xFact)
    cat("Expression data has been normalized\n")
 
    system.time(cgenes<-findClassyGenes(expDat = expTnorm, sampTab = stTrain, dLevel = colName_cat, topX = nTopGenes))
@@ -50,10 +50,10 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.nam
    system.time(pdTrain<-query_transform(expTrain[cgenesA, ], xpairs))
    cat("Finished pair transforming the data\n")
 
-   tspRF = makeClassifier(pdTrain[xpairs,], genes=xpairs, groups=grps, nRand = nRand, ntrees = nTrees)
-   cnProc = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= grps, "classifier" = tspRF)
+   tspRF<-makeClassifier(pdTrain[xpairs,], genes=xpairs, groups=grps, nRand = nRand, ntrees = nTrees)
+   cnProc<-list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= grps, "classifier" = tspRF)
 
-   returnList = list("expTnorm" = expTnorm, "sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc" = cnProc)
+   returnList<-list("sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc" = cnProc)
 
    cat("All Done\n")
    #return
