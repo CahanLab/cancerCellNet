@@ -14,7 +14,7 @@
 #' @param weightedDown_dThresh the threshold at which anything lower than that is 0 for weighted_down function
 #' @param transprop_xFact scaling factor for transprop
 #'
-#' @return a list containing normalized expression data, classification gene list, cnPRoc
+#' @return a list containing normalized expression data, classification gene list, cnProc
 #' @export
 broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5) {
 
