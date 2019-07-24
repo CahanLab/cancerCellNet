@@ -10,12 +10,12 @@
 #' @param nTopGenePairs the number of top gene pairs per category
 #' @param nRand number of random profiles generate for training
 #' @param nTrees number of trees for random forest classifier
-#' @param stratify TRUE if stratified sampling 
+#' @param stratify TRUE if stratified sampling
 #' @param sampsize sample size for stratified sampling
 #' @param weightDown_total numeric post transformation sum of read counts for weighted_down function
 #' @param weightedDown_dThresh the threshold at which anything lower than that is 0 for weighted_down function
 #' @param transprop_xFact scaling factor for transprop
-#' @param quickPairs TRUE if using quick version of genepair transform 
+#' @param quickPairs TRUE if using quick version of genepair transform
 #'
 #' @return a list containing normalized expression data, classification gene list, cnPRoc
 #' @export
@@ -56,7 +56,7 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.nam
    tspRF = makeClassifier(pdTrain[xpairs,], genes=xpairs, groups=grps, nRand = nRand, ntrees = nTrees, stratify=stratify, sampsize=sampsize)
    cnProc = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= grps, "classifier" = tspRF)
 
-   returnList = list("expTnorm" = expTnorm, "sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc" = cnProc)
+   returnList = list("sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc" = cnProc)
 
    cat("All Done\n")
    #return
