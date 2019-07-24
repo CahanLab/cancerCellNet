@@ -4,16 +4,21 @@
 \alias{ptGetTop}
 \title{Find the best gene pairs for training (new code)}
 \usage{
-ptGetTop(expDat, cell_labels, topX = 50, sliceSize = 5000)
+ptGetTop(expDat, cell_labels, cgenes_list = NA, topX = 50,
+  sliceSize = 5000, quickPairs = FALSE)
 }
 \arguments{
 \item{expDat}{expDat}
 
 \item{cell_labels}{named vector, value is grp, name is cell name}
 
-\item{topX}{50}
+\item{cgenes_list}{the list of labelled cgenes}
+
+\item{topX}{number of genepairs for training}
 
 \item{sliceSize}{the size of the slice. Default at 5e3}
+
+\item{quickPairs}{TRUE if wanting to select the gene pairs in a quick fashion}
 }
 \value{
 vector of gene-pair names

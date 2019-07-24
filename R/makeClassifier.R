@@ -9,6 +9,8 @@
 #' @param groups named vector of cells to cancer categories
 #' @param nRand number of randomized profiles to make
 #' @param ntrees number of trees to build
+#' @param stratify whether to use stratified sampling or not 
+#' @param samplesize the samplesize for straified sampling 
 #' @importFrom randomForest randomForest
 #'
 #' @return Random Forest Classifier object

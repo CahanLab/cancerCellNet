@@ -4,7 +4,8 @@
 \alias{makeClassifier}
 \title{Make Classifier}
 \usage{
-makeClassifier(expTrain, genes, groups, nRand = 50, ntrees = 2000)
+makeClassifier(expTrain, genes, groups, nRand = 50, ntrees = 2000,
+  stratify = FALSE, sampsize = 40)
 }
 \arguments{
 \item{expTrain}{transformed training data from \code{\link{query_transform}}}
@@ -16,6 +17,10 @@ makeClassifier(expTrain, genes, groups, nRand = 50, ntrees = 2000)
 \item{nRand}{number of randomized profiles to make}
 
 \item{ntrees}{number of trees to build}
+
+\item{stratify}{whether to use stratified sampling or not}
+
+\item{samplesize}{the samplesize for straified sampling}
 }
 \value{
 Random Forest Classifier object

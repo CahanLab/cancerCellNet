@@ -6,8 +6,9 @@
 \usage{
 broadClass_train(stTrain, expTrain, colName_cat,
   colName_samp = "row.names", nTopGenes = 20, nTopGenePairs = 50,
-  nRand = 40, nTrees = 1000, weightedDown_total = 5e+05,
-  weightedDown_dThresh = 0.25, transprop_xFact = 1e+05)
+  nRand = 40, nTrees = 1000, stratify = FALSE, sampsize = 40,
+  weightedDown_total = 5e+05, weightedDown_dThresh = 0.25,
+  transprop_xFact = 1e+05, quickPairs = FALSE)
 }
 \arguments{
 \item{stTrain}{a dataframe that matches the samples with category}
@@ -26,14 +27,20 @@ broadClass_train(stTrain, expTrain, colName_cat,
 
 \item{nTrees}{number of trees for random forest classifier}
 
+\item{stratify}{TRUE if stratified sampling}
+
+\item{sampsize}{sample size for stratified sampling}
+
 \item{weightedDown_dThresh}{the threshold at which anything lower than that is 0 for weighted_down function}
 
 \item{transprop_xFact}{scaling factor for transprop}
 
+\item{quickPairs}{TRUE if using quick version of genepair transform}
+
 \item{weightDown_total}{numeric post transformation sum of read counts for weighted_down function}
 }
 \value{
-a list containing normalized expression data, classification gene list, cnProc
+a list containing normalized expression data, classification gene list, cnPRoc
 }
 \description{
 Tranining broad class classifier

@@ -94,8 +94,10 @@ ptGetTop_old<-function(expDat, cell_labels, topX=50, sliceSize = 5e3){
 #'
 #' @param expDat expDat
 #' @param cell_labels named vector, value is grp, name is cell name
-#' @param topX 50
+#' @param cgenes_list the list of labelled cgenes 
+#' @param topX number of genepairs for training 
 #' @param sliceSize the size of the slice. Default at 5e3
+#' @param quickPairs TRUE if wanting to select the gene pairs in a quick fashion 
 #'
 #' @import parallel
 #' @return vector of gene-pair names
