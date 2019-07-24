@@ -16,7 +16,7 @@
 #'
 #' @return a list containing normalized expression data, classification gene list, cnPRoc
 #' @export
-broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5) {
+broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, stratify=FALSE, sampsize=40, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, quickPairs = FALSE) {
 
    if (class(stTrain) != "data.frame") {
       stTrain = as.data.frame(stTrain)
@@ -40,7 +40,7 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.nam
 
    cat("There are ", length(cgenesA), " classification genes\n")
 
-   system.time(xpairs<-ptGetTop(expTrain[cgenesA,], grps, topX=nTopGenePairs, sliceSize=2000))
+   system.time(xpairs<-ptGetTop(expTrain[cgenesA,], grps, cgenes_list, topX=nTopGenePairs, sliceSize=2000, quickPairs=quickPairs))
    cat("Finished finding top gene pairs\n")
 
    # some of these might include selection cassettes; remove them
@@ -50,7 +50,7 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.nam
    system.time(pdTrain<-query_transform(expTrain[cgenesA, ], xpairs))
    cat("Finished pair transforming the data\n")
 
-   tspRF = makeClassifier(pdTrain[xpairs,], genes=xpairs, groups=grps, nRand = nRand, ntrees = nTrees)
+   tspRF = makeClassifier(pdTrain[xpairs,], genes=xpairs, groups=grps, nRand = nRand, ntrees = nTrees, stratify=stratify, sampsize=sampsize)
    cnProc = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= grps, "classifier" = tspRF)
 
    returnList = list("expTnorm" = expTnorm, "sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc" = cnProc)
