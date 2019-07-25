@@ -31,7 +31,7 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
 
   xdiff<-gnrAll(expDat[ggenes,], grps)
   cgenes<-lapply(xdiff, getClassGenes, topX=topX)
-  labelled_cgenes <- cgenes 
+  labelled_cgenes <- cgenes
   cgenes<-unique(unlist(cgenes))
   list(cgenes=cgenes, grps=grps, labelled_cgenes=labelled_cgenes)
 }
@@ -87,5 +87,9 @@ getClassGenes<-function(diffRes, topX=25, bottom=TRUE) {
   if(bottom){
     ans<-append(ans, rownames( diffRes[nrow(diffRes) - ((topX-1):0),]))
   }
+
+  # get the least differentially expressed genes as house holders
+  sameRes<-diffRes[order(abs(diffRes$cval), decreasing = FALSE), ]
+  ans<-append(ans, rownames(sameRes[1:topX, ]))
   ans
 }
