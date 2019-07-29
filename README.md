@@ -70,6 +70,13 @@ save(returnBroad, file="BroadClassifier_return.rda")
 ```
 Randomly select 40 training samples in each broad category using "splitCommon" function and pass into "broadClass_train" for training a broad classifier. 
 
+Alternative, you could apply stratified sampling and quick pair transform to reduce training time. For using stratified sampling, you could use all the samples (even imbalanced sample size) in training.   
+```R
+returnBroad = broadClass_train(stTrain = stTrain, expTrain = expTrain, colName_cat = "BroadClass", colName_samp = "SampleBarCodes", nRand = 70, nTopGenes = 25, nTopGenePairs = 70, nTrees = 2000, stratify=TRUE, sampsize=60, quickPairs=TRUE)
+
+save(returnBroad, file="BroadClassifier_return.rda")
+```
+
 ```R
 names(returnBroad)
 [1] "expTnorm"    "sampTab"     "cgenes_list" "cnProc"
