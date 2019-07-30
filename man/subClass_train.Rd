@@ -7,8 +7,9 @@
 subClass_train(cnProc_broad, stTrain, expTrain, colName_broadCat,
   colName_subClass, name_broadCat, colName_samp = "row.names",
   nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000,
-  weightedDown_total = 5e+05, weightedDown_dThresh = 0.25,
-  transprop_xFact = 1e+05, weight_broadClass = 1, randomCat = NULL)
+  stratify = FALSE, sampsize = 40, weightedDown_total = 5e+05,
+  weightedDown_dThresh = 0.25, transprop_xFact = 1e+05,
+  weight_broadClass = 1, quickPairs = FALSE)
 }
 \arguments{
 \item{cnProc_broad}{the broad cnProc from \code{\link{broadClass_train}}}
@@ -38,8 +39,6 @@ subClass_train(cnProc_broad, stTrain, expTrain, colName_broadCat,
 \item{transprop_xFact}{scaling factor for transprop}
 
 \item{weight_broadClass}{the weight on the result of the broad classification as features for subclassifier}
-
-\item{randomCat}{the name of the category that users want to sample from to make rand}
 
 \item{weightDown_total}{numeric post transformation sum of read counts for weighted_down function}
 }

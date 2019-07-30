@@ -17,10 +17,9 @@
 #' @param weightedDown_dThresh the threshold at which anything lower than that is 0 for weighted_down function
 #' @param transprop_xFact scaling factor for transprop
 #' @param weight_broadClass the weight on the result of the broad classification as features for subclassifier
-#' @param randomCat the name of the category that users want to sample from to make rand
 #' @return a list containing normalized expression data, classification gene list, cnProc
 #' @export
-subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colName_subClass, name_broadCat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, weight_broadClass = 1, randomCat = NULL) {
+subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colName_subClass, name_broadCat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, stratify=FALSE, sampsize=40, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, weight_broadClass = 1, quickPairs = FALSE) {
   if (class(stTrain) != "data.frame") {
     stTrain = as.data.frame(stTrain)
   }
@@ -45,25 +44,25 @@ subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colN
   cgenes_list <- cgenes[['labelled_cgenes']]
   cat("There are ", length(cgenesA), " classification genes\n")
 
-  system.time(xpairs<-ptGetTop(expTnorm_sub[cgenesA,], grps, topX=nTopGenePairs, sliceSize=2000))
+  system.time(xpairs<-ptGetTop(expTnorm_sub[cgenesA,], grps, topX=nTopGenePairs, sliceSize=2000, quickPairs=quickPairs))
   cat("Finished finding top gene pairs\n")
 
   # some of these might include selection cassettes; remove them
   xi<-setdiff(1:length(xpairs), grep("selection", xpairs))
   xpairs<-xpairs[xi]
 
-  system.time(pdTrain_rand<-query_transform(expTrain[cgenesA, ], xpairs)) 
+  system.time(pdTrain_rand<-query_transform(expTrain[cgenesA, ], xpairs))
   cat("Finished pair transforming the data\n")
 
   classMatrix = broadClass_predict(cnProc = cnProc_broad, expDat = expTrain, nrand = nRand)
-  randClassMatrix = classMatrix[, grep("rand", colnames(classMatrix))] # get the random class 
-  classMatrix = classMatrix[, -grep("rand", colnames(classMatrix))] # get the non-random class 
+  randClassMatrix = classMatrix[, grep("rand", colnames(classMatrix))] # get the random class
+  classMatrix = classMatrix[, -grep("rand", colnames(classMatrix))] # get the non-random class
 
-  
+
   if (weight_broadClass > 1) {
     print("Adding weights to broadclass c-scores")
     originalRowNames = rownames(classMatrix)
-    originalClassMatrix = classMatrix 
+    originalClassMatrix = classMatrix
     originalRandClassMatrix = randClassMatrix
 
     weightIter = c(1:(weight_broadClass - 1))
@@ -79,7 +78,7 @@ subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colN
 
     print("Finished adding weights")
   }
-  
+
 
   cat("Start SubClass Query Transform\n")
   expValTrans = subClassQuery_transform(expDat = expTrain, cgenes = cgenesA, xpairs = xpairs, classMatrix = classMatrix)
@@ -90,14 +89,10 @@ subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colN
   newGrps = as.vector(stTrain[, colName_subClass])
   names(newGrps) = rownames(stTrain)
 
-  if (is.null(randomCat) == FALSE) {
-     newGrps[newGrps == randomCat] = "rand"
-  }
-
-  system.time(tspRF<-makeSubClassifier(expValTrans[newFeatures,], genes=newFeatures, groups=newGrps, nRand=nRand, ntrees=nTrees, randClassMatrix, pdTrain_rand))
+  system.time(tspRF<-makeSubClassifier(expValTrans[newFeatures,], genes=newFeatures, groups=newGrps, nRand=nRand, ntrees=nTrees, randClassMatrix, pdTrain_rand, stratify=stratify, sampsize=sampsize))
   cat("Finished making the classifier \n")
 
-  cnProc_subClass = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= newGrps, newFeatures = "newFeatures",  "classifier" = tspRF[[1]], "trainingSamp" = tspRF[[2]], namedVector = tspRF[[3]])
+  cnProc_subClass = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= newGrps, newFeatures = "newFeatures",  "classifier" = tspRF[[1]], namedVector = tspRF[[2]])
 
   returnList = list("sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc_subClass" = cnProc_subClass)
 

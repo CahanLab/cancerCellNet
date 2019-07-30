@@ -5,7 +5,8 @@
 \title{Make Classifier tailored for subclassifier}
 \usage{
 makeSubClassifier(expTrain, genes, groups, nRand, ntrees = 2000,
-  classMatrix_rand, pairTransformedMatrix)
+  classMatrix_rand, pairTransformedMatrix, stratify = FALSE,
+  sampsize = 40)
 }
 \arguments{
 \item{expTrain}{transformed training data from \code{\link{query_transform}}}
@@ -21,6 +22,10 @@ makeSubClassifier(expTrain, genes, groups, nRand, ntrees = 2000,
 \item{classMatrix_rand}{the broad classification for the random category}
 
 \item{pairTransformedMatrix}{the pairtransformed matrix of the samples}
+
+\item{stratify}{TRUE for stratified sampling}
+
+\item{sampsize}{the stratified sample size for each category}
 }
 \value{
 Random Forest Classifier object for sub-classifier

@@ -1,5 +1,5 @@
 #' @title
-#' Make Classifier tailored for subclassifier 
+#' Make Classifier tailored for subclassifier
 #' @description
 #' Create a random forest classifier with the transformed training data from \code{\link{query_transform}}.
 #'
@@ -8,12 +8,14 @@
 #' @param groups named vector of cells to cancer categories
 #' @param nRand number of randomized profiles to make
 #' @param ntrees number of trees to build
-#' @param classMatrix_rand the broad classification for the random category 
-#' @param pairTransformedMatrix the pairtransformed matrix of the samples 
+#' @param classMatrix_rand the broad classification for the random category
+#' @param pairTransformedMatrix the pairtransformed matrix of the samples
+#' @param stratify TRUE for stratified sampling
+#' @param sampsize the stratified sample size for each category
 #' @importFrom randomForest randomForest
 #'
 #' @return Random Forest Classifier object for sub-classifier
-makeSubClassifier<-function(expTrain, genes, groups, nRand, ntrees=2000, classMatrix_rand, pairTransformedMatrix){
+makeSubClassifier<-function(expTrain, genes, groups, nRand, ntrees=2000, classMatrix_rand, pairTransformedMatrix, stratify=FALSE, sampsize=40){
   #randDat<-randomize(expTrain, num=nRand) # OG randomize
 
   randDat<-ModifiedRandomize(pairTransformedMatrix, num=ncol(classMatrix_rand))
@@ -25,10 +27,14 @@ makeSubClassifier<-function(expTrain, genes, groups, nRand, ntrees=2000, classMa
   cat("Number of missing genes ", length(missingGenes),"\n")
   ggenes<-intersect(unique(genes), allgenes)
 
-  rf = randomForest::randomForest(t(expTrain[ggenes,]), as.factor(c(groups, rep("rand", ncol(randDat)))), ntree=ntrees)
+  if(!stratify){
+    rf = randomForest::randomForest(t(expTrain[ggenes,]), as.factor(c(groups, rep("rand", ncol(randDat)))), ntree=ntrees)
+  }else{
+    rf = randomForest::randomForest(t(expTrain[ggenes,]), as.factor(c(groups, rep("rand", ncol(randDat)))), ntree=ntrees, strata = as.factor(c(groups, rep("rand", ncol(randDat)))), sampsize=rep(sampsize, length(c(unique(groups), "rand"))))
+  }
 
-  returnList = list(tspRF = rf, trainingExp = expTrain[ggenes,], namedVector = as.factor(c(groups, rep("rand", ncol(randDat)))))
+  returnList = list(tspRF = rf, namedVector = as.factor(c(groups, rep("rand", ncol(randDat)))))
 
-  # return 
+  # return
   returnList
 }
