@@ -23,14 +23,15 @@ makeSubClassifier<-function(expTrain, genes, groups, nRand, ntrees=2000, classMa
   expTrain<-cbind(expTrain, randDat)
 
   allgenes<-rownames(expTrain)
-  missingGenes<-setdiff(unique(genes), allgenes) # I don't think this line does anyhting
+  missingGenes<-setdiff(unique(genes), allgenes)
   cat("Number of missing genes ", length(missingGenes),"\n")
   ggenes<-intersect(unique(genes), allgenes)
 
   if(!stratify){
     rf = randomForest::randomForest(t(expTrain[ggenes,]), as.factor(c(groups, rep("rand", ncol(randDat)))), ntree=ntrees)
-  }else{
-    rf = randomForest::randomForest(t(expTrain[ggenes,]), as.factor(c(groups, rep("rand", ncol(randDat)))), ntree=ntrees, strata = as.factor(c(groups, rep("rand", ncol(randDat)))), sampsize=rep(sampsize, length(c(unique(groups), "rand"))))
+  }
+  else{
+    rf = randomForest::randomForest(t(expTrain[ggenes,]), as.factor(c(groups, rep("rand", ncol(randDat)))), ntree=ntrees, strata = as.factor(c(groups, rep("rand", ncol(randDat)))), sampsize=rep(sampsize, length(unique(c(groups, "rand")))))
   }
 
   returnList = list(tspRF = rf, namedVector = as.factor(c(groups, rep("rand", ncol(randDat)))))
