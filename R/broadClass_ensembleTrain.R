@@ -1,5 +1,5 @@
 #' @title
-#' Broad Class Ensemble Training
+#' Broad Class Ensemble Training (not commonly used)
 #' @description
 #' Tranining an ensemble of broad class classifiers
 #' @param stTrain a dataframe that matches the samples with category
@@ -21,11 +21,11 @@
 broadClass_ensembleTrain <- function(stTrain, expTrain, colName_cat, colName_samp="row.names", numClassifier = 5, ncells = 60, nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5) {
 
   if (class(stTrain) != "data.frame") {
-    stTrain<-as.data.frame(stTrain)
+    stTrain = as.data.frame(stTrain)
   }
 
   if (colName_samp != "row.names") {
-    rownames(stTrain)<-stTrain[, colName_samp]
+    rownames(stTrain) = stTrain[, colName_samp]
   }
 
   returnList = list()
