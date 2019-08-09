@@ -47,6 +47,7 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
 #' @return a vector of gene symbols
 #' @export
 sc_filterGenes<-function(geneStats, alpha1=0.1, alpha2=0.01, mu=2){
+
   #return
   rownames(geneStats[(geneStats$alpha > alpha1) | (geneStats$alpha > alpha2 & geneStats$mu > mu), ])
 }
@@ -62,8 +63,8 @@ gnrAll<-function(expDat, cellLabels){
   myPatternG<-sc_sampR_to_pattern(as.character(cellLabels))
   specificSets<-lapply(myPatternG, sc_testPattern, expDat=expDat)
   cat("Done testing\n")
-  #  grpOrder<-myGrpSort(cellLabels)
-  #  specificSets[grpOrder]
+
+  # return
   specificSets
 }
 
@@ -91,5 +92,7 @@ getClassGenes<-function(diffRes, topX=25, bottom=TRUE) {
   # get the least differentially expressed genes as house holders
   sameRes<-diffRes[order(abs(diffRes$cval), decreasing = FALSE), ]
   ans<-append(ans, rownames(sameRes[1:topX, ]))
+
+  #return
   ans
 }
