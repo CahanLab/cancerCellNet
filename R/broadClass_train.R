@@ -37,9 +37,9 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.nam
    system.time(cgenes<-findClassyGenes(expDat = expTnorm, sampTab = stTrain, dLevel = colName_cat, topX = nTopGenes))
    cat("Finished finding classification genes\n")
 
-   cgenesA<-cgenes[['cgenes']]
-   grps<-cgenes[['grps']]
-   cgenes_list <- cgenes[['labelled_cgenes']]
+   cgenesA = cgenes[['cgenes']]
+   grps = cgenes[['grps']]
+   cgenes_list = cgenes[['labelled_cgenes']]
 
    cat("There are ", length(cgenesA), " classification genes\n")
 
@@ -47,8 +47,8 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.nam
    cat("Finished finding top gene pairs\n")
 
    # some of these might include selection cassettes; remove them
-   xi<-setdiff(1:length(xpairs), grep("selection", xpairs))
-   xpairs<-xpairs[xi]
+   xi = setdiff(1:length(xpairs), grep("selection", xpairs))
+   xpairs = xpairs[xi]
 
    system.time(pdTrain<-query_transform(expTrain[cgenesA, ], xpairs))
    cat("Finished pair transforming the data\n")
