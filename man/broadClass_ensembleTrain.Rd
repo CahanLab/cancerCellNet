@@ -2,7 +2,7 @@
 % Please edit documentation in R/broadClass_ensembleTrain.R
 \name{broadClass_ensembleTrain}
 \alias{broadClass_ensembleTrain}
-\title{Broad Class Ensemble Training}
+\title{Broad Class Ensemble Training (not commonly used)}
 \usage{
 broadClass_ensembleTrain(stTrain, expTrain, colName_cat,
   colName_samp = "row.names", numClassifier = 5, ncells = 60,

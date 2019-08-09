@@ -15,6 +15,8 @@ plotGeneComparison(expDat, fontsize_row = 6, cRows = FALSE,
 \item{cRows}{TRUE if cluster the rows}
 
 \item{cCols}{TRUE if cluster the columns}
+
+\item{...}{pass parameters to pheamap}
 }
 \value{
 a heatmap of gene expressions for the comparsion expression matrix

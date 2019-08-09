@@ -2,7 +2,7 @@
 % Please edit documentation in R/ptGetTop.R
 \name{ptGetTop}
 \alias{ptGetTop}
-\title{Find the best gene pairs for training (new code)}
+\title{Find the best gene pairs for training}
 \usage{
 ptGetTop(expDat, cell_labels, cgenes_list = NA, topX = 50,
   sliceSize = 5000, quickPairs = FALSE)
@@ -16,12 +16,12 @@ ptGetTop(expDat, cell_labels, cgenes_list = NA, topX = 50,
 
 \item{topX}{number of genepairs for training}
 
-\item{sliceSize}{the size of the slice. Default at 5e3}
+\item{sliceSize}{the size of the slice for pair transform. Default at 5e3}
 
 \item{quickPairs}{TRUE if wanting to select the gene pairs in a quick fashion}
 }
 \value{
-vector of gene-pair names
+vector of top gene-pair names
 }
 \description{
 Find the gene pairs that most distinguish a cancer group from the rest
