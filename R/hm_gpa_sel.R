@@ -19,7 +19,6 @@
 #' @export
 hm_gpa_sel<-function(expDat, genes, grps, maxPerGrp=100, cRow=FALSE, cCol=FALSE, limits=c(0,10), toScale=FALSE, fontsize_row=4, reOrderCells=FALSE, ...){
 
-
   allgenes<-rownames(expDat)
   missingGenes<-setdiff(genes, allgenes) # find the genes that are not classification worthy
 
@@ -46,10 +45,6 @@ hm_gpa_sel<-function(expDat, genes, grps, maxPerGrp=100, cRow=FALSE, cCol=FALSE,
 
   cells<-names(grps)
 
-  ##
-  ## groupNames<-myGrpSort(grps)
-  ##
-
   cells2<-vector()
   for(groupName in groupNames){
     xi<-which(grps==groupName) #select samples that are in a certain group
@@ -64,7 +59,6 @@ hm_gpa_sel<-function(expDat, genes, grps, maxPerGrp=100, cRow=FALSE, cCol=FALSE,
   }
   value<-value[,cells2] # select the samples that are going to be used for plotting
 
-
   xcol <- colorRampPalette(rev(brewer.pal(n = 12,name = "Paired")))(length(groupNames))
   names(xcol) <- groupNames
   anno_colors <- list(group = xcol)
@@ -73,7 +67,6 @@ hm_gpa_sel<-function(expDat, genes, grps, maxPerGrp=100, cRow=FALSE, cCol=FALSE,
   rownames(xx)<-cells
 
   val_col <- colorRampPalette(rev(RColorBrewer::brewer.pal(n = 12,name = "Spectral")))(25)
-  #val_col <- colorRampPalette(brewer.pal(n = 12,name = "Spectral"))(100)
 
   pheatmap(value, cluster_rows = cRow, cluster_cols = cCol, color=val_col,
            show_colnames = FALSE, annotation_names_row = FALSE,
