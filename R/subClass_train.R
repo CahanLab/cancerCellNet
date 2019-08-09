@@ -20,6 +20,7 @@
 #' @return a list containing normalized expression data, classification gene list, cnProc
 #' @export
 subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colName_subClass, name_broadCat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, stratify=FALSE, sampsize=40, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, weight_broadClass = 1, quickPairs = FALSE) {
+
   if (class(stTrain) != "data.frame") {
     stTrain = as.data.frame(stTrain)
   }
@@ -39,17 +40,17 @@ subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colN
   system.time(cgenes<-findClassyGenes(expDat = expTnorm_sub, sampTab = stTrain_sub, dLevel = colName_subClass, topX = nTopGenes))
   cat("Finished finding classification genes\n")
 
-  cgenesA<-cgenes[['cgenes']]
-  grps<-cgenes[['grps']]
-  cgenes_list <- cgenes[['labelled_cgenes']]
+  cgenesA = cgenes[['cgenes']]
+  grps = cgenes[['grps']]
+  cgenes_list = cgenes[['labelled_cgenes']]
   cat("There are ", length(cgenesA), " classification genes\n")
 
   system.time(xpairs<-ptGetTop(expTnorm_sub[cgenesA,], grps, topX=nTopGenePairs, sliceSize=2000, quickPairs=quickPairs))
   cat("Finished finding top gene pairs\n")
 
   # some of these might include selection cassettes; remove them
-  xi<-setdiff(1:length(xpairs), grep("selection", xpairs))
-  xpairs<-xpairs[xi]
+  xi = setdiff(1:length(xpairs), grep("selection", xpairs))
+  xpairs = xpairs[xi]
 
   system.time(pdTrain_rand<-query_transform(expTrain[cgenesA, ], xpairs))
   cat("Finished pair transforming the data\n")

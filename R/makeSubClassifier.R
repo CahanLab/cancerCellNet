@@ -16,16 +16,15 @@
 #'
 #' @return Random Forest Classifier object for sub-classifier
 makeSubClassifier<-function(expTrain, genes, groups, nRand, ntrees=2000, classMatrix_rand, pairTransformedMatrix, stratify=FALSE, sampsize=40){
-  #randDat<-randomize(expTrain, num=nRand) # OG randomize
 
-  randDat<-ModifiedRandomize(pairTransformedMatrix, num=ncol(classMatrix_rand))
+  randDat = ModifiedRandomize(pairTransformedMatrix, num=ncol(classMatrix_rand))
   randDat = rbind(randDat, classMatrix_rand)
-  expTrain<-cbind(expTrain, randDat)
+  expTrain = cbind(expTrain, randDat)
 
-  allgenes<-rownames(expTrain)
-  missingGenes<-setdiff(unique(genes), allgenes)
+  allgenes = rownames(expTrain)
+  missingGenes = setdiff(unique(genes), allgenes)
   cat("Number of missing genes ", length(missingGenes),"\n")
-  ggenes<-intersect(unique(genes), allgenes)
+  ggenes = intersect(unique(genes), allgenes)
 
   if(!stratify){
     rf = randomForest::randomForest(t(expTrain[ggenes,]), as.factor(c(groups, rep("rand", ncol(randDat)))), ntree=ntrees)
