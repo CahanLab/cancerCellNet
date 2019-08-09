@@ -9,14 +9,14 @@
 #' @param groups named vector of cells to cancer categories
 #' @param nRand number of randomized profiles to make
 #' @param ntrees number of trees to build
-#' @param stratify whether to use stratified sampling or not 
-#' @param samplesize the samplesize for straified sampling 
+#' @param stratify whether to use stratified sampling or not
+#' @param samplesize the samplesize for straified sampling
 #' @importFrom randomForest randomForest
 #'
 #' @return Random Forest Classifier object
 #' @export
 makeClassifier<-function(expTrain, genes, groups, nRand=50, ntrees=2000, stratify=FALSE, sampsize=40){
-  randDat<-randomize(expTrain, num=nRand) # OG randomize
+  randDat<-randomize(expTrain, num=nRand)
   #randDat<-ModifiedRandomize(expTrain, num=nRand)
 
   expTrain<-cbind(expTrain, randDat)
@@ -26,6 +26,7 @@ makeClassifier<-function(expTrain, genes, groups, nRand=50, ntrees=2000, stratif
   cat("Number of missing genes ", length(missingGenes),"\n")
   ggenes<-intersect(unique(genes), allgenes)
 
+  # return random forest object
   if(!stratify){
     randomForest::randomForest(t(expTrain[ggenes,]), as.factor(c(groups, rep("rand", ncol(randDat)))), ntree=ntrees)
   }else{
