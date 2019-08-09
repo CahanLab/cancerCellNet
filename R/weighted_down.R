@@ -14,6 +14,8 @@
 #' @export
 weighted_down<-function(expRaw, total=1e5, dThresh=0) {
   expCountDnW<-apply(expRaw, 2, downSampleW, total=total, dThresh=dThresh)
+
+  # return
   expCountDnW
 }
 
@@ -36,5 +38,7 @@ downSampleW<-function(vector, total=1e5, dThresh=0){
 
   ans<-vector-residW
   ans[which(ans<dThresh)]<-0
+
+  #return
   ans
 }
