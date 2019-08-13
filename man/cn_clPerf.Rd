@@ -19,7 +19,7 @@ cn_clPerf(vect, sampTab, dLevel, classification, thresh,
 \item{threshs}{seq of pval cutoffs}
 }
 \value{
-return a data frame of the number of TP, FN, FP, and TN, and pval cutoff
+vector of TP FN FP TN
 }
 \description{
 run cn_clPerf across thresholds

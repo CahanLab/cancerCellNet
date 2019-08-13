@@ -3,7 +3,7 @@
 \docType{data}
 \name{conversionList}
 \alias{conversionList}
-\title{List of Conversion dataframe}
+\title{List of Gene Conversion dataframe}
 \format{A list with 3 dataframes, which are:
 \describe{
 \item{ensTransToGene}{Dataframe that maps Ensembl Transcript ID to Gene Symbol}

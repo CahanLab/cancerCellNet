@@ -8,7 +8,7 @@ ccn_classAssess(ct_scores, stVal, classLevels = "description2",
   dLevelSID = "sample_id", resolution = 0.005)
 }
 \arguments{
-\item{ct_scores}{matrix of classification scores, rows = classifiers, columns = samples, colnames=sampleids}
+\item{ct_scores}{matrix of classification scores}
 
 \item{stVal}{sample table}
 
@@ -16,7 +16,7 @@ ccn_classAssess(ct_scores, stVal, classLevels = "description2",
 
 \item{dLevelSID}{column name of the sample table that indicates sample id}
 
-\item{resolution}{increment at which to evalutate classification}
+\item{resolution}{increment of thresholds for assessing the classifier}
 }
 \value{
 list of data frames with threshold, sens, precision

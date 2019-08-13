@@ -21,7 +21,7 @@ cn_eval(vect, sampTab, dLevel, classification, threshs = seq(0, 1, by =
 \item{thresh}{threshold above which to make a call}
 }
 \value{
-vector of TP FN FP TN
+return a data frame of the number of TP, FN, FP, and TN
 }
 \description{
 determine performance of classification at given threshold
