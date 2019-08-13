@@ -4,11 +4,11 @@
 #' @description
 #' Assess classifiers using validation data
 #'
-#' @param ct_scores matrix of classification scores, rows = classifiers, columns = samples, colnames=sampleids
+#' @param ct_scores matrix of classification scores
 #' @param stVal sample table
 #' @param classLevels column name of the sample table indicating the categories to be used as ground truth to assess classifiers
 #' @param dLevelSID column name of the sample table that indicates sample id
-#' @param resolution increment at which to evalutate classification
+#' @param resolution increment of thresholds for assessing the classifier
 #'
 #' @return list of data frames with threshold, sens, precision
 #' @export
@@ -17,7 +17,7 @@ ccn_classAssess<-function(ct_scores, stVal, classLevels="description2", dLevelSI
   evalAll<-matrix(0, nrow=nrow(ct_scores),ncol=2)
   classifications<-rownames(ct_scores)
   rownames(stVal)<-as.vector(stVal[,dLevelSID])
-  i<-1;
+  i<-1
 
   for(xname in classifications){
     classification<-classifications[i]
@@ -43,7 +43,7 @@ ccn_classAssess<-function(ct_scores, stVal, classLevels="description2", dLevelSI
 #' @param thresh threshold above which to make a call
 #' @param dLevelSID column to indicate sample id
 #'
-#' @return vector of TP FN FP TN
+#' @return return a data frame of the number of TP, FN, FP, and TN
 cn_eval<-function(vect, sampTab, dLevel, classification, threshs=seq(0,1,by=0.05), dLevelSID="sample_id"){
   ans<-matrix(0,nrow=length(threshs), ncol=9)
   for(i in seq(length(threshs))){
@@ -60,7 +60,8 @@ cn_eval<-function(vect, sampTab, dLevel, classification, threshs=seq(0,1,by=0.05
   ans[,'FPR']<-FPR
   ans[,'Sens']<-sens
   ans[,'Prec']<-prec
-  ans;
+
+  ans
 }
 
 #' run cn_clPerf across thresholds
@@ -72,7 +73,7 @@ cn_eval<-function(vect, sampTab, dLevel, classification, threshs=seq(0,1,by=0.05
 #' @param threshs seq of pval cutoffs
 #' @param dLevelSID column to indicate sample id
 #'
-#' @return return a data frame of the number of TP, FN, FP, and TN, and pval cutoff
+#' @return vector of TP FN FP TN
 cn_clPerf<-function # assumes rownames(sampTab) == sampTab identifier used as colname for vect
 (vect,
  sampTab,
@@ -87,7 +88,6 @@ cn_clPerf<-function # assumes rownames(sampTab) == sampTab identifier used as co
   sampIDs<-names(vect);
   classes<-as.vector(sampTab[sampIDs,dLevel]);
 
-  ###actualPos<-as.vector(sampTab[sampTab[,dLevel]==classification,]$sample_id);#which(classes==classification));
   actualPos<-as.vector(sampTab[sampTab[,dLevel]==classification,dLevelSID])
   actualNeg<-setdiff(sampIDs, actualPos);
 
@@ -98,5 +98,6 @@ cn_clPerf<-function # assumes rownames(sampTab) == sampTab identifier used as co
   FP <- length(intersect(actualNeg, calledPos));
   FN <- length(actualPos)-TP;
   TN <- length(actualNeg)-FP;
+
   c(TP, FN, FP, TN);
 }
