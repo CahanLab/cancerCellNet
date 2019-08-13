@@ -11,7 +11,7 @@
 sc_sampR_to_pattern<-function(sampR){
   d_ids<-unique(as.vector(sampR));
   nnnc<-length(sampR);
-  #  ans<-matrix(nrow=length(d_ids), ncol=nnnc);
+
   ans<-list()
   for(d_id in d_ids){
     x<-rep(0,nnnc);
