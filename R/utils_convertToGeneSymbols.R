@@ -5,7 +5,7 @@
 #' The function can convert Ensembl Gene ID, Ensembl Transcript ID or mouse gene symbol into human gene symbol
 #'
 #' @param expTab the matrix of experssion data with sample names as column names and gene names as row names
-#' @param typeENSG TRUE if the gene identifier is in Ensembl Transcript ID
+#' @param typeENST TRUE if the gene identifier is in Ensembl Transcript ID
 #' @param typeENSG TRUE if the gene identifier is in Ensembl Gene ID
 #' @param typeMusGene TRUE if the gene identifier is in mouse gene symbols
 #'

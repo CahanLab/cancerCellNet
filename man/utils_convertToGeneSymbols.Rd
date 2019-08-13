@@ -10,11 +10,11 @@ utils_convertToGeneSymbols(expTab, typeENST = FALSE, typeENSG = FALSE,
 \arguments{
 \item{expTab}{the matrix of experssion data with sample names as column names and gene names as row names}
 
-\item{typeENSG}{TRUE if the gene identifier is in Ensembl Transcript ID}
-
-\item{typeMusGene}{TRUE if the gene identifier is in mouse gene symbols}
+\item{typeENST}{TRUE if the gene identifier is in Ensembl Transcript ID}
 
 \item{typeENSG}{TRUE if the gene identifier is in Ensembl Gene ID}
+
+\item{typeMusGene}{TRUE if the gene identifier is in mouse gene symbols}
 }
 \value{
 a converted expression matrix
