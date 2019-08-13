@@ -16,31 +16,31 @@ ModifiedRandomize<-function(expDat, num=50) {
     rownames(randDat)<-rownames(expDat)
     randDat
 
-    returnRandDat = randDat
+    returnRandDat<-randDat
   }
   else {
-    returnRandDat = NULL
+    returnRandDat<-NULL
     while (num > ncol(expDat)) {
       randDat<-t(apply(expDat, 1, sample))
       randDat<-apply(randDat, 2, sample)
 
-      randDat = randDat[, sample(1:ncol(randDat), ncol(randDat))]
+      randDat<-randDat[, sample(1:ncol(randDat), ncol(randDat))]
 
 
       if (is.null(returnRandDat) == TRUE) {
-        returnRandDat = randDat
+        returnRandDat<-randDat
       }
       else {
-        returnRandDat = cbind(returnRandDat, randDat)
+        returnRandDat<-cbind(returnRandDat, randDat)
       }
-      num = num - ncol(expDat)
+      num<-num - ncol(expDat)
     }
 
     randDat<-t(apply(expDat, 1, sample))
     randDat<-apply(randDat, 2, sample)
 
-    randDat = randDat[, sample(1:ncol(randDat), num)]
-    returnRandDat = cbind(returnRandDat, randDat)
+    randDat<-randDat[, sample(1:ncol(randDat), num)]
+    returnRandDat<-cbind(returnRandDat, randDat)
 
     colnames(returnRandDat)<-paste0(rep("rand_", ncol(returnRandDat)), 1:ncol(returnRandDat))
     rownames(returnRandDat)<-rownames(expDat)
