@@ -22,8 +22,8 @@ sc_testPattern<-function(pattern, expDat){
   cval<- sqrt(as.numeric(llfit$summary[,2])) * sign(ccorr); # R squared
   pval<-as.numeric(xxx[,8]); # p-value of X coefficient
 
-  #qval<-qvalue(pval)$qval;
   holm<-p.adjust(pval, method='holm');
-  #data.frame(row.names=geneids, pval=pval, cval=cval, qval=qval, holm=holm);
+
+
   data.frame(row.names=geneids, pval=pval, cval=cval,holm=holm);
 }
