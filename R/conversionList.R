@@ -1,4 +1,4 @@
-#' @title List of Conversion dataframe
+#' @title List of Gene Conversion dataframe
 #'
 #' @description A list containing 3 dataframes that maps Ensembl Gene ID, Ensembl Transcript ID and Mouse Gene Symbols to Human Gene Symbols
 #'
