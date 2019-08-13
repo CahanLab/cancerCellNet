@@ -22,7 +22,7 @@ makeClassifier<-function(expTrain, genes, groups, nRand=50, ntrees=2000, stratif
   expTrain<-cbind(expTrain, randDat)
 
   allgenes<-rownames(expTrain)
-  missingGenes<-setdiff(unique(genes), allgenes) # I don't think this line does anyhting
+  missingGenes<-setdiff(unique(genes), allgenes)
   cat("Number of missing genes ", length(missingGenes),"\n")
   ggenes<-intersect(unique(genes), allgenes)
 
