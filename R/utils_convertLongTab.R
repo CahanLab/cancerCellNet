@@ -18,9 +18,9 @@
 #' @importFrom stringr str_replace
 #'
 utils_convertLongTab <- function(longDf, SampCol, geneCol, geneExpCol, geneNaOmit = TRUE) {
-  longDf_extract <- data.frame(longDf[, c(SampCol, geneCol, geneExpCol) ])
-  exp_tab_rs <- reshape(longDf_extract, idvar = geneCol, timevar = SampCol, direction = "wide")
-  colnames(exp_tab_rs) <- stringr::str_replace(colnames(exp_tab_rs), paste0(geneExpCol, "."), "")
+  longDf_extract = data.frame(longDf[, c(SampCol, geneCol, geneExpCol) ])
+  exp_tab_rs = reshape(longDf_extract, idvar = geneCol, timevar = SampCol, direction = "wide")
+  colnames(exp_tab_rs) = stringr::str_replace(colnames(exp_tab_rs), paste0(geneExpCol, "."), "")
   rownames(exp_tab_rs) = exp_tab_rs[, geneCol]
   exp_tab_rs[, geneCol] = NULL
 
