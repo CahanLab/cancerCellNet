@@ -91,6 +91,7 @@ grps = as.vector(stValRand_broad$project_id)
 names(grps)<-rownames(stValRand_broad)
 ccn_hmClass(classMatrix_broad, grps=grps, fontsize_row=10)
 ```
+![](md_img/TCGA_validate_heatmap.png)
 
 #### Adding gaps between groups for more clear visualization 
 ```{R}
@@ -101,12 +102,18 @@ for (uniqueClass in unique(grps)) {
 }
 ccn_hmClass(classMatrix_broad, grps=grps, fontsize_row=10, gaps_col = breakVector) 
 ```
+![](md_img/TCGA_validate_heatmap_split.png)
+
 
 #### Classifier Assessment 
 ```{R}
 assessmentDat = ccn_classAssess(classMatrix_broad, stValRand_broad, "project_id","barcode")
 plot_class_PRs(assessmentDat)
 ```
+![](md_img/TCGA_PR.png)
+
+
+
 
 
 
