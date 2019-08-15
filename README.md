@@ -181,4 +181,39 @@ plot_class_PRs(assessmentDat) # plot out the PR curves
 ![](md_img/TCGA_subvalidate_PR.png)
 
 
+### <a name="app_ccn">Apply CCN on Query</a>
+
+#### Load in files 
+```{R}
+CCLE_sample = utils_loadObject("CCLE_UCEC.rda")
+GEMM_sample = utils_loadObject("GEMM_UCEC.rda")
+PDX_sample = utils_loadObject("PDX_UCEC.rda")
+returnBroad = utils_loadObject("BroadClassifier_return.rda")
+returnSubClass = utils_loadObject("subClass_UCEC_return.rda")
+cnProc_broad = returnBroad$cnProc
+cnProc_subclass = returnSubClass$cnProc_subClass
+```
+
+#### Apply CCN on cancer cell-lines (broad class)
+```{R}
+classMatrix_CCLE = broadClass_predict(cnProc = cnProc_broad, expDat = CCLE_sample, nrand = 2)
+ccn_hmClass(classMatrix_CCLE, main = "cancer cell-lines", fontsize_row=9, fontsize_col = 10)
+```
+![](md_img/cancerCellLine_broadHeatmap.png)
+
+#### Apply CCN on cancer cell-lines (sub class)
+```{R}
+classMatrix_CCLE_sub = subClass_predict(cnProc = cnProc_broad, cnProc_sub = cnProc_subclass, weight_broadClass = 10, expDat = CCLE_sample, nrand = 2)
+ccn_hmClass(classMatrix_CCLE_sub, main = "cancer cell-lines", fontsize_row=9, fontsize_col = 10)
+```
+![](md_img/cancerCellLines_subHeatmap.png)
+
+You can also apply it to GEMM samples and PDX samples provided above. For classifiying other GEMM samples, you may have to find the human orthologous genes between mouse and human. We built a function that can do the conversion listed below. But you can also use biomaRt to perform conversion.  
+```{r}
+postConversionExpMatrix = utils_convertToGeneSymbols(expTab = preConversionExpressionMatrix, typeMusGene = TRUE)
+```
+
+
+
+
 
