@@ -11,7 +11,7 @@
 #' @import RColorBrewer ComplexHeatmap circlize grid
 #'
 #' @export
-subClass_hmClass <- function(subClassMat, broadClassMat, cScoreCat) {
+subClass_hmClass <- function(subClassMat, broadClassMat, subCat, cScoreCat, thresHold_list) {
 
   broadClassMat = broadClassMat[, colnames(subClassMat)]
   list_max = apply(broadClassMat, FUN = max, MARGIN = 2)
@@ -19,24 +19,27 @@ subClass_hmClass <- function(subClassMat, broadClassMat, cScoreCat) {
   # this gets the number of labels a model has
   model_label = c()
   for(colName in colnames(broadClassMat)) {
-    model_label = c(model_label, names(which.max(broadClassMat[, colName])))
+    model_label = c(model_label, findCategory(broadClassMat[, colName], thresHold_list))
 
   }
 
-  cools = colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
-  cools = circlize::colorRamp2(seq(0, 1,length.out = 100), cools)
+  cools<-colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
 
-  xcol = colorRampPalette(rev(brewer.pal(n = 12,name = "Paired")))(length(unique(model_label)))
+  cools = circlize::colorRamp2(seq(0, 1,length.out = 100), cools)
+  xcol <- colorRampPalette(rev(brewer.pal(n = 12,name = "Paired")))(length(unique(model_label)))
+  subClassColor = colorRampPalette(rev(brewer.pal(n = 12,name = "Set3")))(length(unique(subCat)))
 
   names(xcol) = unique(model_label)
 
   column_ha = ComplexHeatmap::HeatmapAnnotation("Broad Classification" = model_label,
                                                 "Broad C-Scores" = anno_barplot(broadClassMat[grep(cScoreCat, rownames(broadClassMat)), ],
-                                                                                axis = TRUE, axis_side = 'right',
-                                                                                ylim = c(0, 1), bar_width = 0.9,
-                                                                                gp = gpar(fill = "#66ADE5")),
+                                                                                       axis = TRUE, axis_side = 'right',
+                                                                                       ylim = c(0, 1), bar_width = 0.9,
+                                                                                       gp = gpar(fill = "#66ADE5")),
+                                                "Subclass Classification" = subCat,
 
-                                                height = unit(2, "cm"),
+
+                                                height = unit(4, "cm"),
                                                 col = list("Broad Classification" = xcol),
                                                 show_annotation_name = TRUE,
                                                 annotation_name_offset = unit(9, "mm"), gap = unit(2, "mm"),
