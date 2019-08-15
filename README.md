@@ -107,6 +107,57 @@ ccn_hmClass(classMatrix_broad, grps=grps, fontsize_row=10, gaps_col = breakVecto
 assessmentDat = ccn_classAssess(classMatrix_broad, stValRand_broad, "project_id","barcode")
 plot_class_PRs(assessmentDat)
 ```
+### <a name="subTrain_ccn">Sub Class Training</a>
+
+#### Load in pre-curated dataset for training subclassifier 
+
+```{R}
+expGDC_sub = utils_loadObject("UCEC_readyToTrain_sub_exp.rda")
+stGDC_sub = utils_loadObject("UCEC_readyToTrain_sub_st.rda")
+returnBroad = utils_loadObject("BroadClassifier_return.rda")
+iGenes = utils_loadObject("iGenes.rda")
+
+stList_sub = splitCommon_proportion(sampTab = stGDC_sub, proportion = 0.66, dLevel = "subClass")
+stTrain_sub = stList_sub$trainingSet
+
+expTrain_sub = expGDC_sub[iGenes, as.vector(stTrain_sub$samples)]
+
+cnProc_broad = returnBroad$cnProc
+```
+#### Train the subclass classifier 
+In this case, majority of the rand profiles are generated from other TCGA cancer samples. But, you can still add some truly permutated profiles into the training. You can also adjust the weight of broad class classification scores as features. 
+```{R}
+returnSubClass = subClass_train(cnProc_broad = cnProc_broad, stratify = TRUE, sampsize = 15, 
+                                stTrain = stTrain_sub,
+                                expTrain = expTrain_sub,
+                                colName_broadCat = "broadClass",
+                                colName_subClass = "subClass",
+                                name_broadCat = "TCGA-UCEC",
+                                weight_broadClass = 10,
+                                colName_samp="samples",
+                                nRand = 90,  
+                                nTopGenes = 10,
+                                nTopGenePairs = 20,
+                                nTrees = 1000)
+save(returnSubClass, file = "subClass_UCEC_return.rda")
+```
+
+### <a name="subVal_ccn">Validate Subclass classifier</a>
+```{R}
+stVal_Sub = stList_sub$validationSet
+
+# to get a more even validation...better for visualizing 
+stVal_split = splitCommon(sampTab = stVal_Sub, ncells = 8, dLevel = "subClass")
+stVal_Sub = stVal_split$train #even though it says train, it merely contain an equally sampled dataset 
+
+
+stVal_Sub_ord = stVal_Sub[order(stVal_Sub$subClass), ] #order by cateogry
+expVal_sub = expGDC_sub[iGenes, rownames(stVal_Sub_ord)]
+cnProc_sub = returnSubClass$cnProc
+
+classMatrix_sub = subClass_predict(cnProc_broad, cnProc_sub, expVal_sub, nrand = 2, weight_broadClass = 10)
+```
+
 
 
 
