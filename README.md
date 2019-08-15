@@ -43,6 +43,7 @@ PDX_sample = utils_loadObject("PDX_UCEC.rda")
 #### Find intersecting genes between query samples and training samples
 ```{R}
 iGenes = Reduce(intersect, list(rownames(CCLE_sample), rownames(GEMM_sample), rownames(PDX_sample), rownames(expGDC)))
+save(iGenes, file = "iGenes.rda")
 ```
 #### Split TCGA data into training and validation 
 ```{r}
@@ -64,8 +65,6 @@ broad_return = broadClass_train(stTrain = stTrain,
                                 stratify=TRUE, 
                                 sampsize=60, 
                                 quickPairs=TRUE)
-
-save(broad_return, file="BroadClassifier_return.rda")
 ```
 ### <a name="broadVal_ccn">Validate Broadclass classifier</a>
 #### Classify the validation set
@@ -106,6 +105,23 @@ plot_class_PRs(assessmentDat)
 ```
 ![](md_img/TCGA_PR.png)
 
+#### Train a final broad class classifier using all the data 
+Now that we see the broad class classifier has good performance, we can train a broad classifier with all the data. 
+```{R}
+broad_return = broadClass_train(stTrain = stGDC, 
+                                expTrain = expGDC[iGenes, ], 
+                                colName_cat = "project_id", 
+                                colName_samp = "barcode", 
+                                nRand = 70,
+                                nTopGenes = 25, 
+                                nTopGenePairs = 70, 
+                                nTrees = 2000, 
+                                stratify=TRUE, 
+                                sampsize=60, 
+                                quickPairs=TRUE)
+
+save(broad_return, file="BroadClassifier_return.rda")
+```
 ### <a name="subTrain_ccn">Sub Class Training</a>
 
 #### Load in pre-curated dataset for training subclassifier 
@@ -139,7 +155,6 @@ returnSubClass = subClass_train(cnProc_broad = cnProc_broad, stratify = TRUE, sa
                                 nTopGenes = 10,
                                 nTopGenePairs = 20,
                                 nTrees = 1000)
-save(returnSubClass, file = "subClass_UCEC_return.rda")
 ```
 
 ### <a name="subVal_ccn">Validate Subclass classifier</a>
@@ -173,7 +188,22 @@ assessmentDat = ccn_classAssess(classMatrix_sub, stValRand_sub, "subClass","samp
 plot_class_PRs(assessmentDat) # plot out the PR curves
 ```
 ![](md_img/TCGA_subvalidate_PR.png)
-
+#### Train a subclass classifier with all the data 
+```{R}
+returnSubClass = subClass_train(cnProc_broad = cnProc_broad, stratify = TRUE, sampsize = 15, 
+                                stTrain = stTrain_sub,
+                                expTrain = expTrain_sub,
+                                colName_broadCat = "broadClass",
+                                colName_subClass = "subClass",
+                                name_broadCat = "TCGA-UCEC",
+                                weight_broadClass = 10,
+                                colName_samp="samples",
+                                nRand = 90,  
+                                nTopGenes = 10,
+                                nTopGenePairs = 20,
+                                nTrees = 1000)
+save(returnSubClass, file = "subClass_UCEC_return.rda")
+```
 
 ### <a name="app_ccn">Apply CCN on Query</a>
 
@@ -209,7 +239,67 @@ postConversionExpMatrix = utils_convertToGeneSymbols(expTab = preConversionExpre
 
 ### <a name="other_tools">Other Tools built into CCN</a>
 
+#### Gene Pair Comparison Plot - using subclass as an example 
+```{r}
+CCLE_sample = utils_loadObject("CCLE_UCEC.rda")
+returnSubClass = utils_loadObject("subClass_UCEC_return.rda")
+
+expGDC_sub = utils_loadObject("UCEC_readyToTrain_sub_exp.rda")
+stGDC_sub = utils_loadObject("UCEC_readyToTrain_sub_st.rda")
+
+genePairs = returnSubClass$cnProc_subClass$xpairs
+
+# generate gene pairs 
+expTransform = query_transform(expGDC_sub, genePairs) 
+
+# average the genepair signals among TCGA samples in a category 
+avgGenePair_TCGA = avgGeneCat(expDat = expTransform, sampTab = stGDC_sub, dLevel = "subClass", sampID = "samples")
+
+genePairs_query = query_transform(CCLE_sample, genePairs)
+
+geneCompareMatrix = makeGeneCompareTab(queryExpTab = genePairs_query,
+                                       avgGeneTab = avgGenePair_TCGA, geneSamples = genePairs)
+plotGeneComparison(geneCompareMatrix, fontsize_row = 7)
+```
+![](md_img/genePairComparisonPlot.png)
+#### Gene Expression Comparison Plot - using subclass as an example
+```{R}
+CCLE_sample = utils_loadObject("CCLE_UCEC.rda")
+returnSubClass = utils_loadObject("subClass_UCEC_return.rda")
+
+expGDC_sub = utils_loadObject("UCEC_readyToTrain_sub_exp.rda")
+stGDC_sub = utils_loadObject("UCEC_readyToTrain_sub_st.rda")
+
+iGenes = utils_loadObject("iGenes.rda")
+cGenesList = returnSubClass$cgenes_list
+
+# get the genes that contribute to the creating of genepairs 
+genePairs = returnSubClass$cnProc_subClass$xpairs
+cgenes = strsplit(x = genePairs, split = "_")
+cgenes = unique(unlist(cgenes))
+
+# create annotation table of classy genes and its corresponding category 
+annoDf = data.frame(matrix(nrow = length(cgenes), ncol = 1))
+colnames(annoDf) = "ClassificationCat"
+rownames(annoDf) = cgenes
+
+for (setName in names(cGenesList)) {
+   geneSet = cGenesList[[setName]]
+   
+   annoDf[rownames(annoDf) %in% geneSet, "ClassificationCat"] = setName
+   
+}
+
+expNorm = trans_prop(weighted_down(expGDC_sub[iGenes, ], 5e5, dThresh=0.25), 1e5)
+# average the gene expression among TCGA samples in a category 
+avgGene_TCGA = avgGeneCat(expDat = expNorm, sampTab = stGDC_sub, dLevel = "subClass", sampID = "samples")
 
 
+query_expNorm = trans_prop(weighted_down(CCLE_sample[iGenes, ], 5e5, dThresh=0.25), 1e5)
 
+geneCompareMatrix = makeGeneCompareTab(queryExpTab = query_expNorm,
+                                       avgGeneTab = avgGene_TCGA, geneSamples = cgenes)
+plotGeneComparison(geneCompareMatrix[rownames(annoDf), ], fontsize_row = 7, annotation_row = annoDf)
 
+```
+![](md_img/geneComparison.png)

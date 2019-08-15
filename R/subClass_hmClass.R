@@ -6,21 +6,29 @@
 #' @param subClassMat classification matrix of cancer sub-category
 #' @param broadClassMAt classification matrix of cancer broad category
 #' @param cScoreCat the broad category that users want to display the classification score
+#' @param thresHold_list
 #' @return classification heatmap
 #'
 #' @import RColorBrewer ComplexHeatmap circlize grid
 #'
 #' @export
-subClass_hmClass <- function(subClassMat, broadClassMat, subCat, cScoreCat, thresHold_list) {
+subClass_hmClass <- function(subClassMat, broadClassMat, subCat, cScoreCat, thresHold_list = NULL) {
 
   broadClassMat = broadClassMat[, colnames(subClassMat)]
   list_max = apply(broadClassMat, FUN = max, MARGIN = 2)
 
-  # this gets the number of labels a model has
   model_label = c()
-  for(colName in colnames(broadClassMat)) {
-    model_label = c(model_label, findCategory(broadClassMat[, colName], thresHold_list))
+  if(is.null(thresHold_list) == TRUE) {
+    for(colName in colnames(broadClassMat)) {
+      model_label = c(model_label, names(which.max(broadClassMat[, colName])))
 
+    }
+  }
+  else {
+    for(colName in colnames(broadClassMat)) {
+      model_label = c(model_label, findCategory(broadClassMat[, colName], thresHold_list))
+
+    }
   }
 
   cools<-colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
@@ -55,4 +63,33 @@ subClass_hmClass <- function(subClassMat, broadClassMat, subCat, cScoreCat, thre
                               cluster_columns = FALSE )
   #return
   p
+}
+
+#' @title
+#' Find the broad category
+#' @description
+#' Find the broad cateogry based on a threshold
+#'
+#' @param ThisColumn the individual sample in a matrix
+#' @param thresHold_list the list of threshold for each category
+#' @return classification heatmap
+findCategory <- function(ThisColumn, thresHold_list) {
+  returnList = ""
+  for(thisnames in names(thresHold_list)) {
+    if(ThisColumn[thisnames] >= thresHold_list[thisnames]) {
+      if (returnList == "") {
+        returnList = thisnames
+      }
+      else {
+        returnList = paste(returnList, sep = ", ", thisnames)
+      }
+    }
+  }
+
+  if (returnList == "") {
+    returnList = "Not Classified"
+  }
+
+  # return
+  returnList
 }
