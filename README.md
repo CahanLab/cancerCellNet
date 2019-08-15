@@ -10,15 +10,9 @@
 
 [Shortcut to Subclass Validation CCN](#subVal_ccn)
 
-[Shortcut to Application of CCN](#app_BRCA)
+[Shortcut to Application of CCN](#app_ccn)
 
-[Shortcut to Application of Broad Classifier on BRCA CCLE data](#app_broad)
-
-[Shortcut to Gene Visualization/Comparison Tool](#gene_comp)
-
-[Shortcut to subclass application on BRCA CCLE data](#sub_app)
-
-[Shortcut to class application on PAAD GEMM data](#GEMM_geneConvert)
+[Shortcut to Other Tools](#other_tools)
 
 ### <a name="setup_ccn">Set up CCN</a>
 ```R
@@ -212,6 +206,8 @@ You can also apply it to GEMM samples and PDX samples provided above. For classi
 ```{r}
 postConversionExpMatrix = utils_convertToGeneSymbols(expTab = preConversionExpressionMatrix, typeMusGene = TRUE)
 ```
+
+### <a name="other_tools">Other Tools built into CCN</a>
 
 
 

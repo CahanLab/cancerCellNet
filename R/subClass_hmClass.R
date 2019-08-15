@@ -8,7 +8,7 @@
 #' @param cScoreCat the broad category that users want to display the classification score
 #' @return classification heatmap
 #'
-#' @import RColorBrewer ComplexHeatmap circlize
+#' @import RColorBrewer ComplexHeatmap circlize grid
 #'
 #' @export
 subClass_hmClass <- function(subClassMat, broadClassMat, cScoreCat) {
