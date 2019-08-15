@@ -91,6 +91,7 @@ grps = as.vector(stValRand_broad$project_id)
 names(grps)<-rownames(stValRand_broad)
 ccn_hmClass(classMatrix_broad, grps=grps, fontsize_row=10)
 ```
+![](md_img/TCGA_validate_heatmap.png)
 
 #### Adding gaps between groups for more clear visualization 
 ```{R}
@@ -101,12 +102,16 @@ for (uniqueClass in unique(grps)) {
 }
 ccn_hmClass(classMatrix_broad, grps=grps, fontsize_row=10, gaps_col = breakVector) 
 ```
+![](md_img/TCGA_validate_heatmap_split.png)
+
 
 #### Classifier Assessment 
 ```{R}
 assessmentDat = ccn_classAssess(classMatrix_broad, stValRand_broad, "project_id","barcode")
 plot_class_PRs(assessmentDat)
 ```
+![](md_img/TCGA_PR.png)
+
 ### <a name="subTrain_ccn">Sub Class Training</a>
 
 #### Load in pre-curated dataset for training subclassifier 
@@ -124,6 +129,7 @@ expTrain_sub = expGDC_sub[iGenes, as.vector(stTrain_sub$samples)]
 
 cnProc_broad = returnBroad$cnProc
 ```
+
 #### Train the subclass classifier 
 In this case, majority of the rand profiles are generated from other TCGA cancer samples. But, you can still add some truly permutated profiles into the training. You can also adjust the weight of broad class classification scores as features. 
 ```{R}
@@ -158,8 +164,21 @@ cnProc_sub = returnSubClass$cnProc
 classMatrix_sub = subClass_predict(cnProc_broad, cnProc_sub, expVal_sub, nrand = 2, weight_broadClass = 10)
 ```
 
+#### Visualize the classification results 
+```{R}
+stValRand_sub = addRandToSampTab(classMatrix_sub, stVal_Sub_ord, "subClass", "samples")
+grps = as.vector(stValRand_sub$subClass)
+names(grps)<-rownames(stValRand_sub)
+ccn_hmClass(classMatrix_sub, grps=grps, fontsize_row=10)
+```
+![](md_img/TCGA_subvalidate_heatmap.png)
 
-
+#### Assess the classifier 
+```{R}
+assessmentDat = ccn_classAssess(classMatrix_sub, stValRand_sub, "subClass","samples")
+plot_class_PRs(assessmentDat) # plot out the PR curves
+```
+![](md_img/TCGA_subvalidate_PR.png)
 
 
 
