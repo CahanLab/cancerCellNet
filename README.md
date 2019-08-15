@@ -1,19 +1,20 @@
 # cancerCellNet (CCN)
 
-[Shortcut to Setup CCN](#setup_ccn)
+[1. Shortcut to Setup CCN](#setup_ccn)
 
-[Shortcut to Broad Training CCN](#broadTrain_ccn)
+[2. Shortcut to Broad Training CCN](#broadTrain_ccn)
 
-[Shortcut to Broad Validation CCN](#broadVal_ccn)
+[3. Shortcut to Broad Validation CCN](#broadVal_ccn)
 
-[Shortcut to Subclass Training CCN](#subTrain_ccn)
+[4. Shortcut to Subclass Training CCN](#subTrain_ccn)
 
-[Shortcut to Subclass Validation CCN](#subVal_ccn)
+[5. Shortcut to Subclass Validation CCN](#subVal_ccn)
 
-[Shortcut to Application of CCN](#app_ccn)
+[6. Shortcut to Application of CCN](#app_ccn)
 
-[Shortcut to Other Tools](#other_tools)
+[7. Shortcut to Other Tools](#other_tools)
 
+[8. Shortcut to Old way of Training](#old_way)
 ### <a name="setup_ccn">Set up CCN</a>
 ```R
 library(devtools)
@@ -303,3 +304,46 @@ plotGeneComparison(geneCompareMatrix[rownames(annoDf), ], fontsize_row = 7, anno
 
 ```
 ![](md_img/geneComparison.png)
+
+### <a name="old_way">Old way of Training - Broad</a>
+The old way of training instead of having one packaged function 
+```{R}
+library(cancerCellNet)
+expGDC = utils_loadObject("Named_expGDC_20181218.rda")
+stGDC = utils_loadObject("Named_stGDC_20181218.rda")
+
+CCLE_sample = utils_loadObject("CCLE_UCEC.rda")
+GEMM_sample = utils_loadObject("GEMM_UCEC.rda")
+PDX_sample = utils_loadObject("PDX_UCEC.rda")
+
+iGenes = Reduce(intersect, list(rownames(CCLE_sample), rownames(GEMM_sample), rownames(PDX_sample), rownames(expGDC)))
+expGDC = expGDC[iGenes, ]
+```
+The old way is basically running functions packed in broadClass_Train function individually. 
+```{R}
+expTnorm = trans_prop(weighted_down(expTrain, 5e5, dThresh=0.25), 1e5)
+
+# find genes with different expression in each cancer category 
+system.time(cgenes<-findClassyGenes(expTnorm, stTrain, "description2", topX=20))
+
+cgenesA = cgenes[['cgenes']]
+grps = cgenes[['grps']]
+cgenes_list = cgenes[['labelled_cgenes']]
+
+# find top differentiating gene pairs 
+system.time(xpairs<-ptGetTop(expTrain[cgenesA,], grps, cgenes_list, topX=50, sliceSize=2000, quickPairs=TRUE)) # if you don't want quick pairs, turn it off. 
+
+# some of these might include selection cassettes; remove them
+xi = setdiff(1:length(xpairs), grep("selection", xpairs))
+xpairs = xpairs[xi]
+
+# pair transform training data 
+system.time(pdTrain<-query_transform(expTrain[cgenesA, ], xpairs))
+
+tspRF = makeClassifier(pdTrain[xpairs,], genes=xpairs, groups=grps, nRand = 20, ntrees = 2000, stratify=TRUE, sampsize=60)
+cnProc = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= grps, "classifier" = tspRF)
+
+# after the cnProc is generated, you can save it and use it to perform classification. This is a slightly less storage method of training
+```
+
+
