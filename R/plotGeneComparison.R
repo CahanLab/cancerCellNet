@@ -12,7 +12,12 @@
 #' @return a heatmap of gene expressions for the comparsion expression matrix
 #' @importFrom RColorBrewer brewer.pal
 #' @export
-plotGeneComparison<-function(expDat, fontsize_row = 6, grps, cRows = FALSE, cCols = FALSE, toScale = FALSE, ...){
+plotGeneComparison<-function(expDat, fontsize_row = 6, grps = NULL, cRows = FALSE, cCols = FALSE, toScale = FALSE, ...){
+
+  if(is.null(grps) == TRUE) {
+    grps = colnames(expDat)
+    names(grps) = colnames(expDat)
+  }
 
   genes <- rownames(expDat)
 
