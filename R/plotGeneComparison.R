@@ -7,13 +7,13 @@
 #' @param fontsize_row row font size
 #' @param cRows TRUE if cluster the rows
 #' @param cCols TRUE if cluster the columns
+#' @param grps the groups for the heatmap
 #' @param ... pass parameters to pheamap
 #' @return a heatmap of gene expressions for the comparsion expression matrix
 #' @importFrom RColorBrewer brewer.pal
 #' @export
-plotGeneComparison<-function(expDat, fontsize_row = 6, cRows = FALSE, cCols = FALSE, toScale = FALSE, ...){
-  grps <- as.vector(colnames(expDat))
-  names(grps) <- colnames(expDat)
+plotGeneComparison<-function(expDat, fontsize_row = 6, grps, cRows = FALSE, cCols = FALSE, toScale = FALSE, ...){
+
   genes <- rownames(expDat)
 
   value<-expDat[genes,] #select the matrix with cgenes

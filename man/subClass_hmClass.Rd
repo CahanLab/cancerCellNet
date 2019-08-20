@@ -4,7 +4,8 @@
 \alias{subClass_hmClass}
 \title{Detailed Complex heatmap for subclass classification}
 \usage{
-subClass_hmClass(subClassMat, broadClassMat, cScoreCat)
+subClass_hmClass(subClassMat, broadClassMat, subCat, cScoreCat,
+  thresHold_list = NULL)
 }
 \arguments{
 \item{subClassMat}{classification matrix of cancer sub-category}

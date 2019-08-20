@@ -4,13 +4,15 @@
 \alias{plotGeneComparison}
 \title{Gene expression plotting}
 \usage{
-plotGeneComparison(expDat, fontsize_row = 6, cRows = FALSE,
+plotGeneComparison(expDat, fontsize_row = 6, grps, cRows = FALSE,
   cCols = FALSE, toScale = FALSE, ...)
 }
 \arguments{
 \item{expDat}{comparison expression matrix from \code{\link{makeGeneCompareTab}}}
 
 \item{fontsize_row}{row font size}
+
+\item{grps}{the groups for the heatmap}
 
 \item{cRows}{TRUE if cluster the rows}
 
