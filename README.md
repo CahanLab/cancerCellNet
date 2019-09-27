@@ -27,7 +27,21 @@ install.packages("ggplot2")
 
 #### Fetch the required files if you have not already donwloaded them
 ```R
-- Ask Patrick to upload all the files that needs to be uploaded 
+# fetch compiled TCGA training data 
+download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/Named_expGDC_20181218.rda", "Named_expGDC_20181218.rda")
+download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/Named_stGDC_20181218.rda", "Named_stGDC_20181218.rda")
+
+# fetch sample cancer models 
+download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/CCLE_UCEC.rda", "CCLE_UCEC.rda")
+download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/GEMM_UCEC.rda", "GEMM_UCEC.rda")
+download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/PDX_UCEC.rda", "PDX_UCEC.rda")
+
+# fetch data needed for subclass training 
+download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/UCEC_readyToTrain_sub_exp.rda", "UCEC_readyToTrain_sub_exp.rda")
+download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/UCEC_readyToTrain_sub_st.rda", "UCEC_readyToTrain_sub_st.rda")
+download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/BroadClassifier_return.rda", "BroadClassifier_return.rda")
+download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/iGenes.rda", "iGenes.rda")
+
 ```
 
 ### <a name="broadTrain_ccn">Broad Class Training</a>
