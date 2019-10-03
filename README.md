@@ -34,7 +34,6 @@ download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/Named_
 # fetch sample cancer models 
 download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/CCLE_UCEC.rda", "CCLE_UCEC.rda")
 download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/GEMM_UCEC.rda", "GEMM_UCEC.rda")
-download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/PDX_UCEC.rda", "PDX_UCEC.rda")
 
 # fetch data needed for subclass training 
 download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/UCEC_readyToTrain_sub_exp.rda", "UCEC_readyToTrain_sub_exp.rda")
@@ -53,11 +52,10 @@ stGDC = utils_loadObject("Named_stGDC_20181218.rda")
 
 CCLE_sample = utils_loadObject("CCLE_UCEC.rda")
 GEMM_sample = utils_loadObject("GEMM_UCEC.rda")
-PDX_sample = utils_loadObject("PDX_UCEC.rda")
 ```
 #### Find intersecting genes between query samples and training samples
 ```
-iGenes = Reduce(intersect, list(rownames(CCLE_sample), rownames(GEMM_sample), rownames(PDX_sample), rownames(expGDC)))
+iGenes = Reduce(intersect, list(rownames(CCLE_sample), rownames(GEMM_sample), rownames(expGDC)))
 save(iGenes, file = "iGenes.rda")
 ```
 #### Split TCGA data into training and validation 
@@ -226,7 +224,6 @@ save(returnSubClass, file = "subClass_UCEC_return.rda")
 ```
 CCLE_sample = utils_loadObject("CCLE_UCEC.rda")
 GEMM_sample = utils_loadObject("GEMM_UCEC.rda")
-PDX_sample = utils_loadObject("PDX_UCEC.rda")
 returnBroad = utils_loadObject("BroadClassifier_return.rda")
 returnSubClass = utils_loadObject("subClass_UCEC_return.rda")
 cnProc_broad = returnBroad$cnProc
@@ -247,7 +244,7 @@ ccn_hmClass(classMatrix_CCLE_sub, main = "cancer cell-lines", fontsize_row=9, fo
 ```
 ![](md_img/cancerCellLines_subHeatmap.png)
 
-You can also apply it to GEMM samples and PDX samples provided above. For classifiying other GEMM samples, you may have to find the human orthologous genes between mouse and human. We built a function that can do the conversion listed below. But you can also use biomaRt to perform conversion.  
+You can also apply it to GEMM samples provided above. For classifiying other GEMM samples, you may have to find the human orthologous genes between mouse and human. We built a function that can do the conversion listed below. But you can also use biomaRt to perform conversion.  
 ```
 postConversionExpMatrix = utils_convertToGeneSymbols(expTab = preConversionExpressionMatrix, typeMusGene = TRUE)
 ```
@@ -328,9 +325,8 @@ stGDC = utils_loadObject("Named_stGDC_20181218.rda")
 
 CCLE_sample = utils_loadObject("CCLE_UCEC.rda")
 GEMM_sample = utils_loadObject("GEMM_UCEC.rda")
-PDX_sample = utils_loadObject("PDX_UCEC.rda")
 
-iGenes = Reduce(intersect, list(rownames(CCLE_sample), rownames(GEMM_sample), rownames(PDX_sample), rownames(expGDC)))
+iGenes = Reduce(intersect, list(rownames(CCLE_sample), rownames(GEMM_sample), rownames(expGDC)))
 expGDC = expGDC[iGenes, ]
 ```
 The old way is basically running functions packed in broadClass_Train function individually. 
