@@ -29,7 +29,12 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
   grps<-as.vector(sampTab[,dLevel])
   names(grps)<-rownames(sampTab)
 
-  xdiff<-gnrAll(expDat[ggenes,], grps)
+  # more robust way to avoid subscript out of bound
+  if(length(ggenes) != nrow(expDat)) {
+    expDat = expDat[ggenes,]
+  }
+
+  xdiff<-gnrAll(expDat, grps)
   cgenes<-lapply(xdiff, getClassGenes, topX=topX)
   labelled_cgenes <- cgenes
   cgenes<-unique(unlist(cgenes))
