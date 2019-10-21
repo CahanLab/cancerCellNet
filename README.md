@@ -23,6 +23,12 @@ install.packages("pheatmap")
 install.packages("RColorBrewer")
 install.packages("randomForest")
 install.packages("ggplot2")
+install.packages("circlize")
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("ComplexHeatmap")
 ```
 
 #### Fetch the required files if you have not already donwloaded them
