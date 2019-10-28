@@ -19,13 +19,15 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
     stop("Please enter the correct column name for sampTab that indicates the categories")
   }
 
-  if((topX * 2 > nrow(expDat)) == TRUE) {
-    stop(paste0("Please enter a topX value smaller than ", as.integer(nrow(expDat) / 2)))
+  if((topX * 3 > nrow(expDat)) == TRUE) {
+    stop(paste0("Please enter a topX value smaller than ", as.integer(nrow(expDat) / 3)))
   }
+
+  # remove duplicated genes
+  expDat = expDat[!duplicated(rownames(expDat)), ]
 
   gsTrain<-sc_statTab(expDat, dThresh=dThresh)
   ggenes<-sc_filterGenes(gsTrain, alpha1=alpha1, alpha2=alpha2, mu=mu)
-
   grps<-as.vector(sampTab[,dLevel])
   names(grps)<-rownames(sampTab)
 
