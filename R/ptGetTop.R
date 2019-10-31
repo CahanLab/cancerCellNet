@@ -147,46 +147,53 @@ ptSmall<-function(expDat, pTab){
 #' @param maxPer indicates the maximum number of pairs that a gene is allowed to be in
 #' @return vector of suitable gene pairs
 findBestPairs<-function(xdiff, n=50,maxPer=3){
+  if(nrow(xdiff) < n) {
+    cat("there are only", nrow(xdiff), "genepairs generated.", "\n")
+    ans <- rownames(xdiff)
+  }
+  else {
+    xdiff<-xdiff[order(xdiff$cval, decreasing=TRUE),]
+    genes<-unique(unlist(strsplit(rownames(xdiff), "_")))
+    countList<-rep(0, length(genes))
+    names(countList)<-genes
 
-  xdiff<-xdiff[order(xdiff$cval, decreasing=TRUE),]
-  genes<-unique(unlist(strsplit(rownames(xdiff), "_")))
-  countList<-rep(0, length(genes))
-  names(countList)<-genes
+    i<-0
+    ans<-vector()
+    xdiff_index <- 1
+    pair_names<-rownames(xdiff)
 
-  i<-0
-  ans<-vector()
-  xdiff_index <- 1
-  pair_names<-rownames(xdiff)
+    backup_vector<-c()
 
-  backup_vector<-c()
+    while(i < n ){
+      tmpAns<-pair_names[xdiff_index]
+      tgp <- unlist(strsplit(tmpAns, "_"))
 
-  while(i < n ){
-    tmpAns<-pair_names[xdiff_index]
-    tgp <- unlist(strsplit(tmpAns, "_"))
+      if((countList[ tgp[1] ] < maxPer) & (countList[ tgp[2] ] < maxPer )){
 
-    if((countList[ tgp[1] ] < maxPer) & (countList[ tgp[2] ] < maxPer )){
+        ans<-append(ans, tmpAns)
+        countList[ tgp[1] ] <- countList[ tgp[1] ]+ 1
+        countList[ tgp[2] ] <- countList[ tgp[2] ]+ 1
 
-      ans<-append(ans, tmpAns)
-      countList[ tgp[1] ] <- countList[ tgp[1] ]+ 1
-      countList[ tgp[2] ] <- countList[ tgp[2] ]+ 1
+        i<-i+1
+      }
 
-      i<-i+1
+      else {
+        backup_vector <- c(backup_vector, tmpAns) # place into backup vector
+      }
+
+
+      xdiff_index <- xdiff_index + 1
+
+      # in the case where the original list is exhausted, dig into the backup vector
+      if(xdiff_index > length(pair_names)) {
+        additional_pairs <- backup_vector[1:(n - i)]
+        ans <- c(ans, additional_pairs)
+        i <- length(ans)
+      }
+
     }
 
-    else {
-      backup_vector <- c(backup_vector, tmpAns) # place into backup vector
-    }
-
-
-    xdiff_index <- xdiff_index + 1
-
-    # in the case where the original list is exhausted, dig into the backup vector
-    if(xdiff_index > length(pair_names)) {
-      additional_pairs <- backup_vector[1:(n - i)]
-      ans <- c(ans, additional_pairs)
-      i <- length(ans)
-    }
-
+    ans <- na.omit(ans) # just in case there were NA
   }
 
   #return
