@@ -155,8 +155,10 @@ findBestPairs<-function(xdiff, n=50,maxPer=3){
 
   i<-0
   ans<-vector()
-  xdiff_index<-1
+  xdiff_index <- 1
   pair_names<-rownames(xdiff)
+
+  backup_vector<-c()
 
   while(i < n ){
     tmpAns<-pair_names[xdiff_index]
@@ -170,7 +172,21 @@ findBestPairs<-function(xdiff, n=50,maxPer=3){
 
       i<-i+1
     }
+
+    else {
+      backup_vector <- c(backup_vector, tmpAns) # place into backup vector
+    }
+
+
     xdiff_index <- xdiff_index + 1
+
+    # in the case where the original list is exhausted, dig into the backup vector
+    if(xdiff_index > length(pair_names)) {
+      additional_pairs <- backup_vector[1:(n - i)]
+      ans <- c(ans, additional_pairs)
+      i <- length(ans)
+    }
+
   }
 
   #return
