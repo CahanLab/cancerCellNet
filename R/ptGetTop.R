@@ -163,7 +163,7 @@ findBestPairs<-function(xdiff, n=50,maxPer=3){
   }
   else {
     xdiff<-xdiff[order(abs(xdiff$cval), decreasing=TRUE),]
-    print(xdiff$cval)
+
     genes<-unique(unlist(strsplit(rownames(xdiff), "_")))
     countList<-rep(0, length(genes))
     names(countList)<-genes

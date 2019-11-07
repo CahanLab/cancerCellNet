@@ -45,8 +45,17 @@ subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colN
   cgenes_list = cgenes[['labelled_cgenes']]
   cat("There are ", length(cgenesA), " classification genes\n")
 
-  system.time(xpairs<-ptGetTop(expTnorm_sub[cgenesA,], grps, topX=nTopGenePairs, sliceSize=2000, quickPairs=quickPairs))
+  system.time(xpairs_list<-ptGetTop(expTnorm_sub[cgenesA,], grps, topX=nTopGenePairs, sliceSize=2000, quickPairs=quickPairs))
   cat("Finished finding top gene pairs\n")
+
+  # compile the genepair list
+  xpairs = c()
+  for(item in xpairs_list) {
+    xpairs = c(xpairs, item)
+  }
+
+  xpairs = names(xpairs)
+  xpairs = unique(xpairs)
 
   # some of these might include selection cassettes; remove them
   xi = setdiff(1:length(xpairs), grep("selection", xpairs))
@@ -95,7 +104,7 @@ subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colN
 
   cnProc_subClass = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= newGrps, newFeatures = "newFeatures",  "classifier" = tspRF[[1]], namedVector = tspRF[[2]])
 
-  returnList = list("sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc_subClass" = cnProc_subClass)
+  returnList = list("sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc_subClass" = cnProc_subClass, "xpairs_list" = xpairs_list)
 
   cat("All Done \n")
   # return

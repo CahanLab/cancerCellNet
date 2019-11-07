@@ -1,7 +1,3 @@
-library(GO.db)
-library(org.Hs.eg.db)
-
-
 #' find transcript factors
 #'
 #' find transcript factors

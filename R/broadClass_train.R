@@ -43,8 +43,17 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.nam
 
    cat("There are ", length(cgenesA), " classification genes\n")
 
-   system.time(xpairs<-ptGetTop(expTrain[cgenesA,], grps, cgenes_list, topX=nTopGenePairs, sliceSize=2000, quickPairs=quickPairs))
+   system.time(xpairs_list<-ptGetTop(expTrain[cgenesA,], grps, cgenes_list, topX=nTopGenePairs, sliceSize=2000, quickPairs=quickPairs))
    cat("Finished finding top gene pairs\n")
+
+   # compile the genepair list
+   xpairs = c()
+   for(item in xpairs_list) {
+      xpairs = c(xpairs, item)
+   }
+
+   xpairs = names(xpairs)
+   xpairs = unique(xpairs)
 
    # some of these might include selection cassettes; remove them
    xi = setdiff(1:length(xpairs), grep("selection", xpairs))
@@ -56,7 +65,7 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.nam
    tspRF = makeClassifier(pdTrain[xpairs,], genes=xpairs, groups=grps, nRand = nRand, ntrees = nTrees, stratify=stratify, sampsize=sampsize)
    cnProc = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= grps, "classifier" = tspRF)
 
-   returnList = list("sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc" = cnProc)
+   returnList = list("sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc" = cnProc, "xpairs_list" = xpairs_list)
 
    cat("All Done\n")
    #return
