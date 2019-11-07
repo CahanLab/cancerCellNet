@@ -16,7 +16,8 @@
 #' @export
 ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e3, quickPairs = FALSE){
   if(!quickPairs){
-    ans<-vector()
+    #ans<-vector()
+    ans <- list()
     genes<-rownames(expDat)
 
     ncores<-parallel::detectCores() # detect the number of cores in the system
@@ -77,14 +78,16 @@ ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e
     cat("compile results\n")
     for(grp in grps){
       tmpAns<-findBestPairs(statList[[grp]], topX)
-      ans<-append(ans, tmpAns)
+      ans[[grp]] <- tmpAns
+      #ans<-append(ans, tmpAns)
     }
-    return(unique(ans))
+    #return(unique(ans))
+    return(ans)
 
   }else{
     myPatternG<-sc_sampR_to_pattern(as.character(cell_labels))
-    ans<-vector()
-
+    #ans<-vector()
+    ans <- list()
     for(cct in names(cgenes_list)){
       genes<-cgenes_list[[cct]]
       pairTab<-makePairTab(genes)
@@ -95,10 +98,13 @@ ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e
       tmpPdat<-ptSmall(expDat, pairTab)
 
       tmpAns<-findBestPairs( sc_testPattern(myPatternG[[cct]], expDat=tmpPdat), topX)
-      ans<-append(ans, tmpAns)
+
+      ans[[cct]] <- tmpAns
+      #ans<-append(ans, tmpAns)
     }
 
-    return(unique(ans))
+    #return(unique(ans))
+    return(ans)
   }
 }
 
@@ -147,30 +153,43 @@ ptSmall<-function(expDat, pTab){
 #' @param maxPer indicates the maximum number of pairs that a gene is allowed to be in
 #' @return vector of suitable gene pairs
 findBestPairs<-function(xdiff, n=50,maxPer=3){
+
+  # error catching in case the number of pairs wanted is more than pairs generated
   if(nrow(xdiff) < n) {
     cat("there are only", nrow(xdiff), "genepairs generated.", "\n")
-    ans <- rownames(xdiff)
+
+    ans = as.vector(xdiff$cval)
+    names(ans) = rownames(xdiff)
   }
   else {
     xdiff<-xdiff[order(abs(xdiff$cval), decreasing=TRUE),]
+    print(xdiff$cval)
     genes<-unique(unlist(strsplit(rownames(xdiff), "_")))
     countList<-rep(0, length(genes))
     names(countList)<-genes
 
     i<-0
-    ans<-vector()
+    ans_names <- vector()
+    ans_signs = vector()
+
     xdiff_index <- 1
     pair_names<-rownames(xdiff)
 
     backup_vector<-c()
+    backup_vector_sign = c()
 
     while(i < n ){
       tmpAns<-pair_names[xdiff_index]
+      tmpSigns = sign(as.numeric(xdiff[tmpAns, "cval"]))
+
       tgp <- unlist(strsplit(tmpAns, "_"))
 
       if((countList[ tgp[1] ] < maxPer) & (countList[ tgp[2] ] < maxPer )){
 
-        ans<-append(ans, tmpAns)
+        # record down the gene pair name and sign
+        ans_names <- append(ans_names, tmpAns)
+        ans_signs = append(ans_signs, tmpSigns)
+
         countList[ tgp[1] ] <- countList[ tgp[1] ]+ 1
         countList[ tgp[2] ] <- countList[ tgp[2] ]+ 1
 
@@ -179,6 +198,7 @@ findBestPairs<-function(xdiff, n=50,maxPer=3){
 
       else {
         backup_vector <- c(backup_vector, tmpAns) # place into backup vector
+        backup_vector_sign = c(backup_vector_sign, tmpSigns)
       }
 
 
@@ -187,17 +207,23 @@ findBestPairs<-function(xdiff, n=50,maxPer=3){
       # in the case where the original list is exhausted, dig into the backup vector
       if(xdiff_index > length(pair_names)) {
         additional_pairs <- backup_vector[1:(n - i)]
-        ans <- c(ans, additional_pairs)
+        additional_pairs_sign <- backup_vector_sign[1:(n - i)]
+
+        ans_names <- c(ans_names, additional_pairs)
+        ans_signs <- c(ans_signs, additional_pairs_sign)
         i <- length(ans)
       }
 
     }
 
+    # assign the signs and names to the return answer
+    ans <- ans_signs
+    names(ans) = ans_names
     ans <- na.omit(ans) # just in case there were NA
   }
 
   #return
-  ans
+  return(ans)
 }
 
 
