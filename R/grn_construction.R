@@ -24,11 +24,11 @@ ccn_makeGRN <- function(expTrain, stTrain, dLevel, zThresh = 4, dLevelGK = NULL,
   coor_grn = grn_corr_round(expTrain)
   zscores = grn_zscores(coor_grn, tfs)
 
-  grnall = cn_getRawGRN(zscores, coor_grn, targetGenes, zThresh=zThresh)
+  grnall = ccn_getRawGRN(zscores, coor_grn, targetGenes, zThresh=zThresh)
   # find preferentially expressed genes
-  specGenes = cn_specGenesAll(expTrain, stTrain, holm=holm, cval=cval, dLevel=dLevel, dLevelGK = dLevelGK, prune=prune)
+  specGenes = ccn_specGenesAll(expTrain, stTrain, holm=holm, cval=cval, dLevel=dLevel, dLevelGK = dLevelGK, prune=prune)
 
-  ctGRNs = cn_specGRNs(grnall, specGenes)
+  ctGRNs = ccn_specGRNs(grnall, specGenes)
 
   grn_all = list(overallGRN=grnall, specGenes=specGenes,ctGRNs=ctGRNs, grnSamples=rownames(stTrain));
 
