@@ -1,3 +1,40 @@
+#' @title make GRN
+#' @description Construct GRN
+#'
+#' @param expTrain normalized expression matrix
+#' @param stTrain sample table
+#' @param dLevel name of the column with different categories
+#' @param zThresh threshold of z score for CLR network reconstruction
+#' @param dLevelGK name of the column with different germlayer categories
+#' @param prune boolean limit to genes exclusively detected as CT in one CT
+#' @param holm threshold of holm adjusted p value for selecting subnetwork genes
+#' @param cval threshold of cval for selectin subnetwork genes. Higher cval indicates selecting higher enriched genes
+#'
+#' @return
+#' @export
+ccn_makeGRN <- function(expTrain, stTrain, dLevel, zThresh = 4, dLevelGK = NULL, prune = FALSE, holm = 1e-4, cval=0.4) {
+  tfs = find_tfs("Hs")
+
+  # indicate target genes
+  targetGenes = rownames(expGDC)
+
+  # indicate Tfs
+  tfs = intersect(tfs, rownames(expGDC))
+
+  coor_grn = grn_corr_round(expTrain)
+  zscores = grn_zscores(coor_grn, tfs)
+
+  grnall = cn_getRawGRN(zscores, coor_grn, targetGenes, zThresh=zThresh)
+  # find preferentially expressed genes
+  specGenes = cn_specGenesAll(expTrain, stTrain, holm=holm, cval=cval, dLevel=dLevel, dLevelGK = dLevelGK, prune=prune)
+
+  ctGRNs = cn_specGRNs(grnall, specGenes)
+
+  grn_all = list(overallGRN=grnall, specGenes=specGenes,ctGRNs=ctGRNs, grnSamples=rownames(stTrain));
+
+  return(grn_all)
+}
+
 #' find transcript factors
 #'
 #' find transcript factors
@@ -5,7 +42,7 @@
 #'
 #' @return vector fo TF names
 #'
-#' @import GO.db, org.Hs.eg.db
+#' @import GO.db org.Hs.eg.db
 #' @export
 #'
 find_tfs<-function(species='Hs'){
@@ -54,9 +91,9 @@ find_tfs<-function(species='Hs'){
   sort(intersect(trs, dbs));
 }
 
-#' gene-gene correlations, and round
+#' @title gene-gene correlations, and round
 #'
-#' gene-gene correlations, and round
+#' @description gene-gene correlations, and round
 #' @param expDat expression matrix
 #'
 #' @return correlation matrix
@@ -65,13 +102,12 @@ grn_corr_round<-function(expDat) {
   round(corrX, 3);
 }
 
-#' compute context dependent zscores
+#' @title compute context dependent zscores
 #'
-#' slightly modidied from JJ Faith et al 2007
+#' @description slightly modidied from JJ Faith et al 2007
 #' @param corrMat correlation matrix
 #'
 #' @return matrix of clr zscores
-#'
 mat_zscores<-function(corrMat){
   corrMat<-abs(corrMat);
   zscs_2<-round(scale(corrMat), 3);
@@ -80,16 +116,16 @@ mat_zscores<-function(corrMat){
   zscs_2 + t(zscs_2);
 }
 
-#' extracts the TRs, zscores, and corr values passing thresh
+#' @title extracts the TRs, zscores, and corr values passing thresh
 #'
-#' extracts the TRs, zscores, and corr values passing thresh
-#' @param zscores, # zscore matrix, non-TFs already removed from columns
-#' @param corrMatrix, # correlation matrix
-#' @param genes, # vector of target genes
-#' @param threshold # zscore threshold
+#' @description extracts the TRs, zscores, and corr values passing thresh
+#' @param zscores zscore matrix, non-TFs already removed from columns
+#' @param corrMatrix correlation matrix
+#' @param genes vector of target genes
+#' @param threshold zscore threshold
 #'
 #' @return data.frame(target=targets, reg=regulators, zscore=zscoresX, corr=correlations);
-cn_extractRegsDF<-function(zscores, corrMatrix, genes, threshold){
+ccn_extractRegsDF<-function(zscores, corrMatrix, genes, threshold){
 
   targets<-vector();
   regulators=vector();
@@ -144,9 +180,9 @@ grn_zscores<-function (corrVals,tfs){
   zscs[,tfs];
 }
 
-#' convert a table to an igraph
+#' @title convert a table to an igraph
 #'
-#' convert a table to an igraph. This adds an nEnts vertex attribute to count the number of entities in the sub-net
+#' @description convert a table to an igraph. This adds an nEnts vertex attribute to count the number of entities in the sub-net
 #'
 #' @param grnTab table of TF, TF, maybe zscores, maybe correlations
 #' @param simplify false
@@ -192,11 +228,11 @@ ig_tabToIgraph<-function(grnTab, simplify=FALSE, directed=FALSE, weights=TRUE){
 #' @param zThresh zscore threshold
 #'
 #' @return list of grnTable and corresponding graph
-cn_getRawGRN<-function(zscores, corrs, targetGenes, zThresh=4){
+ccn_getRawGRN<-function(zscores, corrs, targetGenes, zThresh=4){
 
   # make a grn table
   cat("Making GRN table...\n")
-  grn<-cn_extractRegsDF(zscores, corrs, targetGenes, zThresh);
+  grn<-ccn_extractRegsDF(zscores, corrs, targetGenes, zThresh);
   cat("Done making GRN table...\n")
   colnames(grn)[1:2]<-c("TG", "TF");
 
@@ -207,9 +243,9 @@ cn_getRawGRN<-function(zscores, corrs, targetGenes, zThresh=4){
   list(grnTable=grn, graph=igTmp);
 }
 
-#' find genes that are preferentially expressed in specified samples
+#' @title find genes that are preferentially expressed in specified samples
 #'
-#' find genes that are preferentially expressed in specified samples
+#' @description find genes that are preferentially expressed in specified samples
 #' @param expDat expression matrix
 #' @param sampTab sample table
 #' @param holm sig threshold
@@ -220,11 +256,10 @@ cn_getRawGRN<-function(zscores, corrs, targetGenes, zThresh=4){
 #' @return a list of something
 #'
 #' @export
-#'
-cn_findSpecGenes<-function (expDat, sampTab, holm=1e-50, cval=0.5, dLevel="description1", prune=FALSE){
+ccn_findSpecGenes<-function (expDat, sampTab, holm=1e-4, cval=0.4, dLevel="description1", prune=FALSE){
 
-  myPatternG<-cn_sampR_to_pattern(as.vector(sampTab[,dLevel]));
-  specificSets<-apply(myPatternG, 1, cn_testPattern, expDat=expDat);
+  myPatternG<-ccn_sampR_to_pattern(as.vector(sampTab[,dLevel]));
+  specificSets<-apply(myPatternG, 1, ccn_testPattern, expDat=expDat);
 
   # adaptively extract the best genes per lineage
   cvalT<-vector();
@@ -255,13 +290,13 @@ cn_findSpecGenes<-function (expDat, sampTab, holm=1e-50, cval=0.5, dLevel="descr
   ans;
 }
 
-#' return a pattern for use in cn_testPattern (template matching)
+#' return a pattern for use in ccn_testPattern (template matching)
 #'
-#' return a pattern for use in cn_testPattern (template matching)
+#' return a pattern for use in ccn_testPattern (template matching)
 #' @param sampR vector
 #'
 #' @return ans
-cn_sampR_to_pattern<-function (sampR){
+ccn_sampR_to_pattern<-function (sampR){
   d_ids<-unique(as.vector(sampR));
   nnnc<-length(sampR);
   ans<-matrix(nrow=length(d_ids), ncol=nnnc);
@@ -275,15 +310,14 @@ cn_sampR_to_pattern<-function (sampR){
   ans;
 }
 
-#' template matching
+#' @title template matching
 #'
-#' test correlation between idealized expression pattern and target gene
+#' @description test correlation between idealized expression pattern and target gene
 #' @param pattern vector of pattern
 #' @param expDat expression matrix
 #'
 #' @return data.frame(row.names=geneids, pval=pval, cval=cval,holm=holm);
-#'
-cn_testPattern<-function(pattern, expDat){
+ccn_testPattern<-function(pattern, expDat){
   pval<-vector();
   cval<-vector();
   geneids<-rownames(expDat);
@@ -311,9 +345,9 @@ cn_testPattern<-function(pattern, expDat){
 #' @param dLevelGK "description2"
 #'
 #' @return list of $matcher${cell_type}->{germ_layer}$context$general${cell_type}->gene vector etc
-cn_specGenesAll<-function(expDat, sampTab,holm=1e-4,cval=0.5,cvalGK=0.75, dLevel="description1", dLevelGK=NULL,prune=FALSE){
+ccn_specGenesAll<-function(expDat, sampTab,holm=1e-4,cval=0.4,cvalGK=0.75, dLevel, dLevelGK=NULL,prune=FALSE){
   matcher<-list();
-  general<-cn_findSpecGenes(expDat, sampTab, holm=holm, cval=cval, dLevel=dLevel,prune=prune);
+  general<-ccn_findSpecGenes(expDat, sampTab, holm=holm, cval=cval, dLevel=dLevel,prune=prune);
   ctXs<-list()# one per germlayer
   if(!is.null(dLevelGK)){
 
@@ -321,7 +355,7 @@ cn_specGenesAll<-function(expDat, sampTab,holm=1e-4,cval=0.5,cvalGK=0.75, dLevel
     for(germlayer in germLayers){
       stTmp<-sampTab[sampTab[,dLevelGK]==germlayer,];
       expTmp<-expDat[,rownames(stTmp)];
-      xxx<-cn_findSpecGenes(expTmp, stTmp, holm=holm, cval=cvalGK,dLevel=dLevel, prune=prune);
+      xxx<-ccn_findSpecGenes(expTmp, stTmp, holm=holm, cval=cvalGK,dLevel=dLevel, prune=prune);
       cts<-names(xxx);
       for(ct in cts){
         matcher[[ct]]<-germlayer;
@@ -342,11 +376,11 @@ cn_specGenesAll<-function(expDat, sampTab,holm=1e-4,cval=0.5,cvalGK=0.75, dLevel
 #' extract sub-networks made up of CT genes;
 #'
 #' extract sub-networks made up of CT genes;
-#' @param rawGRNs result of running cn_getRawGRN
-#' @param specGenes result of running cn_specGenesAll
+#' @param rawGRNs result of running ccn_getRawGRN
+#' @param specGenes result of running ccn_specGenesAll
 #'
 #' @return list(geneLists=geneLists, graphLists=graphLists, tfTargets=tfTargets)
-cn_specGRNs<-function(rawGRNs, specGenes){
+ccn_specGRNs<-function(rawGRNs, specGenes){
 
   # should return a list of gene lists and igraphs
   geneLists<-list();
@@ -375,7 +409,7 @@ cn_specGRNs<-function(rawGRNs, specGenes){
     graphLists[[ct]]<-induced.subgraph(big_graph, geneLists[[ct]]);
   }
 
-  tfTargets<-cn_MakeTLs(graphLists);
+  tfTargets<-ccn_MakeTLs(graphLists);
 
   list(geneLists=geneLists, graphLists=graphLists, tfTargets=tfTargets);
 }
@@ -386,11 +420,11 @@ cn_specGRNs<-function(rawGRNs, specGenes){
 #' @param graphList a list of networks represented as iGraphs
 #'
 #' @return list of tf=>targets
-cn_MakeTLs<-function(graphList){
+ccn_MakeTLs<-function(graphList){
   tfTargs<-list();
   nnames<-names(graphList);
   for(nname in nnames){
-    tfTargs[[nname]]<-cn_get_targets(graphList[[nname]]);
+    tfTargs[[nname]]<-ccn_get_targets(graphList[[nname]]);
   }
   tfTargs;
 }
@@ -401,7 +435,7 @@ cn_MakeTLs<-function(graphList){
 #' @param aGraph an iGraph
 #'
 #' @return target list
-cn_get_targets<-function(aGraph){
+ccn_get_targets<-function(aGraph){
   targList<-list();
   regs<-V(aGraph)$label[V(aGraph)$type=='Regulator'];
   if(length(regs)>0){
@@ -412,404 +446,6 @@ cn_get_targets<-function(aGraph){
   targList;
 }
 
-#' GRN status
-#'
-#' Calculates the status of all GRNs in query samples as compared to training data for
-#' @param expDat query expression matrix
-#' @param subList of ct => genes
-#' @param tVals tvals
-#' @param classList classList
-#' @param minVals minVals
-#' @param classWeight class weight
-#' @param exprWeight  expression weight
-#' @return grn scores (not normalized)
-cn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=FALSE, exprWeight=TRUE,xmax=1e3){
-  cat(ctt,"\n")
-  aMat<-matrix(0, nrow=length(genes), ncol=ncol(expDat));
-  rownames(aMat)<-genes;
-
-  weights<-rep(1, length(genes));
-  names(weights)<-genes;
-
-  #otherCTs<-setdiff(names(tVals), ct)
-
-  cat(dim(aMat),"\n")
-  if(exprWeight){
-    meanVect<-unlist(tVals[[ctt]][['mean']][genes]);
-    weights<-(2**meanVect)/sum(2**meanVect);
-  }
-
-  if(classWeight){ #TODO modify this to fit the gene pairs
-    #classImp<-classList[[ctt]]$importance[genes,1];
-
-    classImp = weights
-    for(gene in names(classList)) {
-      if(gene %in% names(classImp)) {
-        classImp[gene] = classList[gene] / 4 + 1
-      }
-    }
-
-    ### 04-19-17
-    ###classImp<-classImp/sum(classImp)
-    weights<-weights*classImp;
-  }
-
-  for(gene in genes){
-    ### cat("***",gene,"\n")
-    ###zzs<-as.matrix(cn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]])[1,])
-
-    zzs<-cn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]], xmax=xmax)
-    aMat[gene,]<-zzs;
-
-  }
-
-  print(dim(aMat))
-  xscores<-apply(aMat, 2, weighted.mean, w=weights);
-  xscores;
-}
-
-#' Estimate gene expression dist in CTs
-#'
-#' Calculate mean and SD
-#' @param expDat training data
-#' @param sampTab, ### training sample table
-#' @param dLevel="description1", ### column to define CTs
-#' @param predictSD=FALSE ### whether to predict SD based on expression level
-#'
-#' @return tVals list of ct->mean->named vector of average gene expression, ->sd->named vector of gene standard deviation
-cn_make_tVals<-function (expDat, sampTab, dLevel="description1", predictSD=FALSE){
-
-  if(predictSD){
-    ans<-cn_make_tVals_predict(expDat, sampTab, dLevel);
-  }
-  else{
-    # Note: returns a list of dName->gene->mean, sd, where 'dName' is a ctt or lineage
-    # make sure everything is lined up
-    expDat<-expDat[,rownames(sampTab)];
-    tVals<-list();
-    dNames<-unique(as.vector(sampTab[,dLevel]));
-    allGenes<-rownames(expDat);
-    for(dName in dNames){
-      #cat(dName,"\n");
-      xx<-which(sampTab[,dLevel]==dName);
-      sids<-rownames(sampTab[xx,]);
-      xDat<-expDat[,sids];
-      means<-apply(xDat, 1, mean);
-      sds<-apply(xDat, 1, sd);
-      tVals[[dName]][['mean']]<-as.list(means);
-      tVals[[dName]][['sd']]<-as.list(sds);
-    }
-    ans<-tVals;
-  }
-  ans;
-}
-
-#' cn_make_tVals_predict
-#'
-#' predicts SD based on mean expression
-#' @param expDat training data
-#' @param sampTab training sample table
-#' @param dLevel="description1" column to define CT
-#'
-#' @return tVals list of ct->mean->named vector of average gene expression, ->sd->named vector of gene standard deviation
-cn_make_tVals_predict<-function(expDat, sampTab, dLevel="description1"){
-  # Note: returns a list of dName->gene->mean, sd, where 'dName' is a ctt or lineage
-  # make sure everything is lined up
-  expDat<-expDat[,rownames(sampTab)];
-  tVals<-list();
-  dNames<-unique(as.vector(sampTab[,dLevel]));
-  allGenes<-rownames(expDat);
-
-  # make a model to predict SD given average expression level across all samples
-  sdT<-apply(expDat, 1, sd);
-  mT<-apply(expDat, 1, mean);
-  myModel<-lm(sdT~mT);
-  for(dName in dNames){
-    xx<-which(sampTab[,dLevel]==dName);
-    sids<-rownames(sampTab[xx,]);
-    xDat<-expDat[,sids];
-    means<-apply(xDat, 1, mean);
-    sds<-predict(myModel, data.frame(mT=means));
-    tVals[[dName]][['mean']]<-as.list(means);
-    tVals[[dName]][['sd']]<-as.list(sds);
-  }
-  tVals;
-}
-
-#' min diff
-#'
-#' computes mean gene A in CT 1 - mean gene A in CT 2, where CT2 has the non CT1 max value. does this for genes
-#' @param tVals tVals
-#' @param genes vector of gene names
-#' @param ct ct to compare to
-#' @return vector of differences
-minDif<-function(tVals, genes, ct){
-  octs<-setdiff(names(tVals), ct)
-  qq<-lapply(tVals[octs], "[[", "mean")
-  ##tVals[[ct]][["mean"]][[gene]]#-max(unlist(lapply(qq, "[[", gene)))
-  tmpMat<-matrix(unlist(lapply(qq, "[", genes)), nrow=length(genes))
-  rownames(tmpMat)<-genes
-  maxes<-apply(tmpMat, 1, max)
-  unlist(tVals[[ct]][["mean"]][genes])-maxes
-}
-
-#' computes the raw score for a gene as xmax-abs(zscore).
-#'
-#' better values are higher.
-#' @param vect a vector of gene expression values for multiple samples
-#' @param mmean mean value in training data
-#' @param ssd standard deviation in training data
-#'
-#' @return transformed (but not normalized) GRN score
-#'
-cn_rawScore<-function(vect, mmean, ssd, xmax=1e3){
-  zcs<-zscore(vect, mmean, ssd);
-  ### xmax<-1000; # arbitrary, and corrected for later, but want some high enough that it should not be exceeded
-  xmax-abs(zcs);
-}
-
-#' GRN status
-#'
-#' Calculates the GRN status in query samples as compared to training data
-#' @param expDat query expression matrix
-#' @param subList of ct => genes
-#' @param tVals list of ctt->list(means->genes, sds->genes)
-#' @param classList class list
-#' @param minVals  min vals
-#' @param classWeight classweght
-#' @param exprWeight  expression weight
-#' @return GRN scores
-#'
-cn_score<-function(expDat, subList, tVals, classList=NULL, minVals=NULL, classWeight=FALSE, exprWeight=TRUE, xmax=1e3){
-  #nSubnets<-sum(sapply(subList, length));
-  nSubnets<-length(subList);
-  ans<-matrix(0, nrow=nSubnets, ncol=ncol(expDat));
-  ctts<-names(subList);
-  rnames<-vector();
-  rIndex<-1;
-  for(ctt in ctts){
-    cat(ctt,"\n");
-    genes<-subList[[ctt]];
-    # 06-06-16 -- added to allow for use of GRNs defined elsewhere
-    genes<-intersect(genes, rownames(expDat));
-    #    snNames<-names(subnets);
-    #    rnames<-append(rnames, snNames);
-    #    for(sName in snNames){
-    ans[rIndex,]<-cn_netScores(expDat, genes, tVals=tVals, ctt=ctt,classList=classList, classWeight=classWeight,exprWeight=exprWeight, xmax=xmax);
-    rnames<-append(rnames, ctt);
-    rIndex<-rIndex+1;
-    #   }
-  }
-  rownames(ans)<-rnames;
-  colnames(ans)<-colnames(expDat);
-  if(!is.null(minVals)){
-    minVals<-minVals[rownames(ans)];
-    ans<-ans-minVals;
-  }
-  ans;
-}
-
-#' Normalize grn status as compared to training data
-#'
-#' Divide the query scores by the mean values in the training data.
-#' @param ctrlScores a list of subnet->mean value, all subnets
-#' @param queryScores a matrix, rownames = subnet names, all subnets
-#' @param subNets a vector of subnets names to use
-#'
-#' @return normalized grn status matrix
-#'
-cn_normalizeScores<-function(ctrlScores, queryScores, subNets){
-
-  ans<-matrix(0, nrow=length(subNets), ncol=ncol(queryScores));
-  rownames(ans)<-subNets
-  #subNets<-rownames(queryScores);
-  for(subNet in subNets){
-    ### cat(subNet,"\n")
-    ans[subNet,]<- queryScores[subNet,] / ctrlScores[[subNet]];
-  }
-  colnames(ans)<-colnames(queryScores);
-  ans;
-}
 
 
-#' Figure out normalization factors for GRNs, and norm training data
-#'
-#' Exactly that.
-#' @param expTrain expression matrix
-#' @param stTrain  sample table
-#' @param subNets named list of genes, one list per CTT, tct=>gene vector
-#' @param classList list of classifiers
-#' @param dLevel column name to group on
-#' @param tVals seful when debugging
-#' @param classWeight weight GRN status by importance of gene to classifier
-#' @param exprWeight weight GRN status by expression level of gene?
-#' @param sidCol sample id colname
-#'
-#' @return list of trainingScores, normVals, raw_scores, minVals, tVals=tVals
-#' @export
-cn_trainNorm<-function (expTrain, stTrain, subNets, classList = NULL,  dLevel = "description1", tVals=NULL, classWeight=FALSE, exprWeight=TRUE, sidCol='sample_id', xmax=1e3, predSD=FALSE){
 
-  if(is.null(tVals)){
-    tVals<-cn_make_tVals(expTrain, stTrain, dLevel, predictSD=predSD)
-  }
-
-  ctts<-as.vector(unique(stTrain[,dLevel]));
-  scoreList<-list();
-  normList<-list(); # a list of ctt->subnet->mean value
-  minVect<-vector(); # a list of ctt->subnet->min value, used to shift raw grn est scores
-
-  cat("calculating GRN scores on training data ...\n");
-  tmpScores<-cn_score(expTrain, subNets, tVals, classList, minVals=NULL, classWeight=classWeight, exprWeight=exprWeight, xmax=xmax)
-
-
-  minVect<-apply(tmpScores, 1, min);
-  names(minVect)<-rownames(tmpScores);
-
-  # shift the raw scores so that min=0;
-  tmpScores<-tmpScores - minVect;
-  cat("norm factors\n");
-  for(ctt in ctts){
-    # determine nomalization factors
-    ##snets<-names(subNets[[ctt]]);
-    snets<-ctt;
-
-    scoreDF<-cn_extract_SN_DF(tmpScores, stTrain, dLevel, snets, sidCol=sidCol);
-    scoreDF<-cn_reduceMatLarge(scoreDF, "score", "description", "subNet");
-    xdf<-scoreDF[which(scoreDF$grp_name==ctt),];
-    tmpSNS<-as.list(xdf$mean);
-    names(tmpSNS)<-xdf$subNet;
-    normList[names(tmpSNS)]<-tmpSNS;
-  }
-
-  # normalize training scores
-  nScores<-cn_normalizeScores(normList, tmpScores, rownames(tmpScores));
-
-  scoreDF<-cn_extract_SN_DF(nScores, stTrain, dLevel, sidCol=sidCol);
-
-  scoreDF<-cn_reduceMatLarge(scoreDF, "score", "description", "subNet");
-
-  list(trainingScores=scoreDF,
-       normVals=normList,
-       raw_scores=tmpScores,
-       minVals=minVect,
-       tVals=tVals);
-}
-
-zscore<-function(x,meanVal,sdVal){
-  (x-meanVal)/sdVal;
-  ### zscore
-}
-
-
-#' returns a DF of: sample_id, description, ctt, subnet_name, score
-#'
-#' returns a DF of: sample_id, description, ctt, subnet_name, score
-#' @param scores a matrix of subNet scores
-#' @param sampTab sample table
-#' @param dLevel column name of sampTab to group values by
-#' @param rnames rownames to extract
-#' @param sidCol sample identifier column name
-#'
-#' @return returns a DF of: sample_id, description, ctt, subnet_name, score
-cn_extract_SN_DF<-function(scores, sampTab, dLevel, rnames=NULL, sidCol="sample_id"){
-
-  if(is.null(rnames)){
-    rnames<-rownames(scores);
-    #cat("GOT NULL\n");
-  }
-
-  tss<-scores[rnames,];
-  if(length(rnames)==1){
-    tss<-t(as.matrix(scores[rnames,]));
-    rownames(tss)<-rnames;
-    #  cat(dim(tss),"\n")
-  }
-
-  nSamples<-ncol(tss);
-  stTmp<-sampTab[colnames(tss),]; ####
-  snNames<-rownames(tss);
-  num_subnets<-length(snNames);
-  snNames<-unlist(lapply(snNames, rep, times=nSamples));
-  sample_ids<-rep(as.vector(stTmp[,sidCol]), num_subnets);
-  descriptions<-rep(as.vector(stTmp[,dLevel]), num_subnets);
-  # myCtts<-rep(ctt, length(snNames));
-  scores<-as.vector(t(tss));
-  data.frame(sample_id=sample_ids,
-             description=descriptions,
-             #         ctt=myCtts,
-             subNet = snNames,
-             score=scores);
-  ### data.frame
-}
-
-cn_reduceMatLarge<-function (datFrame, valCol="score", cName="description", iterOver="subNet"){
-
-  iterOvers<-unique(as.vector(datFrame[,iterOver]));
-  ans<-data.frame();
-  for(io in iterOvers){
-    #  cat(io,"\n");
-    xi<-which(datFrame[,iterOver]==io);
-    dfTmp<-datFrame[xi,];
-    x<- utils_reduceMat(dfTmp,valCol=valCol,cName=cName);
-    x<-cbind(x, subNet=rep(io, nrow(x)));
-    ans<-rbind(ans, x);
-  }
-  ans;
-  ### ans
-}
-
-### reduce the data.matrix values by averaging and getting st dvs
-utils_reduceMat<-function(datFrame, valCol, cName='ann'){
-
-  mids<-unique(as.vector(datFrame[,cName]));
-  means<-rep(0, length(mids));
-  sds<-rep(1, length(mids));
-  indexI<-rep(0, length(mids)); # index to extract other columns from original data.frame
-
-  for(i in seq(length(mids))){
-    mid<-mids[i]
-    xi<-which(datFrame[,cName]==mid);
-    tmpDat<-datFrame[xi,];
-    means[i]<-mean(tmpDat[,valCol]);
-    sds[i]<-sd(tmpDat[,valCol]);
-  }
-  data.frame(grp_name=mids, mean=means, stdev=sds);
-  ### df of grp_name, mean, sd
-}
-
-###########################
-# helper functions
-#' @title logRank gene expression
-#' @description rank the gene expression values and log10 the ranks
-#' @param expTrain the expression matrix
-#' @return the log10 rank of genes
-logRank <- function(expTrain) {
-  expTrain = apply(expTrain, FUN = rank, MARGIN = 2)
-
-  return(log10(expTrain))
-}
-
-processImportance <- function(classifier) {
-  genePairImportance = classifier$importance
-
-  genes = unique(unlist(strsplit(x = rownames(classifier$importance), split = "_")))
-
-  geneImportance = rep(0, length(genes))
-
-  names(geneImportance) = genes
-  genePairImportance = genePairImportance[, 1]
-
-  for(genePair in names(genePairImportance)) {
-    temp_importance = genePairImportance[genePair]
-    genePairSplit = unlist(strsplit(x = genePair, split = "_"))
-
-    if(temp_importance > geneImportance[genePairSplit[1]]) {
-      geneImportance[genePairSplit[1]] = temp_importance
-    }
-    #if(temp_importance > geneImportance[genePairSplit[2]]) {
-    #    geneImportance[genePairSplit[2]] = temp_importance
-    #}
-  }
-
-  return(geneImportance)
-}
