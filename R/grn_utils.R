@@ -18,7 +18,7 @@ logRank <- function(expTrain) {
 #' @param prune blooln indicate whether to select genes exclusive to cancer category
 #'
 #' @return a list of genes with their importance divided by groups
-#' @exports
+#' @export
 processImportance <- function(classifier, xpairs, prune = TRUE) {
   genePairImportance = classifier$importance
 
