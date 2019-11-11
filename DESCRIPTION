@@ -19,6 +19,7 @@ Imports:
     ComplexHeatmap,
     circlize,
     GO.db,
-    org.Hs.eg.db
+    org.Hs.eg.db,
+    igraph
 Suggests: 
     testthat

@@ -16,10 +16,10 @@ ccn_makeGRN <- function(expTrain, stTrain, dLevel, zThresh = 4, dLevelGK = NULL,
   tfs = find_tfs("Hs")
 
   # indicate target genes
-  targetGenes = rownames(expGDC)
+  targetGenes = rownames(expTrain)
 
   # indicate Tfs
-  tfs = intersect(tfs, rownames(expGDC))
+  tfs = intersect(tfs, rownames(expTrain))
 
   coor_grn = grn_corr_round(expTrain)
   zscores = grn_zscores(coor_grn, tfs)
