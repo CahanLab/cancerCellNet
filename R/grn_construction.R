@@ -271,7 +271,7 @@ ccn_findSpecGenes<-function (expDat, sampTab, holm=1e-4, cval=0.4, dLevel="descr
   ctNames<-unique(as.vector(sampTab[,dLevel]));
   for(ctName in ctNames){
     x<-specificSets[[ctName]];
-    tmp<-rownames(x[which(abs(x$cval)>cval),]); # get both the upregulated and downregulated
+    tmp<-rownames(x[which(abs(x$cval)>cval),]); # get both the upregulated and downregulated genes
     tmp2<-rownames(x[which(x$holm<holm),]);
     tmp<-intersect(tmp, tmp2)
     ctGenes[[ctName]]<-tmp;

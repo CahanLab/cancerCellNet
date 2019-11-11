@@ -31,7 +31,7 @@ ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=
     classImp = weights
     for(gene in names(classList[[ctt]])) {
       if(gene %in% names(classImp)) {
-        classImp[gene] = classList[[ctt]][gene] + 1
+        classImp[gene] = classList[[ctt]][gene] + 2
       }
     }
 
@@ -176,7 +176,7 @@ ccn_score<-function(expDat, subList, tVals, classList=NULL, minVals=NULL, classW
   rIndex<-1;
   for(ctt in ctts){
     cat(ctt,"\n");
-    genes<-subList[[ctt]];
+    genes<-subList[[ctt]];z
     # 06-06-16 -- added to allow for use of GRNs defined elsewhere
     genes<-intersect(genes, rownames(expDat));
     #    snNames<-names(subnets);
@@ -288,7 +288,7 @@ ccn_trainNorm<-function (expTrain, stTrain, subNets, classList = NULL,  dLevel =
 #' @param meanVal mean of the distribution
 zscore<-function(x,meanVal,sdVal){
 
-  (x-meanVal)/sdVal;
+  (x-meanVal)/sdVal; # change to absolute
 }
 
 
