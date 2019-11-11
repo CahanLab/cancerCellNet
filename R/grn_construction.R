@@ -26,10 +26,14 @@ ccn_makeGRN <- function(expTrain, stTrain, dLevel, zThresh = 4, dLevelGK = NULL,
 
   grnall = ccn_getRawGRN(zscores, coor_grn, targetGenes, zThresh=zThresh)
   # find preferentially expressed genes
+
+  cat("Finished constructing general GRN", "\n")
   specGenes = ccn_specGenesAll(expTrain, stTrain, holm=holm, cval=cval, dLevel=dLevel, dLevelGK = dLevelGK, prune=prune)
 
+  cat("Finished finding type specific genes", "\n")
   ctGRNs = ccn_specGRNs(grnall, specGenes)
 
+  cat("Finished constructing type specific GRNs", "\n")
   grn_all = list(overallGRN=grnall, specGenes=specGenes,ctGRNs=ctGRNs, grnSamples=rownames(stTrain));
 
   return(grn_all)
