@@ -27,19 +27,26 @@ processImportance <- function(classifier, xpairs, prune = TRUE) {
   ignoreList = vector()
   # loop through individual grousp
   for(cancerGroup in names(xpairs)) {
-    temp_pairList = xpairs[[cancerGroup]]
+    temp_pairList = names(xpairs[[cancerGroup]])
 
-    group_geneImportance = vector()
+    geneNames = unique(unlist(strsplit(x = temp_pairList, split = "_")))
+    group_geneImportance = rep(0, length(geneNames))
+    names(group_geneImportance) = geneNames
+
     # loop through individual gene pair
-    for(tempPair in names(temp_pairList)){
-      if(temp_pairList[[tempPair]] == 1) {
-        # assign the first gene with the importance of the the genepair
-        group_geneImportance[[strsplit(tempPair, split = "_")[[1]][1]]] = genePairImportance[tempPair, 1]
+    for(tempPair in temp_pairList){
+      gene1 = strsplit(tempPair, split = "_")[[1]][1]
+      gene2 = strsplit(tempPair, split = "_")[[1]][1]
+
+      tempImportance = genePairImportance[tempPair, 1]
+      if(group_geneImportance[[gene1]] < tempImportance){
+        group_geneImportance[[gene1]] = tempImportance
       }
-      else {
-        # if the value is -1, assign the second gene with the importance of the genepair
-        group_geneImportance[[strsplit(tempPair, split = "_")[[1]][2]]] = genePairImportance[tempPair, 1]
+
+      if(group_geneImportance[[gene2]] < tempImportance){
+        group_geneImportance[[gene2]] = tempImportance
       }
+
     }
 
     gene_importanceList[[cancerGroup]] = group_geneImportance
