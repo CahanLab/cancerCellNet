@@ -405,6 +405,7 @@ ccn_specGenesAll<-function(expDat, sampTab,holm=1e-4,cval=0.4,cvalGK=0.75, dLeve
 #' @param specGenes result of running ccn_specGenesAll
 #'
 #' @return list(geneLists=geneLists, graphLists=graphLists, tfTargets=tfTargets)
+#' @export
 ccn_specGRNs<-function(rawGRNs, specGenes){
 
   # should return a list of gene lists and igraphs
@@ -427,7 +428,7 @@ ccn_specGRNs<-function(rawGRNs, specGenes){
       mygenes<-union(specGenes[['context']][['general']][[ct]], specGenes[['context']][[gll]][[ct]]);
     }
     else{
-      mygenes<-specGenes[['context']][['general']][[ct]]
+      mygenes<-names(specGenes[['context']][['general']][[ct]])
     }
 
     geneLists[[ct]]<-intersect(allgenes, mygenes);
