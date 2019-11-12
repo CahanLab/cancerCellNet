@@ -271,10 +271,26 @@ ccn_findSpecGenes<-function (expDat, sampTab, holm=1e-4, cval=0.4, dLevel="descr
   ctNames<-unique(as.vector(sampTab[,dLevel]));
   for(ctName in ctNames){
     x<-specificSets[[ctName]];
-    tmp<-rownames(x[which(abs(x$cval)>cval),]); # get both the upregulated and downregulated genes
+
+    # modification so that both upregulated and downregulated genes are going to be selected
+    tmp<-rownames(x[which(x$cval>cval),]);
     tmp2<-rownames(x[which(x$holm<holm),]);
     tmp<-intersect(tmp, tmp2)
-    ctGenes[[ctName]]<-tmp;
+
+    up_regGenes = rep(1, length(tmp))
+    names(up_regGenes) = tmp
+
+    # now the downregulated genes
+    tmp<-rownames(x[which(x$cval < -cval),]);
+    tmp2<-rownames(x[which(x$holm<holm),]);
+    tmp<-intersect(tmp, tmp2)
+
+    down_regGenes = rep(-1, length(tmp))
+    names(down_regGenes) = tmp
+
+    totalGenes = c(up_regGenes, down_regGenes)
+
+    ctGenes[[ctName]]<-totalGenes;
     ###    cvalT<-append(cvalT, cval);
   }
 
@@ -283,11 +299,15 @@ ccn_findSpecGenes<-function (expDat, sampTab, holm=1e-4, cval=0.4, dLevel="descr
     specGenes<-list();
     for(ctName in ctNames){
       others<-setdiff(ctNames, ctName);
-      x<-setdiff( ctGenes[[ctName]], unlist(ctGenes[others]));
-      specGenes[[ctName]]<-x;
+
+      exclusiveGenes<-setdiff( names(ctGenes[[ctName]]), unlist(names(ctGenes[others])));
+
+
+      specGenes[[ctName]]<-ctGenes[[ctName]][exclusiveGenes]; # only select the exclusive genes
     }
     ans<-specGenes;
   }
+
   else{
     ans<-ctGenes;
   }
@@ -349,6 +369,7 @@ ccn_testPattern<-function(pattern, expDat){
 #' @param dLevelGK "description2"
 #'
 #' @return list of $matcher${cell_type}->{germ_layer}$context$general${cell_type}->gene vector etc
+#' @export
 ccn_specGenesAll<-function(expDat, sampTab,holm=1e-4,cval=0.4,cvalGK=0.75, dLevel, dLevelGK=NULL,prune=FALSE){
   matcher<-list();
   general<-ccn_findSpecGenes(expDat, sampTab, holm=holm, cval=cval, dLevel=dLevel,prune=prune);
