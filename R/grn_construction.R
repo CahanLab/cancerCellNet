@@ -422,7 +422,7 @@ ccn_specGRNs<-function(rawGRNs, specGenes){
 
   for(ct in groupNames){
     cat(ct,"\n")
-    if(!is.null(names(matcher))){
+    if(!is.null(names(matcher))){ #TODO modifiy the germ line stuff later
       gll<-matcher[[ct]];
       cat(ct," ",gll,"\n");
       mygenes<-union(specGenes[['context']][['general']][[ct]], specGenes[['context']][[gll]][[ct]]);
@@ -431,8 +431,10 @@ ccn_specGRNs<-function(rawGRNs, specGenes){
       mygenes<-names(specGenes[['context']][['general']][[ct]])
     }
 
-    geneLists[[ct]]<-intersect(allgenes, mygenes);
-    graphLists[[ct]]<-induced.subgraph(big_graph, geneLists[[ct]]);
+    geneLists[[ct]]<-specGenes[['context']][['general']][[ct]][intersect(allgenes, mygenes)];
+
+    graphLists[[ct]]<-induced.subgraph(big_graph, names(geneLists[[ct]]));
+
   }
 
   tfTargets<-ccn_MakeTLs(graphLists);
@@ -450,7 +452,7 @@ ccn_MakeTLs<-function(graphList){
   tfTargs<-list();
   nnames<-names(graphList);
   for(nname in nnames){
-    tfTargs[[nname]]<-ccn_get_targets(graphList[[nname]]);
+    tfTargs[[nname]]<-ccn_get_targets(graphList[[nname]]); # get the name of the genelist
   }
   tfTargs;
 }
