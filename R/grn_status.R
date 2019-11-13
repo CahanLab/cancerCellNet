@@ -12,16 +12,16 @@
 ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=FALSE, exprWeight=TRUE,xmax=1e3){
   cat(ctt,"\n")
   aMat<-matrix(0, nrow=length(genes), ncol=ncol(expDat));
-  rownames(aMat)<-genes;
+  rownames(aMat)<-names(genes);
 
   weights<-rep(1, length(genes));
-  names(weights)<-genes;
+  names(weights)<-names(genes);
 
   #otherCTs<-setdiff(names(tVals), ct)
 
   cat(dim(aMat),"\n")
   if(exprWeight){
-    meanVect<-unlist(tVals[[ctt]][['mean']][genes]);
+    meanVect<-unlist(tVals[[ctt]][['mean']][names(genes)]);
     weights<-(2**meanVect)/sum(2**meanVect);
   }
 
@@ -40,12 +40,20 @@ ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=
     weights<-weights*classImp;
   }
 
-  for(gene in genes){
+  for(gene in names(genes)){
+
     ### cat("***",gene,"\n")
     ###zzs<-as.matrix(cn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]])[1,])
 
     zzs<-ccn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]], xmax=xmax)
-    aMat[gene,]<-zzs;
+
+    if(genes[gene] == 1) {
+      aMat[gene,] = zzs; # if the gene is supposed to be upregulated, the bigger the rank the better
+
+    }
+    else {
+      aMat[gene,] = -(zzs); # if the gene is suppose to be downregulated, the smaller the rank the better
+    }
 
   }
 
@@ -152,7 +160,8 @@ ccn_rawScore<-function(vect, mmean, ssd, xmax=1e3){
   zcs<-zscore(vect, mmean, ssd);
   ### xmax<-1000; # arbitrary, and corrected for later, but want some high enough that it should not be exceeded
 
-  xmax-abs(zcs);
+  #xmax-abs(zcs); # this was the original scoring system.
+  zcs
 }
 
 #' GRN status
@@ -176,9 +185,9 @@ ccn_score<-function(expDat, subList, tVals, classList=NULL, minVals=NULL, classW
   rIndex<-1;
   for(ctt in ctts){
     cat(ctt,"\n");
-    genes<-subList[[ctt]];z
+    genes<-subList[[ctt]];
     # 06-06-16 -- added to allow for use of GRNs defined elsewhere
-    genes<-intersect(genes, rownames(expDat));
+    genes<-genes[intersect(names(genes), rownames(expDat))]; # only select the genes that are
     #    snNames<-names(subnets);
     #    rnames<-append(rnames, snNames);
     #    for(sName in snNames){
@@ -288,7 +297,7 @@ ccn_trainNorm<-function (expTrain, stTrain, subNets, classList = NULL,  dLevel =
 #' @param meanVal mean of the distribution
 zscore<-function(x,meanVal,sdVal){
 
-  (x-meanVal)/sdVal; # change to absolute
+  (x-meanVal)/sdVal;
 }
 
 
