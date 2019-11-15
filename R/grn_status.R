@@ -9,7 +9,7 @@
 #' @param classWeight class weight
 #' @param exprWeight  expression weight
 #' @return grn scores (not normalized)
-ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=FALSE, classWeightVal = 2, exprWeight=TRUE, exprWeightVal = 2, xmax=1e3){
+ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=FALSE, classWeightVal = 3, exprWeight=TRUE, exprWeightVal = 3, xmax=1e3){
   cat(ctt,"\n")
   aMat<-matrix(0, nrow=length(genes), ncol=ncol(expDat));
   rownames(aMat)<-names(genes);
@@ -45,15 +45,20 @@ ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=
     ### cat("***",gene,"\n")
     ###zzs<-as.matrix(cn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]])[1,])
 
-    zzs<-ccn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]], xmax=xmax)
+    zzs<-ccn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]], xmax=xmax, reg_type = genes[gene])
 
-    if(genes[gene] == 1) {
-      aMat[gene,] = zzs; # if the gene is supposed to be upregulated, the bigger the rank the better
+    # below won't run
+    if(FALSE) {
+      if(genes[gene] == 1) {
+        aMat[gene,] = zzs; # if the gene is supposed to be upregulated, the bigger the rank the better
 
+      }
+      else {
+        aMat[gene,] = -(zzs); # if the gene is suppose to be downregulated, the smaller the rank the better
+      }
     }
-    else {
-      aMat[gene,] = -(zzs); # if the gene is suppose to be downregulated, the smaller the rank the better
-    }
+
+    aMat[gene,] = zzs;
 
   }
 
@@ -153,15 +158,25 @@ minDif<-function(tVals, genes, ct){
 #' @param vect a vector of gene expression values for multiple samples
 #' @param mmean mean value in training data
 #' @param ssd standard deviation in training data
-#'
+#' @param reg_type the type of regulation (up or down) for the specific subnetwork
 #' @return transformed (but not normalized) GRN score
 #'
-ccn_rawScore<-function(vect, mmean, ssd, xmax=1e3){
+ccn_rawScore<-function(vect, mmean, ssd, xmax=1e3, reg_type){
   zcs<-zscore(vect, mmean, ssd);
+
+  if(as.numeric(reg_type) == 1) { # if the
+    zcs[zcs > 0] = 0
+    return(xmax - abs(zcs * 2))
+  }
+  else {
+    zcs[zcs < 0] = 0
+
+    return(xmax - abs(zcs * 2))
+  }
   ### xmax<-1000; # arbitrary, and corrected for later, but want some high enough that it should not be exceeded
 
   #xmax-abs(zcs); # this was the original scoring system.
-  zcs
+  #zcs
 }
 
 #' GRN status
