@@ -5,8 +5,8 @@
 \title{GRN status}
 \usage{
 ccn_netScores(expDat, genes, tVals, ctt, classList = NULL,
-  classWeight = FALSE, classWeightVal = 2, exprWeight = TRUE,
-  exprWeightVal = 2, xmax = 1000)
+  classWeight = TRUE, classWeightVal = 3, exprWeight = TRUE,
+  exprWeightVal = 3, xmax = 1000)
 }
 \arguments{
 \item{expDat}{query expression matrix}

@@ -78,9 +78,6 @@ ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, geneImportance
     tf_scoreMat[, sampleID] = tfScore
   }
 
-
-
-
 }
 
 #' Calculate the TF

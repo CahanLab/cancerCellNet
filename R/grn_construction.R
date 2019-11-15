@@ -48,7 +48,6 @@ ccn_makeGRN <- function(expTrain, stTrain, dLevel, zThresh = 4, dLevelGK = NULL,
 #'
 #' @import GO.db org.Hs.eg.db
 #' @export
-#'
 find_tfs<-function(species='Hs'){
 
   cat("Loading gene annotations ...\n")

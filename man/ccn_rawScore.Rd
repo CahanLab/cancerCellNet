@@ -4,7 +4,7 @@
 \alias{ccn_rawScore}
 \title{computes the raw z score for a gene as xmax-abs(zscore).}
 \usage{
-ccn_rawScore(vect, mmean, ssd, xmax = 1000)
+ccn_rawScore(vect, mmean, ssd, xmax = 1000, reg_type)
 }
 \arguments{
 \item{vect}{a vector of gene expression values for multiple samples}
@@ -12,6 +12,8 @@ ccn_rawScore(vect, mmean, ssd, xmax = 1000)
 \item{mmean}{mean value in training data}
 
 \item{ssd}{standard deviation in training data}
+
+\item{reg_type}{the type of regulation (up or down) for the specific subnetwork}
 }
 \value{
 transformed (but not normalized) GRN score
