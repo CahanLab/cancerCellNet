@@ -15,10 +15,10 @@
 #' @return matrix of TF scores and query samples
 #' @export
 ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, geneImportance, classWeight=TRUE, classWeightVal = 3, exprWeight=TRUE, exprWeightVal = 3, correlationFactor = 1) {
-  TF_targetList = grnAll[["ctGRNs"]][["tfTargets"]][[subNetName]]
+  TF_targetList = grnAll[["ctGRNs"]][["tfTargets"]][[subnetName]]
 
   tfs = names(TF_targetList)
-  netGenes = grnAll[["ctGRNs"]][["geneLists"]][[subNetName]]
+  netGenes = grnAll[["ctGRNs"]][["geneLists"]][[subnetName]]
 
   grnTable = grnAll$overallGRN$grnTable
   tVals = trainNorm$tVals
@@ -33,6 +33,7 @@ ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, geneImportance
   rownames(tf_scoreMat) = tfs
   colnames(tf_scoreMat) = colnames(expQuery)
 
+  print(tfs)
   for(querySample in colnames(expQuery)) {
     xvals = as.vector(expQuery[names(netGenes), querySample])
     names(xvals) = names(netGenes)
@@ -78,6 +79,7 @@ ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, geneImportance
     tf_scoreMat[, sampleID] = tfScore
   }
 
+  return(tf_scoreMat)
 }
 
 #' Calculate the TF
