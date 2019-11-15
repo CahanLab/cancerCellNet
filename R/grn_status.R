@@ -9,7 +9,7 @@
 #' @param classWeight class weight
 #' @param exprWeight  expression weight
 #' @return grn scores (not normalized)
-ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=FALSE, exprWeight=TRUE,xmax=1e3){
+ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=FALSE, classWeightVal = 2, exprWeight=TRUE, exprWeightVal = 2, xmax=1e3){
   cat(ctt,"\n")
   aMat<-matrix(0, nrow=length(genes), ncol=ncol(expDat));
   rownames(aMat)<-names(genes);
@@ -22,7 +22,7 @@ ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=
   cat(dim(aMat),"\n")
   if(exprWeight){
     meanVect<-unlist(tVals[[ctt]][['mean']][names(genes)]);
-    weights<-(2**meanVect)/sum(2**meanVect);
+    weights<-(exprWeightVal*meanVect)/sum(exprWeightVal*meanVect); # also arbritary value on the weight you are putting on the expression
   }
 
   if(classWeight){ #TODO modify this to fit the gene pairs
@@ -31,7 +31,7 @@ ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=
     classImp = weights
     for(gene in names(classList[[ctt]])) {
       if(gene %in% names(classImp)) {
-        classImp[gene] = classList[[ctt]][gene] + 2
+        classImp[gene] = classList[[ctt]][gene] + classWeightVal # arbritary value
       }
     }
 
@@ -175,7 +175,7 @@ ccn_rawScore<-function(vect, mmean, ssd, xmax=1e3){
 #' @param classWeight classweght
 #' @param exprWeight  expression weight
 #' @return GRN scores
-#'
+#' @export
 ccn_score<-function(expDat, subList, tVals, classList=NULL, minVals=NULL, classWeight=FALSE, exprWeight=TRUE, xmax=1e3){
   #nSubnets<-sum(sapply(subList, length));
   nSubnets<-length(subList);
@@ -213,7 +213,7 @@ ccn_score<-function(expDat, subList, tVals, classList=NULL, minVals=NULL, classW
 #' @param subNets a vector of subnets names to use
 #'
 #' @return normalized grn status matrix
-#'
+#' @export
 ccn_normalizeScores<-function(ctrlScores, queryScores, subNets){
 
   ans<-matrix(0, nrow=length(subNets), ncol=ncol(queryScores));
@@ -375,7 +375,7 @@ ccn_reduceMatLarge<-function (datFrame, valCol="score", cName="description", ite
 #' @param cName column with groups
 #'
 #' @return df of grp_name, mean, sd
-utils_reduceMat<-function(datFrame, valCol, cName='ann'){
+`utils_reduceMat`<-function(datFrame, valCol, cName='ann'){
 
   mids<-unique(as.vector(datFrame[,cName]));
   means<-rep(0, length(mids));
