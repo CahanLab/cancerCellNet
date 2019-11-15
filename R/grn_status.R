@@ -9,7 +9,7 @@
 #' @param classWeight class weight
 #' @param exprWeight  expression weight
 #' @return grn scores (not normalized)
-ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=FALSE, classWeightVal = 3, exprWeight=TRUE, exprWeightVal = 3, xmax=1e3){
+ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=TRUE, classWeightVal = 3, exprWeight=TRUE, exprWeightVal = 3, xmax=1e3){
   cat(ctt,"\n")
   aMat<-matrix(0, nrow=length(genes), ncol=ncol(expDat));
   rownames(aMat)<-names(genes);
@@ -47,7 +47,7 @@ ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=
 
     zzs<-ccn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]], xmax=xmax, reg_type = genes[gene])
 
-    # below won't run
+    # below won't run...delete this later
     if(FALSE) {
       if(genes[gene] == 1) {
         aMat[gene,] = zzs; # if the gene is supposed to be upregulated, the bigger the rank the better
