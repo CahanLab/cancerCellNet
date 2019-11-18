@@ -29,14 +29,14 @@ processImportance <- function(classifier, xpairs, prune = TRUE) {
   for(cancerGroup in names(xpairs)) {
     temp_pairList = names(xpairs[[cancerGroup]])
 
-    geneNames = unique(unlist(strsplit(x = temp_pairList, split = "_")))
+    geneNames = unique(unlist(strsplit(x = temp_pairList, split = "_"))) # get unique genes from gene pairs
     group_geneImportance = rep(0, length(geneNames))
     names(group_geneImportance) = geneNames
 
     # loop through individual gene pair
     for(tempPair in temp_pairList){
       gene1 = strsplit(tempPair, split = "_")[[1]][1]
-      gene2 = strsplit(tempPair, split = "_")[[1]][1]
+      gene2 = strsplit(tempPair, split = "_")[[1]][2]
 
       tempImportance = genePairImportance[tempPair, 1]
       if(group_geneImportance[[gene1]] < tempImportance){
@@ -53,6 +53,7 @@ processImportance <- function(classifier, xpairs, prune = TRUE) {
     ignoreList = c(ignoreList, names(group_geneImportance))
   }
 
+  # find the duplicated genes that are across different
   ignoreList = ignoreList[duplicated(ignoreList)]
   if(prune == TRUE) {
     for(cancer_group in names(gene_importanceList)) {

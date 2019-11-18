@@ -258,7 +258,7 @@ ccn_normalizeScores<-function(ctrlScores, queryScores, subNets){
 #'
 #' @return list of trainingScores, normVals, raw_scores, minVals, tVals=tVals
 #' @export
-ccn_trainNorm<-function (expTrain, stTrain, subNets, classList = NULL,  dLevel = "description1", tVals=NULL, classWeight=FALSE, exprWeight=TRUE, sidCol='sample_id', xmax=1e3, predSD=FALSE){
+ccn_trainNorm<-function (expTrain, stTrain, subNets, classList = NULL,  dLevel = "description1", tVals=NULL, classWeight=TRUE, exprWeight=FALSE, sidCol='sample_id', xmax=1e3, predSD=FALSE){
 
   if(is.null(tVals)){
     tVals<-ccn_make_tVals(expTrain, stTrain, dLevel, predictSD=predSD)
@@ -390,7 +390,7 @@ ccn_reduceMatLarge<-function (datFrame, valCol="score", cName="description", ite
 #' @param cName column with groups
 #'
 #' @return df of grp_name, mean, sd
-`utils_reduceMat`<-function(datFrame, valCol, cName='ann'){
+utils_reduceMat<-function(datFrame, valCol, cName='ann'){
 
   mids<-unique(as.vector(datFrame[,cName]));
   means<-rep(0, length(mids));
@@ -406,3 +406,50 @@ ccn_reduceMatLarge<-function (datFrame, valCol="score", cName="description", ite
   }
   data.frame(grp_name=mids, mean=means, stdev=sds);
 }
+
+#' @title Get Query GRN status
+#' @description Get the GRN status of query samples
+#'
+#' @param expQuery logRanked query expression matrix
+#' @param expTrain logRanked training expression matrix
+#' @param stTrain sample table of training expression matrix
+#' @param dLevel the name of the column with cancer types
+#' @param sidCol the name of the column with sample IDs
+#' @param grn_return the grn list that is returned from \code{\link{ccn_makeGRN}}
+#' @param trainNorm normalization statistics from \code{\link{ccn_trainNorm}}. If you are using pre-calculated normalization statistics please make sure all the parameters are the same for applying to query and calculating normalization
+#' @param classifier_return the classifier_return list that is returned from \code{\link{broadClass_train}}
+#' @param classWeight boolean indicating whether to take the importance of the classification into status calculation
+#' @param exprWeight boolean indicating whether to take the weight of gene expression into status calculation
+#' @param prune boolean indicating whether to select exclusive genes for processing classification gene importance
+#' @param predSD a parameter for calculating normalization statistics from training data
+#' @return a matrix indicating the GRN status
+#' @export
+grn_status_query <- function(expQuery, expTrain, stTrain, dLevel, sidCol, grn_return, trainNorm = NULL, classifier_return,  classWeight = TRUE, exprWeight = FALSE, prune = TRUE, xmax = 1e3, predSD=FALSE) {
+  cnProc = classifier_return$cnProc
+
+  trainNorm_prior = trainNorm
+  geneImportance = processImportance(classifier = cnProc$classifier, xpairs = classifier_return$xpairs_list, prune = prune)
+
+  if(is.null(trainNorm) == TRUE) {
+    trainNorm = ccn_trainNorm(expTrain, stTrain, subNets=grn_return$ctGRNs$geneLists, classList = geneImportance, dLevel = dLevel, sidCol = sidCol, classWeight = classWeight, exprWeight = exprWeight)
+  }
+
+  status_score = ccn_score(expDat = expQuery,
+                           subList = grn_return$ctGRNs$geneLists, tVals = trainNorm$tVals,
+                           classList = geneImportance, minVals = trainNorm$minVals,
+                           classWeight = classWeight, exprWeight = exprWeight,
+                           xmax = xmax)
+  normScoresQuery = ccn_normalizeScores(trainNorm$normVals, status_score, rownames(status_score))
+
+  if(is.null(trainNorm_prior) == TRUE) {
+    return(list("trainNorm" = trainNorm, "query_GRNstatus" = normScoresQuery))
+  }
+  else {
+    return(normScoresQuery)
+  }
+}
+
+
+
+
+
