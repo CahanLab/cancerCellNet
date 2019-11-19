@@ -47,19 +47,7 @@ ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=
 
     zzs<-ccn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]], xmax=xmax, reg_type = genes[gene])
 
-    # below won't run...delete this later
-    if(FALSE) {
-      if(genes[gene] == 1) {
-        aMat[gene,] = zzs; # if the gene is supposed to be upregulated, the bigger the rank the better
-
-      }
-      else {
-        aMat[gene,] = -(zzs); # if the gene is suppose to be downregulated, the smaller the rank the better
-      }
-    }
-
     aMat[gene,] = zzs;
-
   }
 
   print(dim(aMat))
@@ -193,6 +181,9 @@ ccn_rawScore<-function(vect, mmean, ssd, xmax=1e3, reg_type){
 #' @export
 ccn_score<-function(expDat, subList, tVals, classList=NULL, minVals=NULL, classWeight=FALSE, exprWeight=TRUE, xmax=1e3){
   #nSubnets<-sum(sapply(subList, length));
+  if(class(expDat) != "matrix") {
+    expDat = as.matrix(expDat)
+  }
   nSubnets<-length(subList);
   ans<-matrix(0, nrow=nSubnets, ncol=ncol(expDat));
   ctts<-names(subList);
@@ -432,6 +423,7 @@ grn_status_query <- function(expQuery, expTrain, stTrain, dLevel, sidCol, grn_re
 
   if(is.null(trainNorm) == TRUE) {
     trainNorm = ccn_trainNorm(expTrain, stTrain, subNets=grn_return$ctGRNs$geneLists, classList = geneImportance, dLevel = dLevel, sidCol = sidCol, classWeight = classWeight, exprWeight = exprWeight)
+    cat("Finished finding normalization statistics", "\n")
   }
 
   status_score = ccn_score(expDat = expQuery,
