@@ -8,7 +8,7 @@
 logRank <- function(expTrain) {
   expTrain = apply(expTrain, FUN = rank, MARGIN = 2)
 
-  return(log10(expTrain))
+  return(log(expTrain))
 }
 
 #' @title process classifier importance
