@@ -154,12 +154,12 @@ ccn_rawScore<-function(vect, mmean, ssd, xmax=1e3, reg_type){
 
   if(as.numeric(reg_type) == 1) { # if the
     zcs[zcs > 0] = 0
-    return(xmax - abs(zcs * 2))
+    return(xmax - abs(zcs * 3))
   }
   else {
     zcs[zcs < 0] = 0
 
-    return(xmax - abs(zcs * 2))
+    return(xmax - abs(zcs * 3))
   }
   ### xmax<-1000; # arbitrary, and corrected for later, but want some high enough that it should not be exceeded
 
