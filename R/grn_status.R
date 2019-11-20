@@ -415,7 +415,7 @@ utils_reduceMat<-function(datFrame, valCol, cName='ann'){
 #' @param predSD a parameter for calculating normalization statistics from training data
 #' @return a matrix indicating the GRN status
 #' @export
-grn_status_query <- function(expQuery, expTrain, stTrain, dLevel, sidCol, grn_return, trainNorm = NULL, classifier_return,  classWeight = TRUE, exprWeight = FALSE, prune = TRUE, xmax = 1e3, predSD=FALSE) {
+ccn_queryGRNstatus <- function(expQuery, expTrain, stTrain, dLevel, sidCol, grn_return, trainNorm = NULL, classifier_return,  classWeight = TRUE, exprWeight = FALSE, prune = TRUE, xmax = 1e3, predSD=FALSE) {
   cnProc = classifier_return$cnProc
 
   trainNorm_prior = trainNorm

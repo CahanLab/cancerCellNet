@@ -5,7 +5,7 @@
 #' @param subnetName the name of the target cell type
 #' @param grnAll result of running \code{\link{ccn_makeGRN}}
 #' @param trainNorm result of running \code{\link{ccn_trainNorm}}
-#' @param geneImportance the importance of gene pairs from classifier. Result of running \code{\link{processImportance}}
+#' @param classifier_return the classifier_return list that is returned from \code{\link{broadClass_train}}
 #' @param classWeight whether to take the weight of the classifier into calculation
 #' @param classWeightVal the value of the classifier weight
 #' @param exprWeight whether to take the weight of the expression into calculation
@@ -14,7 +14,12 @@
 #'
 #' @return matrix of TF scores and query samples
 #' @export
-ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, geneImportance, classWeight=TRUE, classWeightVal = 3, exprWeight=TRUE, exprWeightVal = 3, correlationFactor = 1) {
+ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, classifier_return, classWeight=TRUE, classWeightVal = 3, exprWeight=TRUE, exprWeightVal = 3, correlationFactor = 1, prune = TRUE) {
+  cnProc = classifier_return$cnProc
+
+  classList = processImportance(classifier = cnProc$classifier, xpairs = classifier_return$xpairs_list, prune = prune)
+
+
   TF_targetList = grnAll[["ctGRNs"]][["tfTargets"]][[subnetName]]
 
   tfs = names(TF_targetList)
@@ -152,7 +157,7 @@ calc_tfScores <- function(tf, targs, sampleID, z_scoreMat, netGenes, weights, gr
 #' @param ctt cell type
 #'
 #' @return a vector of Z scores
-cn_zscoreVect<-function (genes, xvals, tVals, ctt){
+ccn_zscoreVect<-function (genes, xvals, tVals, ctt){
   ans<-vector();
   for(gene in genes){
     ans<-append(ans, zscore(xvals[gene], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]]));

@@ -5,8 +5,8 @@
 \title{Figure out normalization factors for GRNs, and norm training data}
 \usage{
 ccn_trainNorm(expTrain, stTrain, subNets, classList = NULL,
-  dLevel = "description1", tVals = NULL, classWeight = FALSE,
-  exprWeight = TRUE, sidCol = "sample_id", xmax = 1000,
+  dLevel = "description1", tVals = NULL, classWeight = TRUE,
+  exprWeight = FALSE, sidCol = "sample_id", xmax = 1000,
   predSD = FALSE)
 }
 \arguments{

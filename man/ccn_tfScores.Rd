@@ -4,9 +4,9 @@
 \alias{ccn_tfScores}
 \title{calculate TF scores}
 \usage{
-ccn_tfScores(expQuery, subnetName, grnAll, trainNorm, geneImportance,
+ccn_tfScores(expQuery, subnetName, grnAll, trainNorm, classifier_return,
   classWeight = TRUE, classWeightVal = 3, exprWeight = TRUE,
-  exprWeightVal = 3, correlationFactor = 1)
+  exprWeightVal = 3, correlationFactor = 1, prune = TRUE)
 }
 \arguments{
 \item{expQuery}{the logRanked expression matrix for query data}
@@ -17,7 +17,7 @@ ccn_tfScores(expQuery, subnetName, grnAll, trainNorm, geneImportance,
 
 \item{trainNorm}{result of running \code{\link{ccn_trainNorm}}}
 
-\item{geneImportance}{the importance of gene pairs from classifier. Result of running \code{\link{processImportance}}}
+\item{classifier_return}{the classifier_return list that is returned from \code{\link{broadClass_train}}}
 
 \item{classWeight}{whether to take the weight of the classifier into calculation}
 
