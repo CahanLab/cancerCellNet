@@ -5,10 +5,16 @@
 #' @param expTrain the expression matrix
 #' @return the log10 rank of genes
 #' @export
-logRank <- function(expTrain) {
+logRank <- function(expTrain, base = 2) {
   expTrain = apply(expTrain, FUN = rank, MARGIN = 2)
 
-  return(log(expTrain))
+  if (base == 0) {
+    return(expTrain)
+  }
+  else {
+    return(log(expTrain, base = base))
+
+  }
 }
 
 #' @title process classifier importance
