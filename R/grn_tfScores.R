@@ -14,7 +14,7 @@
 #'
 #' @return matrix of TF scores and query samples
 #' @export
-ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, classifier_return, classWeight=TRUE, classWeightVal = 3, exprWeight=TRUE, exprWeightVal = 3, correlationFactor = 1, prune = TRUE) {
+ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, classifier_return, classWeight=TRUE, classWeightVal = 3, exprWeight=FALSE, exprWeightVal = 3, correlationFactor = 1, prune = TRUE) {
   cnProc = classifier_return$cnProc
 
   classList = processImportance(classifier = cnProc$classifier, xpairs = classifier_return$xpairs_list, prune = prune)
