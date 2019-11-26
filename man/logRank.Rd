@@ -4,7 +4,7 @@
 \alias{logRank}
 \title{logRank gene expression}
 \usage{
-logRank(expTrain)
+logRank(expTrain, base = 2)
 }
 \arguments{
 \item{expTrain}{the expression matrix}

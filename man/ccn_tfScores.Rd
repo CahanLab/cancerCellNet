@@ -5,8 +5,9 @@
 \title{calculate TF scores}
 \usage{
 ccn_tfScores(expQuery, subnetName, grnAll, trainNorm, classifier_return,
-  classWeight = TRUE, classWeightVal = 3, exprWeight = TRUE,
-  exprWeightVal = 3, correlationFactor = 1, prune = TRUE)
+  classWeight = TRUE, classWeightVal = 3, exprWeight = FALSE,
+  exprWeightVal = 3, correlationFactor = 1, prune = TRUE,
+  normTFscore = FALSE)
 }
 \arguments{
 \item{expQuery}{the logRanked expression matrix for query data}
@@ -28,6 +29,8 @@ ccn_tfScores(expQuery, subnetName, grnAll, trainNorm, classifier_return,
 \item{exprWeightVal}{the value of the expression weight}
 
 \item{correlationFactor}{the weight of correlation direction in the network}
+
+\item{normTFscore}{boolean indicate whether to normalize TF scores}
 }
 \value{
 matrix of TF scores and query samples
