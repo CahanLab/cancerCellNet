@@ -11,10 +11,11 @@
 #' @param exprWeight whether to take the weight of the expression into calculation
 #' @param exprWeightVal the value of the expression weight
 #' @param correlationFactor the weight of correlation direction in the network
+#' @param normTFscore boolean indicate whether to normalize TF scores
 #'
 #' @return matrix of TF scores and query samples
 #' @export
-ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, classifier_return, classWeight=TRUE, classWeightVal = 3, exprWeight=FALSE, exprWeightVal = 3, correlationFactor = 1, prune = TRUE) {
+ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, classifier_return, classWeight=TRUE, classWeightVal = 3, exprWeight=FALSE, exprWeightVal = 3, correlationFactor = 1, prune = TRUE, normTFscore = FALSE) {
   cnProc = classifier_return$cnProc
 
   classList = processImportance(classifier = cnProc$classifier, xpairs = classifier_return$xpairs_list, prune = prune)
@@ -77,6 +78,10 @@ ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, classifier_ret
       targs = intersect(targs, rownames(expQuery))
 
       temp_tfScore = calc_tfScores(tf, targs, sampleID, z_scoreMat, netGenes, weights, grnTable, correlationFactor)
+      if(normTFscore == TRUE) {
+        temp_tfScore = temp_tfScore - calc_normTfScore(tf, targs, sampleID, netGenes, weights, grnTable, correlationFactor)
+
+      }
       tfScore = c(tfScore, temp_tfScore)
     }
 
@@ -85,6 +90,23 @@ ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, classifier_ret
   }
 
   return(tf_scoreMat)
+}
+
+#' @title Compute mean Z scores of given genes
+#' @description Compute the mean Z score of given genes in each sample
+#'
+#' @param genes the genes
+#' @param xvals named vector
+#' @param tVals mean and SD of genes in training data
+#' @param ctt cell type
+#'
+#' @return a vector of Z scores
+ccn_zscoreVect<-function (genes, xvals, tVals, ctt){
+  ans<-vector();
+  for(gene in genes){
+    ans<-append(ans, zscore(xvals[gene], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]]));
+  }
+  ans;
 }
 
 #' Calculate the TF
@@ -111,58 +133,130 @@ calc_tfScores <- function(tf, targs, sampleID, z_scoreMat, netGenes, weights, gr
   part1 = length(targs) * temp_zscore * weights[tf]
 
   part2 = 0
-  for(targGene in targs) {
-    temp_zscore = 1
-    if(z_scoreMat[targGene, sampleID] > 0 & netGenes[tf] == 1) { # if the gene suppose to be higher and is above z
-      temp_zscore = 1
-    } else if(z_scoreMat[targGene, sampleID] < 0 & netGenes[tf] == -1) { # if the gene is suppose to be lower and is below z
-      temp_zscore = 1
-    } else {
-      temp_zscore = 1 + abs(z_scoreMat[targGene, sampleID])
-    }
 
-    corr_sign = sign(grnTable[(grnTable$TG == targGene & grnTable$TF == tf), "corr"])
-    corr_factor = 0
-    if(corr_sign == 1 & netGenes[tf] == netGenes[targGene]) { # if both are positive corr and both up or down together
-      corr_factor = correlationFactor
-    }
-    else if(corr_sign == -1 & netGenes[tf] != netGenes[targGene]) { # negative correlation but they go different direction
-      corr_factor = correlationFactor
-    }
-    else { # positive correlation
-      corr_factor = -correlationFactor
-    }
+  # revamp this shit
+  calculation_matrix = matrix(data = 1, nrow = length(targs), ncol = 8)
+  rownames(calculation_matrix) = targs
+  colnames(calculation_matrix) = c("TF_direction", "Target_direction","z_score", "z_mod", "weight", "corr", "correlation_factor", "total_score")
 
-    temp_part2 = temp_zscore * weights[targGene] * corr_factor
+  calculation_matrix[, "TF_direction"] = netGenes[tf] # assign the TF direction
+  calculation_matrix[, "Target_direction"] = netGenes[targs] # assign the target direction
 
-    part2 = part2 + temp_part2
-  }
+  temp_zscore = z_scoreMat[targs, sampleID]
+  calculation_matrix[, "z_score"] = as.vector(temp_zscore)
+
+  # assign modification z score
+  modIndex = (calculation_matrix[, "Target_direction"] == 1 & calculation_matrix[, "z_score"] < 0) # if z score is low and its suppose to be upregulated
+  calculation_matrix[modIndex, "z_mod"] = abs(calculation_matrix[modIndex, "z_score"]) + 1
+
+  modIndex = (calculation_matrix[, "Target_direction"] == -1 & calculation_matrix[, "z_score"] > 0) # if z score is high and its suppose to be downregulated
+  calculation_matrix[modIndex, "z_mod"] = abs(calculation_matrix[modIndex, "z_score"]) + 1
+
+  # assign weight
+  calculation_matrix[, "weight"] = weights[targs]
+
+  # assign correlation direction
+  temp_grnTable = grnTable[grnTable$TF == tf, ]
+  rownames(temp_grnTable) = as.vector(temp_grnTable$TG)
+  temp_grnTable = temp_grnTable[targs, ]
+  corr_sign = sign(temp_grnTable[, "corr"])
+  calculation_matrix[, "corr"] = corr_sign
+
+  # assign the correlation factor
+  calculation_matrix[, "correlation_factor"] = -correlationFactor # default to be negative
+
+  # if correlation between target gene and TF is positive
+  # and if both target and TF are suppose to be upregulated or downregulated
+  # it's do not penalize
+  modIndex = (calculation_matrix[, "corr"] == 1 & calculation_matrix[, "Target_direction"] == calculation_matrix[, "TF_direction"]) # if z score is low and its suppose to be upregulated
+  calculation_matrix[modIndex, "correlation_factor"] = abs(correlationFactor)
+
+  # if correlation between target gene and TF is negative
+  # and if both target and TF are in opposite direction
+  # do not penalize
+  modIndex = (calculation_matrix[, "corr"] == -1 & calculation_matrix[, "Target_direction"] != calculation_matrix[, "TF_direction"]) # if z score is low and its suppose to be upregulated
+  calculation_matrix[modIndex, "correlation_factor"] = abs(correlationFactor)
+
+  # calculate total score for individual gene
+  calculation_matrix[, "total_score"] = calculation_matrix[, "correlation_factor"] * calculation_matrix[, "weight"] * calculation_matrix[, "z_mod"]
+
+  part2 = sum(calculation_matrix[, "total_score"])
+
+  TF_score = part1 + part2
 
   # if TF is suppose to be down regulated
   if(netGenes[tf] == -1) {
-    return(-(part1 + part2))
+    return(-(TF_score))
   }
   else {
-    return(part1 + part2)
+    return(TF_score)
 
   }
+
 }
 
-#' @title Compute mean Z scores of given genes
-#' @description Compute the mean Z score of given genes in each sample
+#' Calculate the TF normalization constant
+#' Calculate the TF score given all the parameters
 #'
-#' @param genes the genes
-#' @param xvals named vector
-#' @param tVals mean and SD of genes in training data
-#' @param ctt cell type
-#'
-#' @return a vector of Z scores
-ccn_zscoreVect<-function (genes, xvals, tVals, ctt){
-  ans<-vector();
-  for(gene in genes){
-    ans<-append(ans, zscore(xvals[gene], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]]));
+#' @param tf TF
+#' @param targs a list of targets for TF
+#' @param sampleID the sample ID
+#' @param netGenes genes selected for building the subnetwork
+#' @param weights a vector of weights for each gene
+#' @param grnTable the grn table with correlation values and signs
+#' @param correlationFactor the weight of correlation between
+calc_normTfScore <- function(tf, targs, sampleID, netGenes, weights, grnTable, correlationFactor = 1) {
+
+  part1 = length(targs) * weights[tf]
+  part2 = 0
+
+  # revamp this shit
+  calculation_matrix = matrix(data = 1, nrow = length(targs), ncol = 8)
+  rownames(calculation_matrix) = targs
+  colnames(calculation_matrix) = c("TF_direction", "Target_direction","z_score", "z_mod", "weight", "corr", "correlation_factor", "total_score")
+
+  calculation_matrix[, "TF_direction"] = netGenes[tf] # assign the TF direction
+  calculation_matrix[, "Target_direction"] = netGenes[targs] # assign the target direction
+
+  # assign weight
+  calculation_matrix[, "weight"] = weights[targs]
+
+  # assign correlation direction
+  temp_grnTable = grnTable[grnTable$TF == tf, ]
+  rownames(temp_grnTable) = as.vector(temp_grnTable$TG)
+  temp_grnTable = temp_grnTable[targs, ]
+  corr_sign = sign(temp_grnTable[, "corr"])
+  calculation_matrix[, "corr"] = corr_sign
+
+  # assign the correlation factor
+  calculation_matrix[, "correlation_factor"] = -correlationFactor # default to be negative
+
+  # if correlation between target gene and TF is positive
+  # and if both target and TF are suppose to be upregulated or downregulated
+  # it's do not penalize
+  modIndex = (calculation_matrix[, "corr"] == 1 & calculation_matrix[, "Target_direction"] == calculation_matrix[, "TF_direction"]) # if z score is low and its suppose to be upregulated
+  calculation_matrix[modIndex, "correlation_factor"] = abs(correlationFactor)
+
+  # if correlation between target gene and TF is negative
+  # and if both target and TF are in opposite direction
+  # do not penalize
+  modIndex = (calculation_matrix[, "corr"] == -1 & calculation_matrix[, "Target_direction"] != calculation_matrix[, "TF_direction"]) # if z score is low and its suppose to be upregulated
+  calculation_matrix[modIndex, "correlation_factor"] = abs(correlationFactor)
+
+  # calculate total score for individual gene
+  calculation_matrix[, "total_score"] = calculation_matrix[, "correlation_factor"] * calculation_matrix[, "weight"] * calculation_matrix[, "z_mod"]
+
+  part2 = sum(calculation_matrix[, "total_score"])
+
+  TF_score = part1 + part2
+
+  # if TF is suppose to be down regulated
+  if(netGenes[tf] == -1) {
+    return(-(TF_score))
   }
-  ans;
-}
+  else {
+    return(TF_score)
+  }
 
+}
 
