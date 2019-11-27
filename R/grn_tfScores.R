@@ -11,6 +11,7 @@
 #' @param exprWeight whether to take the weight of the expression into calculation
 #' @param exprWeightVal the value of the expression weight
 #' @param correlationFactor the weight of correlation direction in the network
+#' @param prune the pararmeter for pruning importance of gene pairs 
 #' @param normTFscore boolean indicate whether to normalize TF scores
 #'
 #' @return matrix of TF scores and query samples
