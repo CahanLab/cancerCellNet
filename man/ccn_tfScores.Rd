@@ -30,6 +30,8 @@ ccn_tfScores(expQuery, subnetName, grnAll, trainNorm, classifier_return,
 
 \item{correlationFactor}{the weight of correlation direction in the network}
 
+\item{prune}{the pararmeter for pruning importance of gene pairs}
+
 \item{normTFscore}{boolean indicate whether to normalize TF scores}
 }
 \value{

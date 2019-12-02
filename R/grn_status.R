@@ -246,13 +246,15 @@ ccn_normalizeScores<-function(ctrlScores, queryScores, subNets){
 #' @param classWeight weight GRN status by importance of gene to classifier
 #' @param exprWeight weight GRN status by expression level of gene?
 #' @param sidCol sample id colname
+#' @param xmax the maximum raw score that a sample could receive per gene
+#' @param meanNorm normalize raw scores based on the lowest mean in a category
 #'
 #' @return list of trainingScores, normVals, raw_scores, minVals, tVals=tVals
 #' @export
-ccn_trainNorm<-function (expTrain, stTrain, subNets, classList = NULL,  dLevel = "description1", tVals=NULL, classWeight=TRUE, exprWeight=FALSE, sidCol='sample_id', xmax=1e3, predSD=FALSE){
+ccn_trainNorm<-function (expTrain, stTrain, subNets, classList = NULL,  dLevel = "description1", tVals=NULL, classWeight=TRUE, exprWeight=FALSE, sidCol='sample_id', xmax=1e3, meanNorm = FALSE){
 
   if(is.null(tVals)){
-    tVals<-ccn_make_tVals(expTrain, stTrain, dLevel, predictSD=predSD)
+    tVals<-ccn_make_tVals(expTrain, stTrain, dLevel)
   }
 
   ctts<-as.vector(unique(stTrain[,dLevel]));
@@ -264,8 +266,17 @@ ccn_trainNorm<-function (expTrain, stTrain, subNets, classList = NULL,  dLevel =
   tmpScores<-ccn_score(expTrain, subNets, tVals, classList, minVals=NULL, classWeight=classWeight, exprWeight=exprWeight, xmax=xmax)
 
 
-  minVect<-apply(tmpScores, 1, min);
-  names(minVect)<-rownames(tmpScores);
+  if(meanNorm == TRUE) {
+    train_meanScores = meanTraining(tmpScores, stTrain, dLevel, sidCol)
+    minVect<-apply(train_meanScores, 1, min);
+    names(minVect)<-rownames(train_meanScores);
+
+  } else {
+    minVect<-apply(tmpScores, 1, min);
+    names(minVect)<-rownames(tmpScores);
+
+  }
+
 
   # shift the raw scores so that min=0;
   tmpScores<-tmpScores - minVect;
@@ -297,6 +308,29 @@ ccn_trainNorm<-function (expTrain, stTrain, subNets, classList = NULL,  dLevel =
        tVals=tVals);
 }
 
+#' @title calculate the mean GRN scores across categories
+#' @description calculate the mean GRN scores across categories
+#' @param grnScores the GRN scores calculated through ccn_score
+#' @param stTrain the sample table used for training
+#' @param dLevel the name of the column with all the categories
+#' @return an averaged GRN score matrix
+meanTraining <- function(grnScores, stTrain, dLevel, sidCol) {
+  rownames(stTrain) = as.vector(stTrain[, sidCol])
+  # return matrix
+  meanMatrix = matrix(0, nrow = nrow(grnScores), ncol = length(unique(stTrain[, dLevel])))
+
+  rownames(meanMatrix) = rownames(grnScores)
+  colnames(meanMatrix) = unique(stTrain[, dLevel])
+
+  for(cancerName in unique(stTrain[, dLevel])) {
+    tempStTrain = stTrain[stTrain[, dLevel] == cancerName, ]
+    tempGRNscores = grnScores[, rownames(tempStTrain)]
+
+    meanMatrix[, cancerName] = apply(tempGRNscores, 1, mean)
+  }
+
+  return(meanMatrix)
+}
 #' Z scores
 #' Figure out Z score given mean and standard deviation
 #' @param x query score
