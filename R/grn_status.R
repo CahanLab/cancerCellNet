@@ -483,7 +483,7 @@ ccn_queryGRNstatus <- function(expQuery, expTrain, stTrain, dLevel, sidCol, grn_
 #' @param grn_all the grn construction results from \code{\link{ccn_makeGRN}}
 #' @return a matrix with individual gene score for each query sample
 #' @export
-geneStats <- function(queryMatrix, ctt, trainNorm, grn_all) {
+geneScores <- function(queryMatrix, ctt, trainNorm, grn_all) {
   tvals = trainNorm$tVals
   cgenes = grn_all$ctGRNs$geneLists[[ctt]]
 
@@ -492,7 +492,7 @@ geneStats <- function(queryMatrix, ctt, trainNorm, grn_all) {
   colnames(returnMatrix) = colnames(queryMatrix)
 
   for(gene in names(cgenes)) {
-    returnMatrix[gene, ] = ccn_rawScore_new(queryMatrix[gene, ], tvals[[ctt]][["mean"]][[gene]], tvals[[ctt]][["sd"]][[gene]], reg_type = cgenes[[gene]])
+    returnMatrix[gene, ] = ccn_rawScore(queryMatrix[gene, ], tvals[[ctt]][["mean"]][[gene]], tvals[[ctt]][["sd"]][[gene]], reg_type = cgenes[[gene]])
 
   }
 
