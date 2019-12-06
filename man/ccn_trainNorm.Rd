@@ -7,7 +7,7 @@
 ccn_trainNorm(expTrain, stTrain, subNets, classList = NULL,
   dLevel = "description1", tVals = NULL, classWeight = TRUE,
   exprWeight = FALSE, sidCol = "sample_id", xmax = 1000,
-  predSD = FALSE)
+  meanNorm = FALSE)
 }
 \arguments{
 \item{expTrain}{expression matrix}
@@ -27,6 +27,10 @@ ccn_trainNorm(expTrain, stTrain, subNets, classList = NULL,
 \item{exprWeight}{weight GRN status by expression level of gene?}
 
 \item{sidCol}{sample id colname}
+
+\item{xmax}{the maximum raw score that a sample could receive per gene}
+
+\item{meanNorm}{normalize raw scores based on the lowest mean in a category}
 }
 \value{
 list of trainingScores, normVals, raw_scores, minVals, tVals=tVals

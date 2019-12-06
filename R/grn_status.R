@@ -475,7 +475,28 @@ ccn_queryGRNstatus <- function(expQuery, expTrain, stTrain, dLevel, sidCol, grn_
   }
 }
 
+#' @title score indvidual genes
+#' @description score individual genes
+#' @param queryMatrix query ranked expression matrix
+#' @param ctt the name of the cancer type specific network
+#' @param trainNorm the normalization statistics from \code{\link{ccn_trainNorm}}
+#' @param grn_all the grn construction results from \code{\link{ccn_makeGRN}}
+#' @return a matrix with individual gene score for each query sample
+#' @export
+geneStats <- function(queryMatrix, ctt, trainNorm, grn_all) {
+  tvals = trainNorm$tVals
+  cgenes = grn_all$ctGRNs$geneLists[[ctt]]
 
+  returnMatrix = matrix(nrow = length(cgenes), ncol = ncol(queryMatrix))
+  rownames(returnMatrix) = names(cgenes)
+  colnames(returnMatrix) = colnames(queryMatrix)
 
+  for(gene in names(cgenes)) {
+    returnMatrix[gene, ] = ccn_rawScore_new(queryMatrix[gene, ], tvals[[ctt]][["mean"]][[gene]], tvals[[ctt]][["sd"]][[gene]], reg_type = cgenes[[gene]])
+
+  }
+
+  return(returnMatrix)
+}
 
 
