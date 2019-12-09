@@ -150,21 +150,18 @@ minDif<-function(tVals, genes, ct){
 #' @return transformed (but not normalized) GRN score
 #'
 ccn_rawScore<-function(vect, mmean, ssd, xmax=1e3, reg_type){
-  zcs<-zscore(vect, mmean, ssd);
+  zcs = zscore(vect, mmean, ssd);
 
   if(as.numeric(reg_type) == 1) { # if the
-    zcs[zcs > 0 & zcs < 0.5] = 0 # change this to revert back to original place
-    return(xmax - abs(zcs * 3))
+    #zcs[zcs > 0 & zcs < 1] = 0 # change this to revert back to original place
+    zcs[zcs > 0] = 0
+    return(xmax - abs(zcs))
   }
   else {
-    zcs[zcs < 0 & zcs > -0.5] = 0 # change this to revert back to original place
-
-    return(xmax - abs(zcs * 3))
+    #zcs[zcs < 0 & zcs > -1] = 0 # change this to revert back to original place
+    zcs[zcs < 0] = 0
+    return(xmax - abs(zcs))
   }
-  ### xmax<-1000; # arbitrary, and corrected for later, but want some high enough that it should not be exceeded
-
-  #xmax-abs(zcs); # this was the original scoring system.
-  #zcs
 }
 
 #' GRN status
@@ -481,9 +478,10 @@ ccn_queryGRNstatus <- function(expQuery, expTrain, stTrain, dLevel, sidCol, grn_
 #' @param ctt the name of the cancer type specific network
 #' @param trainNorm the normalization statistics from \code{\link{ccn_trainNorm}}
 #' @param grn_all the grn construction results from \code{\link{ccn_makeGRN}}
-#' @return a matrix with individual gene score for each query sample
+#' @param importantGenes a list of gene importances
+#' @return a matrix with individual gene z score for each query sample, and the expression direction it should move to achieve ideal similarity with subnetwork. The order of the gene is ranked by importance from the classifier
 #' @export
-geneScores <- function(queryMatrix, ctt, trainNorm, grn_all) {
+geneScores <- function(queryMatrix, ctt, trainNorm, grn_all, importantGenes) {
   tvals = trainNorm$tVals
   cgenes = grn_all$ctGRNs$geneLists[[ctt]]
 
@@ -492,10 +490,18 @@ geneScores <- function(queryMatrix, ctt, trainNorm, grn_all) {
   colnames(returnMatrix) = colnames(queryMatrix)
 
   for(gene in names(cgenes)) {
-    returnMatrix[gene, ] = ccn_rawScore(queryMatrix[gene, ], tvals[[ctt]][["mean"]][[gene]], tvals[[ctt]][["sd"]][[gene]], reg_type = cgenes[[gene]])
+    returnMatrix[gene, ] = cgenes[[gene]] * (1000 - ccn_rawScore(queryMatrix[gene, ], tvals[[ctt]][["mean"]][[gene]], tvals[[ctt]][["sd"]][[gene]], reg_type = cgenes[[gene]], xmax = 1000))
 
   }
 
+  genes_important = importantGenes[[ctt]]
+  orderGenes = genes_important[intersect(names(genes_important), rownames(returnMatrix))]
+  orderGenes = sort(orderGenes, decreasing = TRUE)
+
+  notImportantGenes = rownames(returnMatrix)[!(rownames(returnMatrix) %in% names(orderGenes))]
+
+  orderGenes = c(names(orderGenes), notImportantGenes)
+  returnMatrix = returnMatrix[orderGenes, ]
   return(returnMatrix)
 }
 

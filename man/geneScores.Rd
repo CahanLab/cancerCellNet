@@ -4,7 +4,7 @@
 \alias{geneScores}
 \title{score indvidual genes}
 \usage{
-geneScores(queryMatrix, ctt, trainNorm, grn_all)
+geneScores(queryMatrix, ctt, trainNorm, grn_all, importantGenes)
 }
 \arguments{
 \item{queryMatrix}{query ranked expression matrix}
@@ -14,9 +14,11 @@ geneScores(queryMatrix, ctt, trainNorm, grn_all)
 \item{trainNorm}{the normalization statistics from \code{\link{ccn_trainNorm}}}
 
 \item{grn_all}{the grn construction results from \code{\link{ccn_makeGRN}}}
+
+\item{importantGenes}{a list of gene importances}
 }
 \value{
-a matrix with individual gene score for each query sample
+a matrix with individual gene z score for each query sample, and the expression direction it should move to achieve ideal similarity with subnetwork. The order of the gene is ranked by importance from the classifier
 }
 \description{
 score individual genes
