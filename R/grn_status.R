@@ -153,11 +153,11 @@ ccn_rawScore<-function(vect, mmean, ssd, xmax=1e3, reg_type){
   zcs<-zscore(vect, mmean, ssd);
 
   if(as.numeric(reg_type) == 1) { # if the
-    zcs[zcs > 0] = 0
+    zcs[zcs > 0 & zcs < 0.5] = 0 # change this to revert back to original place
     return(xmax - abs(zcs * 3))
   }
   else {
-    zcs[zcs < 0] = 0
+    zcs[zcs < 0 & zcs > -0.5] = 0 # change this to revert back to original place
 
     return(xmax - abs(zcs * 3))
   }
