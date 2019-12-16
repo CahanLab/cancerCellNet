@@ -6,7 +6,7 @@
 #' @param subClassMat classification matrix of cancer sub-category
 #' @param broadClassMAt classification matrix of cancer broad category
 #' @param cScoreCat the broad category that users want to display the classification score
-#' @param thresHold_list
+#' @param thresHold_list list of threshold for broad class classification
 #' @return classification heatmap
 #'
 #' @import RColorBrewer ComplexHeatmap circlize grid

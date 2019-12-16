@@ -12,7 +12,7 @@
 #' @param fontsize_col the font size of the columns
 #' @param main the title of the heatmap
 #' @param scale FALSE if the highest value is 1 and the lowest is 0
-#' @param customAnnoColor if
+#' @param customAnnoColor a named vector with colors and named with group names
 #' @return classification heatmap
 #'
 #' @examples
@@ -56,8 +56,16 @@ ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, 
     }
 
     # if there is a custom color pallete
-    if(is.null(customAnnoColor) == TRUE) {
-      anno_colors = customAnnoColor
+    if(is.null(customAnnoColor) == FALSE) {
+
+      if(!all(groupNames %in% names(customAnnoColor))) {
+        cat("Not all group name has a color in custom color vetor.")
+        stop()
+
+      }
+      customAnnoColor <- customAnnoColor[groupNames]
+      anno_colors <- list(group = customAnnoColor)
+
     }
 
     pheatmap::pheatmap(classMat,

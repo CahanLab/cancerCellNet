@@ -12,6 +12,8 @@ subClass_hmClass(subClassMat, broadClassMat, subCat, cScoreCat,
 
 \item{cScoreCat}{the broad category that users want to display the classification score}
 
+\item{thresHold_list}{list of threshold for broad class classification}
+
 \item{broadClassMAt}{classification matrix of cancer broad category}
 }
 \value{

@@ -10,7 +10,7 @@
 #' @param holm threshold of holm adjusted p value for selecting subnetwork genes
 #' @param cval threshold of cval for selectin subnetwork genes. Higher cval indicates selecting higher enriched genes
 #'
-#' @return
+#' @return constructed GRN
 #' @export
 ccn_makeGRN <- function(expTrain, stTrain, dLevel, zThresh = 4, dLevelGK = NULL, prune = FALSE, holm = 1e-4, cval=0.4) {
   tfs = find_tfs("Hs")

@@ -24,6 +24,9 @@ ccn_makeGRN(expTrain, stTrain, dLevel, zThresh = 4, dLevelGK = NULL,
 
 \item{cval}{threshold of cval for selectin subnetwork genes. Higher cval indicates selecting higher enriched genes}
 }
+\value{
+constructed GRN
+}
 \description{
 Construct GRN
 }
