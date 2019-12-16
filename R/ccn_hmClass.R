@@ -59,8 +59,7 @@ ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, 
     if(is.null(customAnnoColor) == FALSE) {
 
       if(!all(groupNames %in% names(customAnnoColor))) {
-        cat("Not all group name has a color in custom color vetor.")
-        stop()
+        stop(paste0("Not all group name has a color in custom color vetor.", "\n"))
 
       }
       customAnnoColor <- customAnnoColor[groupNames]
