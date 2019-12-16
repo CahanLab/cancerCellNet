@@ -12,7 +12,7 @@
 #' @param fontsize_col the font size of the columns
 #' @param main the title of the heatmap
 #' @param scale FALSE if the highest value is 1 and the lowest is 0
-#'
+#' @param customAnnoColor if
 #' @return classification heatmap
 #'
 #' @examples
@@ -21,7 +21,7 @@
 #' @importFrom pheatmap pheatmap
 #'
 #' @export
-ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, fontsize_row=4, fontsize_col=4, main=NA, scale=FALSE, ...){
+ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, fontsize_row=4, fontsize_col=4, main=NA, scale=FALSE, customAnnoColor = NULL, ...){
 
   cools<-colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
   bcol<-'white';
@@ -53,6 +53,11 @@ ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, 
     else{
       mymin<-0
       mymax<-1
+    }
+
+    # if there is a custom color pallete
+    if(is.null(customAnnoColor) == TRUE) {
+      anno_colors = customAnnoColor
     }
 
     pheatmap::pheatmap(classMat,

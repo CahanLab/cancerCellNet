@@ -6,7 +6,7 @@
 \usage{
 ccn_hmClass(classMat, grps = NULL, isBig = FALSE, cRow = FALSE,
   cCol = FALSE, fontsize_row = 4, fontsize_col = 4, main = NA,
-  scale = FALSE, ...)
+  scale = FALSE, customAnnoColor = NULL, ...)
 }
 \arguments{
 \item{classMat}{classification matrix generated from \code{\link{rf_classPredict}}}
@@ -26,6 +26,8 @@ ccn_hmClass(classMat, grps = NULL, isBig = FALSE, cRow = FALSE,
 \item{main}{the title of the heatmap}
 
 \item{scale}{FALSE if the highest value is 1 and the lowest is 0}
+
+\item{customAnnoColor}{if}
 }
 \value{
 classification heatmap
