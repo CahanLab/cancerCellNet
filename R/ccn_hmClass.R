@@ -78,8 +78,11 @@ ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, 
 
       }
       customAnnoColor <- customAnnoColor[groupNames]
+      names(customAnnoColor) <- groupNames
       anno_colors <- list(group = customAnnoColor)
 
+      xx<-data.frame(group=as.factor(grps))
+      rownames(xx)<-cells
     }
 
     return(pheatmap::pheatmap(classMat,
