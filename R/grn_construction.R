@@ -193,6 +193,7 @@ grn_zscores<-function (corrVals,tfs){
 #' @param weights TRUE
 #'
 #' @return iGraph object
+#' @import igraph
 ig_tabToIgraph<-function(grnTab, simplify=FALSE, directed=FALSE, weights=TRUE){
 
   tmpAns<-as.matrix(grnTab[,c("TF", "TG")]);
