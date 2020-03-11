@@ -45,7 +45,7 @@ subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colN
   cgenes_list = cgenes[['labelled_cgenes']]
   cat("There are ", length(cgenesA), " classification genes\n")
 
-  system.time(xpairs_list<-ptGetTop(expTnorm_sub[cgenesA,], grps, topX=nTopGenePairs, sliceSize=2000, quickPairs=quickPairs))
+  system.time(xpairs_list<-ptGetTop(expTnorm_sub[cgenesA,], grps, cgenes_list, topX=nTopGenePairs, sliceSize=2000, quickPairs=quickPairs))
   cat("Finished finding top gene pairs\n")
 
   # compile the genepair list
