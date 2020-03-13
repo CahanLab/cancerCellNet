@@ -16,7 +16,6 @@ Imports:
     RColorBrewer,
     ggplot2,
     parallel,
-    ComplexHeatmap,
     circlize,
     GO.db,
     org.Hs.eg.db,
