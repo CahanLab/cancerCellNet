@@ -16,7 +16,6 @@ Imports:
     RColorBrewer,
     ggplot2,
     parallel,
-    circlize,
     GO.db,
     org.Hs.eg.db,
     igraph
