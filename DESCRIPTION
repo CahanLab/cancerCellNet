@@ -15,9 +15,10 @@ Imports:
     RColorBrewer,
     ggplot2,
     parallel,
-Suggests: 
-    testthat,
     AnnotationDbi,
     GO.db,
     org.Hs.eg.db,
     igraph
+Suggests: 
+    testthat,
+
