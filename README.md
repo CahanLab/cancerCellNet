@@ -1,20 +1,27 @@
 # cancerCellNet (CCN)
 
-[1. Shortcut to Setup CCN](#setup_ccn)
+[1. Setup CCN](#setup_ccn) <br>
+[2. Broad Training CCN](#broadTrain_ccn) <br>
+[3. Broad Validation CCN](#broadVal_ccn) <br>
+[4. Subclass Training CCN](#subTrain_ccn) <br>
+[5. Subclass Validation CCN](#subVal_ccn) <br>
+[6. Application of CCN](#app_ccn) <br>
+[7. Other Tools](#other_tools) <br>
+[8. Old way of Training](#old_way) <br>
+[9. GRN Construction](#grn_construction) <br>
+[10. GRN Status](#grn_status) <br> 
+[11. TF Scores](#TF_scores) <br>
 
-[2. Shortcut to Broad Training CCN](#broadTrain_ccn)
+## CancerCellNet Instructions 
+CancerCellNet is a R package that allows cancer type classification and evaluation of transcriptional fidelity for cancer models across species and platform (bulk RNA-seq, microarray). Alternatively, you can visit our <a href="http://ec2-3-88-19-178.compute-1.amazonaws.com/cl_apps/cancerCellNet_web/">web-app</a>. <br>
 
-[3. Shortcut to Broad Validation CCN](#broadVal_ccn)
+We will demonstrate how to <br>
+* build/apply general (broad) classifier <br>
+* build/apply subclass classifier <br>
+* reconstruct gene regulatory network <br>
+* calcuate GRN status <br>
+* calculate TF scores<br>
 
-[4. Shortcut to Subclass Training CCN](#subTrain_ccn)
-
-[5. Shortcut to Subclass Validation CCN](#subVal_ccn)
-
-[6. Shortcut to Application of CCN](#app_ccn)
-
-[7. Shortcut to Other Tools](#other_tools)
-
-[8. Shortcut to Old way of Training](#old_way)
 ### <a name="setup_ccn">Set up CCN</a>
 ```R
 library(devtools)
@@ -361,5 +368,154 @@ cnProc = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= grps, "classifier" = t
 
 # after the cnProc is generated, you can save it and use it to perform classification. This is a slightly less storage method of training
 ```
+### <a name="grn_construction"> GRN Reconstruction </a>
+The GRN reconstruction method is based on our previously developed method that can be found <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4233680/">here</a>.
+ ```
+library(cancercellNet)
 
+# load in the training samples and intersecting genes between training sample and query samples 
+expGDC = utils_loadObject("Named_expGDC_20181218.rda")
+stGDC = utils_loadObject("Named_stGDC_20181218.rda")
+iGenes = utils_loadObject("iGenes.rda")
+expGDC = expGDC[iGenes, ]
 
+# evenly samples 80 samples per cancer type for training 
+stList = splitCommon(sampTab = stGDC, ncells = 80, dLevel = "project_id")
+stTrain = stList$train
+save(stList, file = "stList_grn.rda")
+
+expTrain = expGDC[,rownames(stTrain)]
+
+# normalize the training data 
+expTrain = trans_prop(weighted_down(expTrain, 5e5, dThresh=0.25), 1e5)
+
+# GRN reconstruction 
+grnAll = ccn_makeGRN(expTrain, stTrain, "project_id", zThresh = 4, dLevelGK = NULL, prune = TRUE, holm = 1e-4, cval=0.3)
+save(grnAll, file = "grnAll.rda")
+```
+### <a name="grn_status">Rank-based GRN Status</a>
+Different from our previously developed method, we devised a method that uses the rank of gene epxressions rather than the expression values. 
+
+#### 1. Calculate Normalization Parameters 
+```
+library(cancerCellNet)
+library(ggplot2)
+
+# load in training expression file 
+expGDC = utils_loadObject("Named_expGDC_20181218.rda")
+iGenes = utils_loadObject("iGenes.rda")
+
+# load in splitted training sample table 
+stList = utils_loadObject("stList_grn.rda")
+expTrain = expGDC[iGenes, rownames(stList$train)]
+stTrain = stList$train
+
+# rank the genes then log the rank. We found that it works pretty well with just ranking the genes without log. 
+expTrain = logRank(expTrain, base = 0)
+
+# load in the constructed GRN
+grn_all = utils_loadObject("grnAll.rda")
+
+# load in constructed classifier. We use the gene pairs selected for classification to determine the weight of genes in the GRN status calculation
+classyReturn = utils_loadObject("BroadClassifier_return.rda")
+cnProc = classyReturn$cnProc
+
+# extract the importance of genes based on the classifier 
+geneImportance = processImportance(classifier = cnProc$classifier, xpairs = classyReturn$xpairs_list, prune = TRUE)
+
+# training normalization parameters 
+trainNormParam = ccn_trainNorm(expTrain, stTrain, subNets=grn_all$ctGRNs$geneLists, classList = geneImportance, dLevel = "project_id", sidCol = "barcode", classWeight = TRUE, exprWeight = FALSE, meanNorm = TRUE)
+
+save(trainNormParam, file = "trainingNormalization.rda")
+```
+You can also visualize the GRN status of training samples. 
+
+```
+# get the GRN status matrix 
+GRN_mean = trainNormParam$trainingScores
+
+# select the GRN status for UCEC GRN
+temp_mean = my_mean[my_mean$subNet == "TCGA-UCEC", ]
+
+ggplot(data = temp_mean) +
+        geom_bar(stat="identity", data = temp_mean, aes(x=reorder(grp_name, mean), y=mean), width = 0.7) +
+        geom_errorbar(aes(ymin=mean - stdev, ymax = mean + stdev, x = grp_name), width = 0.5)+
+        ggtitle(paste0("TCGA-UCEC-subnetwork")) +
+        ylim(0, 1.2)+
+        xlab("Cancer Groups")+
+        ylab("GRN Status")+
+        #geom_hline(yintercept=1, linetype="dashed", color = "steelblue")+
+        theme_bw()+
+        theme(text = element_text(size=10),legend.position="none",axis.text.x = element_text(angle = 30, hjust = 1))
+```
+![](md_img/TCGA-UCEC-GRN_status.png)
+
+#### 2. Calculate GRN Status for Query Data 
+
+```
+library(cancerCellNet)
+# load in GRN network 
+grn_all = utils_loadObject("grnAll.rda")
+
+# load in classifier 
+classReturn = utils_loadObject("BroadClassifier_return.rda")
+
+# load in normalization parameters 
+trainNorm_param = utils_loadObject("trainingNormalization.rda")
+
+iGenes = utils_loadObject("iGenes.rda")
+
+CCL_samples = utils_loadObject("CCLE_UCEC.rda")
+CCL_samples = CCL_samples[iGenes, ]
+
+# rank the query sample genes 
+CCL_query = logRank(CCL_samples, base = 0)
+
+GRN_statusQuery = ccn_queryGRNstatus(expQuery = CCL_query, grn_return = grn_all, trainNorm = trainNorm_param, classifier_return = classReturn, prune = TRUE)    
+```
+The output is a matrix with samples as column names and cancer types as row names. The values indicate the query sample's GRN status of in cancer specific subnetwork. 
+
+![](md_img/CCL_GRN_tabExample.png)
+
+You can visualize GRN status of a cancer by
+```
+plotDf = data.frame("CellLines" = colnames(GRN_statusQuery),
+                  "GRN_Status" = as.vector(GRN_statusQuery["TCGA-UCEC, ]))
+plotDf$CellLines <- factor(plotDf$CellLines, levels = plotDf$CellLines)
+
+ggplot(data = plotDf) +
+   geom_bar(stat="identity", data = plotDf, aes(x=CellLines, y=GRN_Status), width = 0.7) +
+   ggtitle("TCGA-UCEC-subnetwork") +
+   xlab("Cell Lines")+
+   ylab("GRN Status")+
+   #geom_hline(yintercept=1, linetype="dashed", color = "steelblue")+
+   theme_bw()+
+   theme(text = element_text(size=10),legend.position="none",axis.text.x = element_text(angle = 270, vjust=0.2))
+```
+![](md_img/UCEC_CCLE.png)
+
+### <a name="TF_scores">TF Scores</a>
+TF scores are metric indicating the importance of transcription factors in establishing cancer type specific gene regulatory network. The magnitude of the score indicates the importance of the transcription factor. If the TF score is a positive number, it indicate that the TF should be more upregulated to have similar GRN to the desired cancer type. If the TF score is a negative number, it indicates that the TF should be downregulated to have similar GRN to the desired cancer type. 
+
+```
+library(cancerCellNet)
+# load in GRN network 
+grn_all = utils_loadObject("grnAll.rda")
+
+# load in classifier 
+classReturn = utils_loadObject("BroadClassifier_return.rda")
+
+# load in normalization parameters 
+trainNorm_param = utils_loadObject("trainingNormalization.rda")
+
+iGenes = utils_loadObject("iGenes.rda")
+
+CCL_samples = utils_loadObject("CCLE_UCEC.rda")
+CCL_samples = CCL_samples[iGenes, ]
+
+# rank the query sample genes 
+CCL_query = logRank(CCL_samples, base = 0)
+TF_scores = ccn_tfScores(expQuery = CCL_query, subnetName = "TCGA-UCEC", grnAll = grn_all, trainNorm = trainNorm_param, classifier_return = classReturn, exprWeight = FALSE, normTFscore = TRUE)
+```
+The output should be a matrix with TF as row names and samples as column names. 
+![](md_img/TF_scores_example.PNG)
