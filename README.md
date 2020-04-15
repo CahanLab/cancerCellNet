@@ -14,6 +14,7 @@
 
 ## CancerCellNet Instructions 
 CancerCellNet is a R package that allows cancer type classification and evaluation of transcriptional fidelity for cancer models across species and platform (bulk RNA-seq, microarray). Alternatively, you can visit our <a href="http://ec2-3-88-19-178.compute-1.amazonaws.com/cl_apps/cancerCellNet_web/">web-app</a>. <br>
+You can also read about the applications of CancerCellNet in our <a href="https://www.biorxiv.org/content/10.1101/2020.03.27.012757v2">BioRxiv preprint</a>
 
 We will demonstrate how to <br>
 * build/apply general (broad) classifier <br>
@@ -30,15 +31,10 @@ install.packages("pheatmap")
 install.packages("RColorBrewer")
 install.packages("randomForest")
 install.packages("ggplot2")
-install.packages("circlize")
-
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("ComplexHeatmap")
 ```
 
 #### Fetch the required files if you have not already donwloaded them
+All the training data were compiled from the <a href="https://portal.gdc.cancer.gov/">TCGA project</a>. The example expression profiles of UCEC cell lines were extracted from <a href="https://portals.broadinstitute.org/ccle">CCLE</a>. The example expression profiles of UCEC GEMMs were taken from GEO database (<a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE73541">GSE73541</a>)
 ```R
 # fetch compiled TCGA training data 
 download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/Named_expGDC_20181218.rda", "Named_expGDC_20181218.rda")
@@ -55,7 +51,7 @@ download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/BroadC
 download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/iGenes.rda", "iGenes.rda")
 
 ```
-
+Alternatively you can download the <a href="https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/webapp/GDC_BroadTraining/stTrain_web.rda">sample table</a> and <a href=" https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/webapp/GDC_BroadTraining/expTrain_web.rda">expression profile </a> of the compiled training data used in our preprint with fewer cancer categories and combined COAD and READ into one category. 
 ### <a name="broadTrain_ccn">Broad Class Training</a>
 Load in the necessary files first. 
 ```
