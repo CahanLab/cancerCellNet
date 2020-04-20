@@ -30,6 +30,16 @@ install.packages("pheatmap")
 install.packages("RColorBrewer")
 install.packages("randomForest")
 install.packages("ggplot2")
+install.packages("igraph")
+install.packages("stringr")
+
+# install packages from Bioconductor 
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+   
+BiocManager::install("AnnotationDbi")
+BiocManager::install("GO.db")
+BiocManager::install("org.Hs.eg.db")
 ```
 
 #### Fetch the required files if you have not already donwloaded them
