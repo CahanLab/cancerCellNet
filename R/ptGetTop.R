@@ -100,16 +100,27 @@ ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e
 
     inputPackage_list = list()
     for(cancerType in names(myPatternG)) {
-      inputPackage_list[[cancerType]] = list(myPatternG[[cancerType]], cgenes_list[[cancerType]])
+      genes <- cgenes_list[[cancerType]]
+
+      pTab<-t(combn(genes, 2))
+      colnames(pTab)<-c("genes1", "genes2")
+      pairTab<-cbind(pTab, pairName=paste(pTab[,1], "_",pTab[,2], sep=''))
+
+      nPairs<-nrow(pairTab)
+
+      tmpPdat<-ptSmall(expDat, pairTab)
+      inputPackage_list[[cancerType]] = list(myPatternG[[cancerType]], tmpPdat)
     }
+
+    rm(list = c("expDat"))
 
     if (Sys.info()[['sysname']] == "Windows") {
       cl<-snow::makeCluster(mcCores, type="SOCK")
-      ans<-snow::parLapply(cl = cl, x = inputPackage_list, fun = parallel_quickPairs, expDat=expDat, topX = topX)
+      ans<-snow::parLapply(cl = cl, x = inputPackage_list, fun = parallel_quickPairs, topX = topX)
       stopCluster(cl)
     }
     else {
-      tmpAns<-parallel::mclapply(inputPackage_list, parallel_quickPairs, expDat=tmpPdat, topX = topX, mc.cores=mcCores) # this code cannot run on windows
+      tmpAns<-parallel::mclapply(inputPackage_list, parallel_quickPairs, topX = topX, mc.cores=mcCores) # this code cannot run on windows
     }
 
     #return(unique(ans))
@@ -121,26 +132,11 @@ ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e
 #' function for parallel computation of quick pairs
 #' @description
 #' this function was written to compute the gene pairs in parallel for quick pairs
-#' @param inputPackage a list of 2 lists: template vectors and classification genes
+#' @param tmpPdat temp gene pair matrix
 #' @param topX number of top pairs selection
 #' @return top scoring gene pairs
-parallel_quickPairs <- function(inputPackage, expDat, topX) {
-  genes <- inputPackage[[2]]
-
-  myPatternG <- inputPackage[[1]]
-
-  pTab<-t(combn(genes, 2))
-  colnames(pTab)<-c("genes1", "genes2")
-  pairTab<-cbind(pTab, pairName=paste(pTab[,1], "_",pTab[,2], sep=''))
-
-  nPairs<-nrow(pairTab)
-  cat("nPairs = ", nPairs, "\n")
-
-
-  tmpPdat<-ptSmall(expDat, pairTab)
-
-
-  ans<-findBestPairs( sc_testPattern(myPatternG, expDat=tmpPdat), topX)
+parallel_quickPairs <- function(inputPackage_list, topX) {
+  ans<-findBestPairs( sc_testPattern(inputPackage_list[[1]], expDat=inputPackage_list[[2]]), topX)
 
   return(ans)
 }
