@@ -59,7 +59,10 @@ ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e
       tmpPdat<-ptSmall(expDat, tmpTab)
 
       if (Sys.info()[['sysname']] == "Windows") {
-        tmpAns<-lapply(myPatternG, sc_testPattern, expDat=tmpPdat)
+        #tmpAns<-lapply(myPatternG, sc_testPattern, expDat=tmpPdat)
+        cl<-snow::makeCluster(mcCores, type="SOCK")
+        tmpAns<-snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tmpPdat)
+        stopCluster(cl)
       }
       else {
         tmpAns<-parallel::mclapply(myPatternG, sc_testPattern, expDat=tmpPdat, mc.cores=mcCores) # this code cannot run on windows
