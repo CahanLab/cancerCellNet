@@ -5,8 +5,12 @@
 \title{reduce large matrix
 reduce large matrix from ccn_extract_SN_DF}
 \usage{
-ccn_reduceMatLarge(datFrame, valCol = "score", cName = "description",
-  iterOver = "subNet")
+ccn_reduceMatLarge(
+  datFrame,
+  valCol = "score",
+  cName = "description",
+  iterOver = "subNet"
+)
 }
 \arguments{
 \item{datFrame}{the result from ccn_extract_SN_DF}

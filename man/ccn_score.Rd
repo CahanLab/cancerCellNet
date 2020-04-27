@@ -4,8 +4,16 @@
 \alias{ccn_score}
 \title{GRN status}
 \usage{
-ccn_score(expDat, subList, tVals, classList = NULL, minVals = NULL,
-  classWeight = FALSE, exprWeight = TRUE, xmax = 1000)
+ccn_score(
+  expDat,
+  subList,
+  tVals,
+  classList = NULL,
+  minVals = NULL,
+  classWeight = FALSE,
+  exprWeight = TRUE,
+  xmax = 1000
+)
 }
 \arguments{
 \item{expDat}{query expression matrix}

@@ -4,8 +4,12 @@
 \alias{utils_convertToGeneSymbols}
 \title{Gene Symbol Conversion}
 \usage{
-utils_convertToGeneSymbols(expTab, typeENST = FALSE, typeENSG = FALSE,
-  typeMusGene = FALSE)
+utils_convertToGeneSymbols(
+  expTab,
+  typeENST = FALSE,
+  typeENSG = FALSE,
+  typeMusGene = FALSE
+)
 }
 \arguments{
 \item{expTab}{the matrix of experssion data with sample names as column names and gene names as row names}

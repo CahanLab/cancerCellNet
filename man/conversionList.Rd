@@ -4,12 +4,14 @@
 \name{conversionList}
 \alias{conversionList}
 \title{List of Gene Conversion dataframe}
-\format{A list with 3 dataframes, which are:
+\format{
+A list with 3 dataframes, which are:
 \describe{
 \item{ensTransToGene}{Dataframe that maps Ensembl Transcript ID to Gene Symbol}
 \item{ensGeneToGene}{Dataframe that maps Ensembl Gene ID to Gene Symbol}
 \item{mouseGeneToGene}{Dataframe that maps Mouse Gene Symbol to Human Gene Symbol}
-}}
+}
+}
 \usage{
 conversionList
 }

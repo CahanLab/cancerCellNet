@@ -4,8 +4,7 @@
 \alias{ccn_make_tVals}
 \title{Estimate gene expression dist in CTs}
 \usage{
-ccn_make_tVals(expDat, sampTab, dLevel = "description1",
-  predictSD = FALSE)
+ccn_make_tVals(expDat, sampTab, dLevel = "description1", predictSD = FALSE)
 }
 \arguments{
 \item{expDat}{training data}

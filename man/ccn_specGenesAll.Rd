@@ -4,8 +4,16 @@
 \alias{ccn_specGenesAll}
 \title{finds general and context dependent specifc genes}
 \usage{
-ccn_specGenesAll(expDat, sampTab, holm = 1e-04, cval = 0.4,
-  cvalGK = 0.75, dLevel, dLevelGK = NULL, prune = FALSE)
+ccn_specGenesAll(
+  expDat,
+  sampTab,
+  holm = 1e-04,
+  cval = 0.4,
+  cvalGK = 0.75,
+  dLevel,
+  dLevelGK = NULL,
+  prune = FALSE
+)
 }
 \arguments{
 \item{expDat}{expression matrix}

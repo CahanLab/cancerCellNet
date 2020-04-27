@@ -1,3 +1,4 @@
+
 #' @title
 #' Find Classifier-Worthy Gene Candidates
 #' @description
@@ -36,8 +37,25 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
     expDat = expDat[ggenes,]
   }
 
+  ncores<-parallel::detectCores() # detect the number of cores in the system
+  mcCores<-1
+  if(ncores>1){
+    mcCores<-ncores - 1
+  }
+  cat(ncores, "threads in total", "  --> ", mcCores, "threads running in parallel for finding classification genes...","\n")
+
   xdiff<-gnrAll(expDat, grps)
-  cgenes<-lapply(xdiff, getClassGenes, topX=topX)
+
+
+  if (Sys.info()[['sysname']] == "Windows") {
+    cl<-snow::makeCluster(mcCores, type="SOCK")
+    cgenes<-snow::parLapply(cl = cl, x = xdiff, fun = getClassGenes, topX = topX)
+    stopCluster(cl)
+  }
+  else {
+    cgenes<-parallel::mclapply(xdiff, getClassGenes, topX=topX, mc.cores=mcCores)
+  }
+
   labelled_cgenes <- cgenes
   cgenes<-unique(unlist(cgenes))
   list(cgenes=cgenes, grps=grps, labelled_cgenes=labelled_cgenes)
@@ -68,7 +86,23 @@ sc_filterGenes<-function(geneStats, alpha1=0.1, alpha2=0.01, mu=2){
 #' @return list of dataFrames containing pval, cval and holm for each gene in each cancer category
 gnrAll<-function(expDat, cellLabels){
   myPatternG<-sc_sampR_to_pattern(as.character(cellLabels))
-  specificSets<-lapply(myPatternG, sc_testPattern, expDat=expDat)
+
+  ncores<-parallel::detectCores() # detect the number of cores in the system
+  mcCores<-1
+  if(ncores>1){
+    mcCores<-ncores - 1
+  }
+
+  if (Sys.info()[['sysname']] == "Windows") {
+    cl<-snow::makeCluster(mcCores, type="SOCK")
+    specificSets<-snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=expDat)
+    stopCluster(cl)
+  }
+  else {
+    specificSets<-parallel::mclapply(myPatternG, sc_testPattern, expDat=expDat, mc.cores=mcCores)
+
+  }
+
   cat("Done testing\n")
 
   # return

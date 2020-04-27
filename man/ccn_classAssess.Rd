@@ -4,8 +4,13 @@
 \alias{ccn_classAssess}
 \title{Assessment of Classifier}
 \usage{
-ccn_classAssess(ct_scores, stVal, classLevels = "description2",
-  dLevelSID = "sample_id", resolution = 0.005)
+ccn_classAssess(
+  ct_scores,
+  stVal,
+  classLevels = "description2",
+  dLevelSID = "sample_id",
+  resolution = 0.005
+)
 }
 \arguments{
 \item{ct_scores}{matrix of classification scores}

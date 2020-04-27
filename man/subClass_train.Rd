@@ -4,12 +4,26 @@
 \alias{subClass_train}
 \title{Sub-Class Training (new and improved version) with merged rand category}
 \usage{
-subClass_train(cnProc_broad, stTrain, expTrain, colName_broadCat,
-  colName_subClass, name_broadCat, colName_samp = "row.names",
-  nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000,
-  stratify = FALSE, sampsize = 40, weightedDown_total = 5e+05,
-  weightedDown_dThresh = 0.25, transprop_xFact = 1e+05,
-  weight_broadClass = 1, quickPairs = FALSE)
+subClass_train(
+  cnProc_broad,
+  stTrain,
+  expTrain,
+  colName_broadCat,
+  colName_subClass,
+  name_broadCat,
+  colName_samp = "row.names",
+  nTopGenes = 20,
+  nTopGenePairs = 50,
+  nRand = 40,
+  nTrees = 1000,
+  stratify = FALSE,
+  sampsize = 40,
+  weightedDown_total = 5e+05,
+  weightedDown_dThresh = 0.25,
+  transprop_xFact = 1e+05,
+  weight_broadClass = 1,
+  quickPairs = FALSE
+)
 }
 \arguments{
 \item{cnProc_broad}{the broad cnProc from \code{\link{broadClass_train}}}

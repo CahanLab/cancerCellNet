@@ -4,11 +4,22 @@
 \alias{broadClass_train}
 \title{Broad Class Training}
 \usage{
-broadClass_train(stTrain, expTrain, colName_cat,
-  colName_samp = "row.names", nTopGenes = 20, nTopGenePairs = 50,
-  nRand = 40, nTrees = 1000, stratify = FALSE, sampsize = 40,
-  weightedDown_total = 5e+05, weightedDown_dThresh = 0.25,
-  transprop_xFact = 1e+05, quickPairs = FALSE)
+broadClass_train(
+  stTrain,
+  expTrain,
+  colName_cat,
+  colName_samp = "row.names",
+  nTopGenes = 20,
+  nTopGenePairs = 50,
+  nRand = 40,
+  nTrees = 1000,
+  stratify = FALSE,
+  sampsize = 40,
+  weightedDown_total = 5e+05,
+  weightedDown_dThresh = 0.25,
+  transprop_xFact = 1e+05,
+  quickPairs = FALSE
+)
 }
 \arguments{
 \item{stTrain}{a dataframe that matches the samples with category}

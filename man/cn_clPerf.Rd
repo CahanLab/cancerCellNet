@@ -4,8 +4,14 @@
 \alias{cn_clPerf}
 \title{run cn_clPerf across thresholds}
 \usage{
-cn_clPerf(vect, sampTab, dLevel, classification, thresh,
-  dLevelSID = "sample_id")
+cn_clPerf(
+  vect,
+  sampTab,
+  dLevel,
+  classification,
+  thresh,
+  dLevelSID = "sample_id"
+)
 }
 \arguments{
 \item{vect}{named vector}

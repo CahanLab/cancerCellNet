@@ -4,10 +4,20 @@
 \alias{ccn_tfScores}
 \title{calculate TF scores}
 \usage{
-ccn_tfScores(expQuery, subnetName, grnAll, trainNorm, classifier_return,
-  classWeight = TRUE, classWeightVal = 3, exprWeight = FALSE,
-  exprWeightVal = 3, correlationFactor = 1, prune = TRUE,
-  normTFscore = FALSE)
+ccn_tfScores(
+  expQuery,
+  subnetName,
+  grnAll,
+  trainNorm,
+  classifier_return,
+  classWeight = TRUE,
+  classWeightVal = 3,
+  exprWeight = FALSE,
+  exprWeightVal = 3,
+  correlationFactor = 1,
+  prune = TRUE,
+  normTFscore = FALSE
+)
 }
 \arguments{
 \item{expQuery}{the logRanked expression matrix for query data}

@@ -4,8 +4,14 @@
 \alias{ccn_findSpecGenes}
 \title{find genes that are preferentially expressed in specified samples}
 \usage{
-ccn_findSpecGenes(expDat, sampTab, holm = 1e-04, cval = 0.4,
-  dLevel = "description1", prune = FALSE)
+ccn_findSpecGenes(
+  expDat,
+  sampTab,
+  holm = 1e-04,
+  cval = 0.4,
+  dLevel = "description1",
+  prune = FALSE
+)
 }
 \arguments{
 \item{expDat}{expression matrix}

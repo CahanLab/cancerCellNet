@@ -4,8 +4,16 @@
 \alias{ccn_makeGRN}
 \title{make GRN}
 \usage{
-ccn_makeGRN(expTrain, stTrain, dLevel, zThresh = 4, dLevelGK = NULL,
-  prune = FALSE, holm = 1e-04, cval = 0.4)
+ccn_makeGRN(
+  expTrain,
+  stTrain,
+  dLevel,
+  zThresh = 4,
+  dLevelGK = NULL,
+  prune = FALSE,
+  holm = 1e-04,
+  cval = 0.4
+)
 }
 \arguments{
 \item{expTrain}{normalized expression matrix}

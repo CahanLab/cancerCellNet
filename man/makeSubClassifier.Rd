@@ -4,9 +4,17 @@
 \alias{makeSubClassifier}
 \title{Make Classifier tailored for subclassifier}
 \usage{
-makeSubClassifier(expTrain, genes, groups, nRand, ntrees = 2000,
-  classMatrix_rand, pairTransformedMatrix, stratify = FALSE,
-  sampsize = 40)
+makeSubClassifier(
+  expTrain,
+  genes,
+  groups,
+  nRand,
+  ntrees = 2000,
+  classMatrix_rand,
+  pairTransformedMatrix,
+  stratify = FALSE,
+  sampsize = 40
+)
 }
 \arguments{
 \item{expTrain}{transformed training data from \code{\link{query_transform}}}
