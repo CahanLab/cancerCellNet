@@ -39,10 +39,10 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
   ncores<-parallel::detectCores() # detect the number of cores in the system
   mcCores<-1
   if(ncores/3>1){
-    mcCores<-ncores /3
+    mcCores<- round(ncores /3)
   }
 
-  cat(ncores, "threads in total", "  --> ", mcCores, "threads running in parallel for finding classification genes...","\n")
+  cat(ncores, "threads in total", "  --> ", mcCores, "threads running to find classification genes...","\n")
   xdiff<-gnrAll(expDat, grps, sliceSize)
 
   if (Sys.info()[['sysname']] == "Windows") {
@@ -85,7 +85,7 @@ gnrAll<-function(expDat, cellLabels, sliceSize){
   ncores<-parallel::detectCores() # detect the number of cores in the system
   mcCores<-1
   if(ncores/3>1){
-    mcCores <- ncores / 3
+    mcCores <- round(ncores / 3)
   }
 
   nGenes = nrow(expDat)
