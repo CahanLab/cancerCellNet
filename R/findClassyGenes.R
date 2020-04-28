@@ -14,7 +14,7 @@
 #'
 #' @return a list containing two lists: a list of classifier worthy genes named 'cgenes' and a list of cancer category named 'grps'
 #' @export
-findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.05, alpha2=.001, mu=2) {
+findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.05, alpha2=.001, mu=2, sliceSize = 2000) {
   if((dLevel %in% colnames(sampTab)) == FALSE) {
     stop("Please enter the correct column name for sampTab that indicates the categories")
   }
@@ -36,14 +36,14 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
     expDat = expDat[ggenes,]
   }
 
-  xdiff<-gnrAll(expDat, grps)
   ncores<-parallel::detectCores() # detect the number of cores in the system
   mcCores<-1
-  if(ncores>1){
-    mcCores<-ncores /2
+  if(ncores/3>1){
+    mcCores<-ncores /3
   }
-  cat(ncores, "threads in total", "  --> ", mcCores, "threads running in parallel for finding classification genes...","\n")
 
+  cat(ncores, "threads in total", "  --> ", mcCores, "threads running in parallel for finding classification genes...","\n")
+  xdiff<-gnrAll(expDat, grps, 2000)
 
   if (Sys.info()[['sysname']] == "Windows") {
     cl<-snow::makeCluster(mcCores, type="SOCK")
@@ -81,13 +81,73 @@ sc_filterGenes<-function(geneStats, alpha1=0.1, alpha2=0.01, mu=2){
 #' @param expDat a matrix of normalized gene expression taken from \code{\link{trans_prop}}
 #' @param cellLabels a vector of all the named vector of cancer categories
 #' @return list of dataFrames containing pval, cval and holm for each gene in each cancer category
-gnrAll<-function(expDat, cellLabels){
+gnrAll<-function(expDat, cellLabels, sliceSize){
+  ncores<-parallel::detectCores() # detect the number of cores in the system
+  mcCores<-1
+  if(ncores/3>1){
+    mcCores <- ncores / 3
+  }
+
+  nGenes = nrow(expDat)
+  cat("nGenes = ",nGenes,"\n")
+  str = 1
+  stp = min(c(sliceSize, nGenes)) # detect what is smaller the slice size or nGenes
+
   myPatternG<-sc_sampR_to_pattern(as.character(cellLabels))
-  specificSets<-lapply(myPatternG, sc_testPattern, expDat=expDat)
+  statList<-list()
+  grps<-unique(cellLabels)
+
+  for(grp in grps){
+    statList[[grp]]<-data.frame()
+  }
+
+  if (Sys.info()[['sysname']] == "Windows") {
+    cl<-snow::makeCluster(mcCores, type="SOCK")
+
+    while(str <= nGenes){
+      if(stp>nGenes){
+        stp <- nGenes
+      }
+      cat(str,"-", stp,"\n")
+
+      tempExpDat = expDat[str:stp, ]
+      tmpAns<-snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tempExpDat)
+
+      for(gi in seq(length(myPatternG))){
+        grp<-grps[[gi]]
+        statList[[grp]]<-rbind( statList[[grp]],  tmpAns[[grp]])
+      }
+
+      str<-stp+1
+      stp<-str + sliceSize - 1
+
+    }
+    stopCluster(cl)
+
+  }
+  else {
+    while(str <= nGenes){
+      if(stp>nGenes){
+        stp <- nGenes
+      }
+      cat(str,"-", stp,"\n")
+
+      tempExpDat = expDat[str:stp, ]
+      tmpAns<-parallel::mclapply(myPatternG, sc_testPattern, expDat=tempExpDat, mc.cores=mcCores) # this code cannot run on windows
+      for(gi in seq(length(myPatternG))){
+        grp<-grps[[gi]]
+        statList[[grp]]<-rbind( statList[[grp]],  tmpAns[[grp]])
+      }
+
+      str<-stp+1
+      stp<-str + sliceSize - 1
+    }
+  }
+
   cat("Done testing\n")
 
   # return
-  specificSets
+  return(statList)
 }
 
 #' @title

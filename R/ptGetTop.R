@@ -18,8 +18,8 @@ ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e
 
   ncores<-parallel::detectCores() # detect the number of cores in the system
   mcCores<-1
-  if(ncores>1){
-    mcCores <- ncores / 2
+  if(ncores/3>1){
+    mcCores <- ncores / 3
   }
 
   if(!quickPairs){
@@ -52,31 +52,50 @@ ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e
     str = 1
     stp = min(c(sliceSize, nPairs)) # detect what is smaller the slice size or npairs
 
-    while(str <= nPairs){
-      if(stp>nPairs){
-        stp <- nPairs
-      }
-      cat(str,"-", stp,"\n")
-      tmpTab<-pairTab[str:stp,]
-      tmpPdat<-ptSmall(expDat, tmpTab)
 
-      if (Sys.info()[['sysname']] == "Windows") {
-        cl<-snow::makeCluster(mcCores, type="SOCK")
+    if (Sys.info()[['sysname']] == "Windows") {
+      cl<-snow::makeCluster(mcCores, type="SOCK")
+      while(str <= nPairs){
+        if(stp>nPairs){
+          stp <- nPairs
+        }
+        cat(str,"-", stp,"\n")
+        tmpTab<-pairTab[str:stp,]
+        tmpPdat<-ptSmall(expDat, tmpTab)
+
         tmpAns<-snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tmpPdat)
-        stopCluster(cl)
+
+        for(gi in seq(length(myPatternG))){
+          grp<-grps[[gi]]
+          statList[[grp]]<-rbind( statList[[grp]],  tmpAns[[grp]])
+        }
+
+
+        str<-stp+1
+        stp<-str + sliceSize - 1
+
       }
-      else {
+      stopCluster(cl)
+    }
+    else {
+      while(str <= nPairs){
+        if(stp>nPairs){
+          stp <- nPairs
+        }
+        cat(str,"-", stp,"\n")
+        tmpTab<-pairTab[str:stp,]
+        tmpPdat<-ptSmall(expDat, tmpTab)
         tmpAns<-parallel::mclapply(myPatternG, sc_testPattern, expDat=tmpPdat, mc.cores=mcCores) # this code cannot run on windows
+
+        for(gi in seq(length(myPatternG))){
+          grp<-grps[[gi]]
+          statList[[grp]]<-rbind( statList[[grp]],  tmpAns[[grp]])
+        }
+
+
+        str<-stp+1
+        stp<-str + sliceSize - 1
       }
-
-      for(gi in seq(length(myPatternG))){
-        grp<-grps[[gi]]
-        statList[[grp]]<-rbind( statList[[grp]],  tmpAns[[grp]])
-      }
-
-
-      str<-stp+1
-      stp<-str + sliceSize - 1
     }
 
     cat("compile results\n")
@@ -94,38 +113,32 @@ ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e
     myPatternG<-sc_sampR_to_pattern(as.character(cell_labels))
     #ans<-vector()
 
+    inputPackage_list <- list()
+    for(cancerType in names(myPatternG)) {
+
+      genes <- cgenes_list[[cancerType]]
+
+      pairTab<-makePairTab(genes)
+
+      nPairs<-nrow(pairTab)
+
+      tmpPdat<-ptSmall(expDat, pairTab)
+      cat("nPairs = ", nPairs," for ", cancerType, "\n")
+      inputPackage_list[[cancerType]] <- list(myPatternG[[cancerType]], tmpPdat)
+    }
+
+    rm(list = c("expDat"))
+
     if (Sys.info()[['sysname']] == "Windows") {
-
-      # because for some Socketing in Windows, I can't load in variables in R.
-      inputPackage_list <- list()
-      for(cancerType in names(myPatternG)) {
-
-        genes <- cgenes_list[[cancerType]]
-
-        pairTab<-makePairTab(genes)
-
-        nPairs<-nrow(pairTab)
-
-        tmpPdat<-ptSmall(expDat, pairTab)
-        cat("nPairs = ", nPairs," for ", cancerType, "\n")
-        inputPackage_list[[cancerType]] <- list(myPatternG[[cancerType]], tmpPdat)
-      }
-
-      rm(list = c("expDat"))
-
       cat(ncores, "threads in total", "  --> ", mcCores, "threads running in parallel for finding top scoring gene pairs...","\n")
-      cl<-snow::makeCluster(mcCores, type="SOCK")
-      ans<-snow::parLapply(cl = cl, x = inputPackage_list, fun = parallel_quickPairs_windows, topX = topX)
+      cl <- snow::makeCluster(mcCores, type="SOCK")
+      ans <- snow::parLapply(cl = cl, x = inputPackage_list, fun = parallel_quickPairs, topX = topX)
       stopCluster(cl)
 
     }
     else {
-      inputPackage_list = list()
-      for(cancerType in names(myPatternG)) {
-
-        inputPackage_list[[cancerType]] = list(myPatternG[[cancerType]], cgenes_list[[cancerType]])
-      }
-      tmpAns<-parallel::mclapply(inputPackage_list, parallel_quickPairs, topX = topX, mc.cores=mcCores) # this code cannot run on windows
+      cat(ncores, "threads in total", "  --> ", mcCores, "threads running in parallel for finding top scoring gene pairs...","\n")
+      ans<-parallel::mclapply(inputPackage_list, parallel_quickPairs, topX = topX, mc.cores=mcCores) # this code cannot run on windows
     }
 
     #return(unique(ans))
@@ -137,32 +150,12 @@ ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e
 #' function for parallel computation of quick pairs (non-windows...)
 #' @description
 #' this function was written to compute the gene pairs in parallel for quick pairs
-#' @param tmpPdat temp gene pair matrix
+#' @param inputPackage a list of 2 things: template vectors and gene pair matrix
 #' @param topX number of top pairs selection
 #' @return top scoring gene pairs
-parallel_quickPairs_windows <- function(inputPackage, topX) {
+parallel_quickPairs <- function(inputPackage, topX) {
 
   ans<-findBestPairs(sc_testPattern(inputPackage[[1]], expDat=inputPackage[[2]]), topX)
-
-  return(ans)
-}
-
-#' @title
-#' function for parallel computation of quick pairs (non-windows...)
-#' @description
-#' this function was written to compute the gene pairs in parallel for quick pairs
-#' @param tmpPdat temp gene pair matrix
-#' @param topX number of top pairs selection
-#' @return top scoring gene pairs
-parallel_quickPairs <- function(inputPackage_list, topX) {
-
-  genes <- inputPackage_list[[2]]
-  pairTab <- makePairTab(genes)
-  nPairs<-nrow(pairTab)
-
-  tmpPdat<-ptSmall(expDat, pairTab)
-
-  ans<-findBestPairs( sc_testPattern(inputPackage_list[[1]], expDat=tmpPdat), topX)
 
   return(ans)
 }
