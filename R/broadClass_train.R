@@ -34,7 +34,7 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.nam
    expTnorm = trans_prop(weighted_down(expTrain, weightedDown_total, dThresh = weightedDown_dThresh), transprop_xFact)
    cat("Expression data has been normalized\n")
 
-   system.time(cgenes<-findClassyGenes(expDat = expTnorm, sampTab = stTrain, dLevel = colName_cat, topX = nTopGenes, sliceSize=2000))
+   system.time(cgenes<-findClassyGenes(expDat = expTnorm, sampTab = stTrain, dLevel = colName_cat, topX = nTopGenes, sliceSize=1000))
    cat("Finished finding classification genes\n")
 
    cgenesA = cgenes[['cgenes']]
