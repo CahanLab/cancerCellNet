@@ -14,7 +14,7 @@
 #'
 #' @return a list containing two lists: a list of classifier worthy genes named 'cgenes' and a list of cancer category named 'grps'
 #' @export
-findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.05, alpha2=.001, mu=2, sliceSize = 2000) {
+findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.05, alpha2=.001, mu=2, sliceSize = 1000) {
   if((dLevel %in% colnames(sampTab)) == FALSE) {
     stop("Please enter the correct column name for sampTab that indicates the categories")
   }
@@ -43,7 +43,7 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
   }
 
   cat(ncores, "threads in total", "  --> ", mcCores, "threads running in parallel for finding classification genes...","\n")
-  xdiff<-gnrAll(expDat, grps, 2000)
+  xdiff<-gnrAll(expDat, grps, sliceSize)
 
   if (Sys.info()[['sysname']] == "Windows") {
     cl<-snow::makeCluster(mcCores, type="SOCK")
