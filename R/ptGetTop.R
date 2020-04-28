@@ -16,10 +16,10 @@
 #' @export
 ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e3, quickPairs = FALSE){
 
-  ncores<-parallel::detectCores() # detect the number of cores in the system
+  ncores<-parallel::detectCores(logical = FALSE) # detect the number of cores in the system
   mcCores<-1
-  if(ncores/3>1){
-    mcCores <- round(ncores / 3)
+  if(ncores/2>1){
+    mcCores <- round(ncores / 2)
   }
 
   if(!quickPairs){
@@ -27,7 +27,7 @@ ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e
     ans <- list()
     genes<-rownames(expDat)
 
-    cat(ncores, "threads in total", "  --> ", mcCores, "threads running to find top scoring gene pairs...","\n")
+    cat(ncores, "cores in total", "  --> ", mcCores, "cores running to find top scoring gene pairs...","\n")
 
     # make a data frame of pairs of genes that will be sliced later
     pairTab<-makePairTab(genes)

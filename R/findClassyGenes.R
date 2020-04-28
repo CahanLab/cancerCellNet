@@ -36,13 +36,13 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
     expDat = expDat[ggenes,]
   }
 
-  ncores<-parallel::detectCores() # detect the number of cores in the system
+  ncores<-parallel::detectCores(logical = FALSE) # detect the number of cores in the system
   mcCores<-1
-  if(ncores/3>1){
-    mcCores<- round(ncores /3)
+  if(ncores/2>1){
+    mcCores<- round(ncores /2)
   }
 
-  cat(ncores, "threads in total", "  --> ", mcCores, "threads running to find classification genes...","\n")
+  cat(ncores, "cores in total", "  --> ", mcCores, "cores running to find classification genes...","\n")
   xdiff<-gnrAll(expDat, grps, sliceSize)
 
   if (Sys.info()[['sysname']] == "Windows") {
@@ -82,10 +82,10 @@ sc_filterGenes<-function(geneStats, alpha1=0.1, alpha2=0.01, mu=2){
 #' @param cellLabels a vector of all the named vector of cancer categories
 #' @return list of dataFrames containing pval, cval and holm for each gene in each cancer category
 gnrAll<-function(expDat, cellLabels, sliceSize){
-  ncores<-parallel::detectCores() # detect the number of cores in the system
+  ncores<-parallel::detectCores(logical = FALSE) # detect the number of cores in the system
   mcCores<-1
-  if(ncores/3>1){
-    mcCores <- round(ncores / 3)
+  if(ncores/2>1){
+    mcCores <- round(ncores / 2)
   }
 
   nGenes = nrow(expDat)
