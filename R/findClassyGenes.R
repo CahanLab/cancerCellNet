@@ -40,7 +40,7 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
   ncores<-parallel::detectCores() # detect the number of cores in the system
   mcCores<-1
   if(ncores>1){
-    mcCores<-ncores - 1
+    mcCores<-ncores /2
   }
   cat(ncores, "threads in total", "  --> ", mcCores, "threads running in parallel for finding classification genes...","\n")
 

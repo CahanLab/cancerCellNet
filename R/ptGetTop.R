@@ -15,16 +15,18 @@
 #'
 #' @export
 ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e3, quickPairs = FALSE){
+
+  ncores<-parallel::detectCores() # detect the number of cores in the system
+  mcCores<-1
+  if(ncores>1){
+    mcCores <- ncores / 2
+  }
+
   if(!quickPairs){
     #ans<-vector()
     ans <- list()
     genes<-rownames(expDat)
 
-    ncores<-parallel::detectCores() # detect the number of cores in the system
-    mcCores<-1
-    if(ncores>1){
-      mcCores<-ncores - 1
-    }
     cat(ncores, "threads in total", "  --> ", mcCores, "threads running in parallel for finding top scoring gene pairs...","\n")
 
     # make a data frame of pairs of genes that will be sliced later
@@ -88,38 +90,41 @@ ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e
 
   }
   else {
-    ncores<-parallel::detectCores() # detect the number of cores in the system
-    mcCores<-1
-    if(ncores>1){
-      mcCores<-ncores - 1
-    }
-    cat(ncores, "threads in total", "  --> ", mcCores, "threads running in parallel for finding top scoring gene pairs...","\n")
 
     myPatternG<-sc_sampR_to_pattern(as.character(cell_labels))
     #ans<-vector()
 
-    inputPackage_list = list()
-    for(cancerType in names(myPatternG)) {
-      genes <- cgenes_list[[cancerType]]
-
-      pTab<-t(combn(genes, 2))
-      colnames(pTab)<-c("genes1", "genes2")
-      pairTab<-cbind(pTab, pairName=paste(pTab[,1], "_",pTab[,2], sep=''))
-
-      nPairs<-nrow(pairTab)
-
-      tmpPdat<-ptSmall(expDat, pairTab)
-      inputPackage_list[[cancerType]] = list(myPatternG[[cancerType]], tmpPdat)
-    }
-
-    rm(list = c("expDat"))
-
     if (Sys.info()[['sysname']] == "Windows") {
+
+      # because for some Socketing in Windows, I can't load in variables in R.
+      inputPackage_list <- list()
+      for(cancerType in names(myPatternG)) {
+
+        genes <- cgenes_list[[cancerType]]
+
+        pairTab<-makePairTab(genes)
+
+        nPairs<-nrow(pairTab)
+
+        tmpPdat<-ptSmall(expDat, pairTab)
+        cat("nPairs = ", nPairs," for ", cancerType, "\n")
+        inputPackage_list[[cancerType]] <- list(myPatternG[[cancerType]], tmpPdat)
+      }
+
+      rm(list = c("expDat"))
+
+      cat(ncores, "threads in total", "  --> ", mcCores, "threads running in parallel for finding top scoring gene pairs...","\n")
       cl<-snow::makeCluster(mcCores, type="SOCK")
-      ans<-snow::parLapply(cl = cl, x = inputPackage_list, fun = parallel_quickPairs, topX = topX)
+      ans<-snow::parLapply(cl = cl, x = inputPackage_list, fun = parallel_quickPairs_windows, topX = topX)
       stopCluster(cl)
+
     }
     else {
+      inputPackage_list = list()
+      for(cancerType in names(myPatternG)) {
+
+        inputPackage_list[[cancerType]] = list(myPatternG[[cancerType]], cgenes_list[[cancerType]])
+      }
       tmpAns<-parallel::mclapply(inputPackage_list, parallel_quickPairs, topX = topX, mc.cores=mcCores) # this code cannot run on windows
     }
 
@@ -129,14 +134,35 @@ ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e
 }
 
 #' @title
-#' function for parallel computation of quick pairs
+#' function for parallel computation of quick pairs (non-windows...)
+#' @description
+#' this function was written to compute the gene pairs in parallel for quick pairs
+#' @param tmpPdat temp gene pair matrix
+#' @param topX number of top pairs selection
+#' @return top scoring gene pairs
+parallel_quickPairs_windows <- function(inputPackage, topX) {
+
+  ans<-findBestPairs(sc_testPattern(inputPackage[[1]], expDat=inputPackage[[2]]), topX)
+
+  return(ans)
+}
+
+#' @title
+#' function for parallel computation of quick pairs (non-windows...)
 #' @description
 #' this function was written to compute the gene pairs in parallel for quick pairs
 #' @param tmpPdat temp gene pair matrix
 #' @param topX number of top pairs selection
 #' @return top scoring gene pairs
 parallel_quickPairs <- function(inputPackage_list, topX) {
-  ans<-findBestPairs( sc_testPattern(inputPackage_list[[1]], expDat=inputPackage_list[[2]]), topX)
+
+  genes <- inputPackage_list[[2]]
+  pairTab <- makePairTab(genes)
+  nPairs<-nrow(pairTab)
+
+  tmpPdat<-ptSmall(expDat, pairTab)
+
+  ans<-findBestPairs( sc_testPattern(inputPackage_list[[1]], expDat=tmpPdat), topX)
 
   return(ans)
 }
