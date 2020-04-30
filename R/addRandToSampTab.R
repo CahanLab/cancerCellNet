@@ -14,7 +14,7 @@
 #' @export
 addRandToSampTab<-function(classRes, sampTab, desc, id) {
   cNames<-colnames(classRes)
-  snames<-rownames(sampTab)
+  snames<-as.vector(sampTab[, id])
 
   rnames<-setdiff(cNames, snames)
 
