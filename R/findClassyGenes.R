@@ -159,7 +159,7 @@ gnrAll<-function(expDat, cellLabels, sliceSize){
 #' @param bottom logic if true use the top x genes with - cvals
 #'
 #' @return a vector of genes that are good for training classifier for that category
-getClassGenes<-function(diffRes, topX=25, bottom=TRUE) {
+getClassGenes<-function(diffRes, topX=25, bottom=TRUE, leastDiff = TRUE) {
   #exclude NAs
   xi<-which(!is.na(diffRes$cval))
   diffRes<-diffRes[xi,] # exclude the NAs. Select the rows that does not have NAs
@@ -172,8 +172,10 @@ getClassGenes<-function(diffRes, topX=25, bottom=TRUE) {
   }
 
   # get the least differentially expressed genes as house holders
-  sameRes<-diffRes[order(abs(diffRes$cval), decreasing = FALSE), ]
-  ans<-append(ans, rownames(sameRes[1:topX, ]))
+  if(leastDiff) {
+    sameRes<-diffRes[order(abs(diffRes$cval), decreasing = FALSE), ]
+    ans<-append(ans, rownames(sameRes[1:topX, ]))
+  }
 
   #return
   ans
