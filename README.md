@@ -60,7 +60,7 @@ download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/BroadC
 download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/iGenes.rda", "iGenes.rda")
 
 ```
-Alternatively you can download the <a href="https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/webapp/GDC_BroadTraining/stTrain_web.rda">sample table</a> and <a href=" https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/webapp/GDC_BroadTraining/expTrain_web.rda">expression profile </a> of the compiled training data used in our preprint with fewer cancer categories and with COAD and READ combined into one category. 
+Alternatively you can download the <a href="https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/webapp/GDC_BroadTraining/stTrain_web.rda">sample table</a> and <a href=" https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/webapp/GDC_BroadTraining/expTrain_web.rda">expression profile</a> of the compiled training data used in our preprint with fewer cancer categories and with COAD and READ combined into one category. 
 ### <a name="broadTrain_ccn">Broad Class Training</a>
 Load in the necessary files first. 
 ```
