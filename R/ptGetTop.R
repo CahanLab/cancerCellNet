@@ -53,50 +53,30 @@ ptGetTop <-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e
     stp = min(c(sliceSize, nPairs)) # detect what is smaller the slice size or npairs
 
 
-    if (Sys.info()[['sysname']] == "Windows") {
-      cl<-snow::makeCluster(mcCores, type="SOCK")
-      while(str <= nPairs){
-        if(stp>nPairs){
-          stp <- nPairs
-        }
-        cat(str,"-", stp,"\n")
-        tmpTab<-pairTab[str:stp,]
-        tmpPdat<-ptSmall(expDat, tmpTab)
-
-        tmpAns<-snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tmpPdat)
-
-        for(gi in seq(length(myPatternG))){
-          grp<-grps[[gi]]
-          statList[[grp]]<-rbind( statList[[grp]],  tmpAns[[grp]])
-        }
-
-
-        str<-stp+1
-        stp<-str + sliceSize - 1
-
+    cl<-snow::makeCluster(mcCores, type="SOCK")
+    while(str <= nPairs){
+      if(stp>nPairs){
+        stp <- nPairs
       }
-      stopCluster(cl)
-    }
-    else {
-      while(str <= nPairs){
-        if(stp>nPairs){
-          stp <- nPairs
-        }
-        cat(str,"-", stp,"\n")
-        tmpTab<-pairTab[str:stp,]
-        tmpPdat<-ptSmall(expDat, tmpTab)
-        tmpAns<-parallel::mclapply(myPatternG, sc_testPattern, expDat=tmpPdat, mc.cores=mcCores) # this code cannot run on windows
+      cat(str,"-", stp,"\n")
+      tmpTab<-pairTab[str:stp,]
+      tmpPdat<-ptSmall(expDat, tmpTab)
 
-        for(gi in seq(length(myPatternG))){
-          grp<-grps[[gi]]
-          statList[[grp]]<-rbind( statList[[grp]],  tmpAns[[grp]])
-        }
+      tmpAns<-snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tmpPdat)
 
-
-        str<-stp+1
-        stp<-str + sliceSize - 1
+      for(gi in seq(length(myPatternG))){
+        grp<-grps[[gi]]
+        statList[[grp]]<-rbind( statList[[grp]],  tmpAns[[grp]])
       }
+
+
+      str<-stp+1
+      stp<-str + sliceSize - 1
+
     }
+    stopCluster(cl)
+
+
 
     cat("compile results\n")
     for(grp in grps){

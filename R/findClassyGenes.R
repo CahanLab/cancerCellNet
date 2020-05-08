@@ -45,14 +45,10 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
   cat(ncores, "cores in total", "  --> ", mcCores, "cores running to find classification genes...","\n")
   xdiff<-gnrAll(expDat, grps, sliceSize)
 
-  if (Sys.info()[['sysname']] == "Windows") {
-    cl<-snow::makeCluster(mcCores, type="SOCK")
-    cgenes<-snow::parLapply(cl = cl, x = xdiff, fun = getClassGenes, topX = topX)
-    stopCluster(cl)
-  }
-  else {
-    cgenes<-parallel::mclapply(xdiff, getClassGenes, topX=topX, mc.cores=mcCores)
-  }
+  cl<-snow::makeCluster(mcCores, type="SOCK")
+  cgenes<-snow::parLapply(cl = cl, x = xdiff, fun = getClassGenes, topX = topX)
+  stopCluster(cl)
+
   labelled_cgenes <- cgenes
   cgenes<-unique(unlist(cgenes))
   list(cgenes=cgenes, grps=grps, labelled_cgenes=labelled_cgenes)
@@ -101,48 +97,30 @@ gnrAll<-function(expDat, cellLabels, sliceSize){
     statList[[grp]]<-data.frame()
   }
 
-  if (Sys.info()[['sysname']] == "Windows") {
-    cl<-snow::makeCluster(mcCores, type="SOCK")
+  cl<-snow::makeCluster(mcCores, type="SOCK")
 
-    while(str <= nGenes){
-      if(stp>nGenes){
-        stp <- nGenes
-      }
-      cat(str,"-", stp,"\n")
-
-      tempExpDat = expDat[str:stp, ]
-      tmpAns<-snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tempExpDat)
-
-      for(gi in seq(length(myPatternG))){
-        grp<-grps[[gi]]
-        statList[[grp]]<-rbind( statList[[grp]],  tmpAns[[grp]])
-      }
-
-      str<-stp+1
-      stp<-str + sliceSize - 1
-
+  while(str <= nGenes){
+    if(stp>nGenes){
+      stp <- nGenes
     }
-    stopCluster(cl)
+    cat(str,"-", stp,"\n")
+
+    tempExpDat = expDat[str:stp, ]
+    tmpAns<-snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tempExpDat)
+
+    for(gi in seq(length(myPatternG))){
+      grp<-grps[[gi]]
+      statList[[grp]]<-rbind( statList[[grp]],  tmpAns[[grp]])
+    }
+
+    str<-stp+1
+    stp<-str + sliceSize - 1
 
   }
-  else {
-    while(str <= nGenes){
-      if(stp>nGenes){
-        stp <- nGenes
-      }
-      cat(str,"-", stp,"\n")
+  stopCluster(cl)
 
-      tempExpDat = expDat[str:stp, ]
-      tmpAns<-parallel::mclapply(myPatternG, sc_testPattern, expDat=tempExpDat, mc.cores=mcCores) # this code cannot run on windows
-      for(gi in seq(length(myPatternG))){
-        grp<-grps[[gi]]
-        statList[[grp]]<-rbind( statList[[grp]],  tmpAns[[grp]])
-      }
 
-      str<-stp+1
-      stp<-str + sliceSize - 1
-    }
-  }
+
 
   cat("Done testing\n")
 
