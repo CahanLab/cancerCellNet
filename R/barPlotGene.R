@@ -15,7 +15,6 @@
 #'
 #' @export
 barPlotGene<-function(GeneCompareTab, sdGeneCat = NULL, gene, text_size = 10, title_size = 12) {
-   # set up an error trap later
 
   if (is.null(sdGeneCat) == FALSE) {
     sampGeneCompareTab = GeneCompareTab[gene, ]
@@ -56,7 +55,6 @@ barPlotGene<-function(GeneCompareTab, sdGeneCat = NULL, gene, text_size = 10, ti
 
   }
 
-
   plotMatrix = as.data.frame(plotMatrix)
 
   plotMatrix[, 2] = as.numeric(as.character(plotMatrix[, 2]))
@@ -68,6 +66,5 @@ barPlotGene<-function(GeneCompareTab, sdGeneCat = NULL, gene, text_size = 10, ti
   p = p + theme(axis.text.x.bottom = element_text(angle = 30, hjust = 1), axis.text=element_text(size = text_size), axis.title = element_text(size = title_size)) +
     ylab(label = "Normalized Expression Level")
 
-   #return
-  p
+  return(p)
 }

@@ -18,6 +18,7 @@ Imports:
     AnnotationDbi,
     GO.db,
     org.Hs.eg.db,
-    igraph
+    igraph,
+    snow
 Suggests: 
     testthat,

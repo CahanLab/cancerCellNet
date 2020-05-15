@@ -3,8 +3,6 @@
 export(addRandToSampTab)
 export(avgGeneCat)
 export(barPlotGene)
-export(broadClass_ensemblePredict)
-export(broadClass_ensembleTrain)
 export(broadClass_predict)
 export(broadClass_train)
 export(ccn_classAssess)

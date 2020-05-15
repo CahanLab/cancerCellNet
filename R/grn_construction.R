@@ -48,50 +48,50 @@ ccn_makeGRN <- function(expTrain, stTrain, dLevel, zThresh = 4, dLevelGK = NULL,
 #'
 #' @import GO.db org.Hs.eg.db
 #' @export
-find_tfs<-function(species='Hs'){
+find_tfs <- function(species='Hs') {
 
   cat("Loading gene annotations ...\n")
-  require(GO.db);
+  require(GO.db)
 
   if(species=='Hs'){
-    require(org.Hs.eg.db);
-    egSymbols<-as.list(org.Hs.egSYMBOL);
-    goegs<-as.list(org.Hs.egGO2ALLEGS);
+    require(org.Hs.eg.db)
+    egSymbols = as.list(org.Hs.egSYMBOL)
+    goegs = as.list(org.Hs.egGO2ALLEGS)
   }
 
-  goterms<-as.list(GOTERM);
-  goids<-names(goegs);
-  onts<-lapply(goids, Ontology);
-  bps<-onts[onts=='BP'];
-  goids<-names(unlist(bps));
+  goterms = as.list(GOTERM)
+  goids = names(goegs)
+  onts = lapply(goids, Ontology)
+  bps = onts[onts=='BP']
+  goids = names(unlist(bps))
 
   cat("matching gene symbols and annotations")
-  gobpList<-list();
+  gobpList = list()
   for(goid in goids){
-    egs <- goegs[[ goid ]];
-    goterm<-Term(goterms[[goid]]);
-    genes<-sort(unique(as.vector(unlist( egSymbols[egs] ))));
-    gobpList[[goterm]]<-genes;
+    egs = goegs[[ goid ]]
+    goterm = Term(goterms[[goid]])
+    genes = sort(unique(as.vector(unlist( egSymbols[egs] ))))
+    gobpList[[goterm]] = genes
   }
 
-  ### newHsTRs<-gobpList[['regulation of transcription, DNA-dependent']];
-  regNames<-names(gobpList)[grep("regulation of transcription", names(gobpList))];
-  trs<- unique(unlist(gobpList[regNames]));
-  cat("Regulation of transcription: ", length(trs),"\n");
+  regNames = names(gobpList)[grep("regulation of transcription", names(gobpList))]
+  trs = unique(unlist(gobpList[regNames]))
+  cat("Regulation of transcription: ", length(trs),"\n")
 
-  mfs<-onts[onts=='MF'];
-  goidsMF<-names(unlist(mfs));
+  mfs = onts[onts=='MF']
+  goidsMF = names(unlist(mfs))
 
-  gomfList<-list();
+  gomfList = list()
   for(goid in goidsMF){
-    egs <- goegs[[ goid ]];
-    goterm<-Term(goterms[[goid]]);
-    genes<-sort(unique(as.vector(unlist( egSymbols[egs] ))));
-    gomfList[[goterm]]<-genes;
+    egs = goegs[[ goid ]]
+    goterm = Term(goterms[[goid]])
+    genes = sort(unique(as.vector(unlist( egSymbols[egs] ))))
+    gomfList[[goterm]] = genes
   }
-  dbs<-gomfList[['DNA binding']];
-  cat("DNA binding: ", length(dbs),"\n");
-  sort(intersect(trs, dbs));
+  dbs = gomfList[['DNA binding']]
+  cat("DNA binding: ", length(dbs),"\n")
+
+  return(sort(intersect(trs, dbs)))
 }
 
 #' @title gene-gene correlations, and round
@@ -100,9 +100,10 @@ find_tfs<-function(species='Hs'){
 #' @param expDat expression matrix
 #'
 #' @return correlation matrix
-grn_corr_round<-function(expDat) {
-  corrX<-cor(t(expDat)); # pearson
-  round(corrX, 3);
+grn_corr_round <- function(expDat) {
+  corrX = cor(t(expDat)) # pearson
+
+  return(round(corrX, 3))
 }
 
 #' @title compute context dependent zscores
@@ -111,12 +112,13 @@ grn_corr_round<-function(expDat) {
 #' @param corrMat correlation matrix
 #'
 #' @return matrix of clr zscores
-mat_zscores<-function(corrMat){
-  corrMat<-abs(corrMat);
-  zscs_2<-round(scale(corrMat), 3);
-  rm(corrMat);
+mat_zscores <- function(corrMat){
+  corrMat = abs(corrMat)
+  zscs_2 = round(scale(corrMat), 3)
+  rm(corrMat)
   gc()
-  zscs_2 + t(zscs_2);
+
+  return(zscs_2 + t(zscs_2))
 }
 
 #' @title extracts the TRs, zscores, and corr values passing thresh
@@ -128,46 +130,44 @@ mat_zscores<-function(corrMat){
 #' @param threshold zscore threshold
 #'
 #' @return data.frame(target=targets, reg=regulators, zscore=zscoresX, corr=correlations);
-ccn_extractRegsDF<-function(zscores, corrMatrix, genes, threshold){
+ccn_extractRegsDF <- function(zscores, corrMatrix, genes, threshold){
 
-  targets<-vector();
-  regulators=vector();
-  zscoresX<-vector();
-  correlations<-vector();
+  targets = vector()
+  regulators = vector()
+  zscoresX = vector()
+  correlations = vector()
 
-  targets<-rep('', 1e6);
-  regulators<-rep('', 1e6);
-  zscoresX<-rep(0, 1e6);
-  correlations<-rep(0, 1e6);
+  targets = rep('', 1e6)
+  regulators = rep('', 1e6)
+  zscoresX = rep(0, 1e6)
+  correlations = rep(0, 1e6)
 
-  str<-1;
-  stp<-1;
+  str = 1
+  stp = 1
   for(target in genes){
-    x<-zscores[target,];
-    regs<-names(which(x>threshold));
+    x = zscores[target,]
+    regs = names(which(x>threshold))
     if(length(regs)>0){
-      zzs<-x[regs];
-      corrs<-corrMatrix[target,regs];
-      ncount<-length(regs);
-      stp<-str+ncount-1;
-      targets[str:stp]<-rep(target, ncount);
-      #    targets<-append(targets,rep(target, ncount));
-      regulators[str:stp]<-regs;
-      #regulators<-append(regulators, regs);
-      #    zscoresX<-append(zscoresX, zzs);
-      zscoresX[str:stp]<-zzs;
-      correlations[str:stp]<-corrs;
-      str<-stp+1;
+      zzs = x[regs]
+      corrs = corrMatrix[target,regs]
+      ncount = length(regs)
+      stp = str+ncount-1
+      targets[str:stp] = rep(target, ncount)
+
+      regulators[str:stp] = regs
+
+      zscoresX[str:stp] = zzs
+      correlations[str:stp] = corrs
+      str = stp+1
     }
-    #    correlations<-append(correlations, corrs);
   }
-  targets<-targets[1:stp];
-  regulators<-regulators[1:stp];
-  zscoresX<-zscoresX[1:stp];
-  correlations<-correlations[1:stp];
+  targets = targets[1:stp]
+  regulators = regulators[1:stp]
+  zscoresX = zscoresX[1:stp]
+  correlations = correlations[1:stp]
 
 
-  data.frame(target=targets, reg=regulators, zscore=zscoresX, corr=correlations);
+  return(data.frame(target=targets, reg=regulators, zscore=zscoresX, corr=correlations))
 }
 
 #' compute CLR-like zscores
@@ -177,10 +177,11 @@ ccn_extractRegsDF<-function(zscores, corrMatrix, genes, threshold){
 #' @param tfs vector of  transcriptional regualtor names
 #'
 #' @return zscore matrix
-grn_zscores<-function (corrVals,tfs){
-  zscs<-mat_zscores(corrVals);
-  gc();
-  zscs[,tfs];
+grn_zscores <- function (corrVals,tfs){
+  zscs = mat_zscores(corrVals)
+  gc()
+
+  return(zscs[,tfs])
 }
 
 #' @title convert a table to an igraph
@@ -194,33 +195,30 @@ grn_zscores<-function (corrVals,tfs){
 #'
 #' @return iGraph object
 #' @import igraph
-ig_tabToIgraph<-function(grnTab, simplify=FALSE, directed=FALSE, weights=TRUE){
+ig_tabToIgraph <- function(grnTab, simplify=FALSE, directed=FALSE, weights=TRUE){
 
-  tmpAns<-as.matrix(grnTab[,c("TF", "TG")]);
-  regs<-as.vector(unique(grnTab[,"TF"]));
-  ###cat("Length TFs:", length(regs), "\n");
-  targs<-setdiff( as.vector(grnTab[,"TG"]), regs);
+  tmpAns = as.matrix(grnTab[,c("TF", "TG")])
+  regs = as.vector(unique(grnTab[,"TF"]))
+  targs = setdiff( as.vector(grnTab[,"TG"]), regs)
 
-  ###  cat("Length TGs:", length(targs), "\n");
-  myRegs<-rep("Regulator", length=length(regs));
-  myTargs<-rep("Target", length=length(targs));
+  myRegs = rep("Regulator", length=length(regs))
+  myTargs = rep("Target", length=length(targs))
 
-  types<-c(myRegs, myTargs);
-  verticies<-data.frame(name=c(regs,targs), label=c(regs,targs), type=types);
+  types = c(myRegs, myTargs)
+  verticies = data.frame(name=c(regs,targs), label=c(regs,targs), type=types)
 
-  ### iG<-graph.data.frame(tmpAns,directed=directed,v=verticies);
-  iG<-igraph::graph_from_data_frame(tmpAns,directed=directed,v=verticies);
+  iG = igraph::graph_from_data_frame(tmpAns,directed=directed,v=verticies)
 
   if(weights){
-    #E(iG)$weight<-grnTab$weight;
-    E(iG)$weight<-grnTab$zscore;
+    E(iG)$weight = grnTab$zscore
   }
 
   if(simplify){
-    iG<-simplify(iG);
+    iG = simplify(iG)
   }
-  V(iG)$nEnts<-1;
-  iG;
+  V(iG)$nEnts = 1
+
+  return(iG)
 }
 
 #' get raw GRN from zscores, and corr
@@ -232,19 +230,20 @@ ig_tabToIgraph<-function(grnTab, simplify=FALSE, directed=FALSE, weights=TRUE){
 #' @param zThresh zscore threshold
 #'
 #' @return list of grnTable and corresponding graph
-ccn_getRawGRN<-function(zscores, corrs, targetGenes, zThresh=4){
+ccn_getRawGRN <- function(zscores, corrs, targetGenes, zThresh=4) {
 
   # make a grn table
   cat("Making GRN table...\n")
-  grn<-ccn_extractRegsDF(zscores, corrs, targetGenes, zThresh);
+  grn = ccn_extractRegsDF(zscores, corrs, targetGenes, zThresh)
   cat("Done making GRN table...\n")
-  colnames(grn)[1:2]<-c("TG", "TF");
+  colnames(grn)[1:2] = c("TG", "TF")
 
   # make an iGraph object and find communities
   cat("Make iGraph...\n")
-  igTmp<-ig_tabToIgraph(grn, directed=FALSE, weights=TRUE);
+  igTmp = ig_tabToIgraph(grn, directed=FALSE, weights=TRUE)
   cat("done with iGraph...\n")
-  list(grnTable=grn, graph=igTmp);
+
+  return(list(grnTable=grn, graph=igTmp))
 }
 
 #' @title find genes that are preferentially expressed in specified samples
@@ -260,58 +259,56 @@ ccn_getRawGRN<-function(zscores, corrs, targetGenes, zThresh=4){
 #' @return a list of something
 #'
 #' @export
-ccn_findSpecGenes<-function (expDat, sampTab, holm=1e-4, cval=0.4, dLevel="description1", prune=FALSE){
+ccn_findSpecGenes <- function(expDat, sampTab, holm=1e-4, cval=0.4, dLevel="description1", prune=FALSE){
 
-  myPatternG<-ccn_sampR_to_pattern(as.vector(sampTab[,dLevel]));
-  specificSets<-apply(myPatternG, 1, ccn_testPattern, expDat=expDat);
+  myPatternG = ccn_sampR_to_pattern(as.vector(sampTab[,dLevel]))
+  specificSets = apply(myPatternG, 1, ccn_testPattern, expDat=expDat)
 
   # adaptively extract the best genes per lineage
-  cvalT<-vector();
-  ctGenes<-list();
-  ctNames<-unique(as.vector(sampTab[,dLevel]));
-  for(ctName in ctNames){
-    x<-specificSets[[ctName]];
+  cvalT = vector()
+  ctGenes = list()
+  ctNames = unique(as.vector(sampTab[,dLevel]))
+  for(ctName in ctNames) {
+    x = specificSets[[ctName]]
 
     # modification so that both upregulated and downregulated genes are going to be selected
-    tmp<-rownames(x[which(x$cval>cval),]);
-    tmp2<-rownames(x[which(x$holm<holm),]);
-    tmp<-intersect(tmp, tmp2)
+    tmp = rownames(x[which(x$cval>cval),])
+    tmp2 = rownames(x[which(x$holm<holm),])
+    tmp = intersect(tmp, tmp2)
 
     up_regGenes = rep(1, length(tmp))
     names(up_regGenes) = tmp
 
     # now the downregulated genes
-    tmp<-rownames(x[which(x$cval < -cval),]);
-    tmp2<-rownames(x[which(x$holm<holm),]);
-    tmp<-intersect(tmp, tmp2)
+    tmp = rownames(x[which(x$cval < -cval),])
+    tmp2 = rownames(x[which(x$holm<holm),])
+    tmp = intersect(tmp, tmp2)
 
     down_regGenes = rep(-1, length(tmp))
     names(down_regGenes) = tmp
 
     totalGenes = c(up_regGenes, down_regGenes)
 
-    ctGenes[[ctName]]<-totalGenes;
-    ###    cvalT<-append(cvalT, cval);
+    ctGenes[[ctName]]<-totalGenes
   }
 
   if(prune){
     # now limit to genes exclusive to each list
-    specGenes<-list();
+    specGenes = list()
     for(ctName in ctNames){
-      others<-setdiff(ctNames, ctName);
+      others = setdiff(ctNames, ctName)
+      exclusiveGenes = setdiff( names(ctGenes[[ctName]]), unlist(names(ctGenes[others])))
 
-      exclusiveGenes<-setdiff( names(ctGenes[[ctName]]), unlist(names(ctGenes[others])));
-
-
-      specGenes[[ctName]]<-ctGenes[[ctName]][exclusiveGenes]; # only select the exclusive genes
+      specGenes[[ctName]] = ctGenes[[ctName]][exclusiveGenes] # only select the exclusive genes
     }
-    ans<-specGenes;
+    ans = specGenes
   }
 
-  else{
-    ans<-ctGenes;
+  else {
+    ans = ctGenes
   }
-  ans;
+
+  return(ans)
 }
 
 #' return a pattern for use in ccn_testPattern (template matching)
@@ -321,17 +318,18 @@ ccn_findSpecGenes<-function (expDat, sampTab, holm=1e-4, cval=0.4, dLevel="descr
 #'
 #' @return ans
 ccn_sampR_to_pattern<-function (sampR){
-  d_ids<-unique(as.vector(sampR));
-  nnnc<-length(sampR);
-  ans<-matrix(nrow=length(d_ids), ncol=nnnc);
-  for(i in seq(length(d_ids))){
-    x<-rep(0,nnnc);
-    x[which(sampR==d_ids[i])]<-1;
-    ans[i,]<-x;
+  d_ids = unique(as.vector(sampR))
+  nnnc = length(sampR)
+  ans = matrix(nrow=length(d_ids), ncol=nnnc)
+  for(i in seq(length(d_ids))) {
+    x = rep(0,nnnc)
+    x[which(sampR==d_ids[i])] = 1
+    ans[i,] = x
   }
-  colnames(ans)<-as.vector(sampR);
-  rownames(ans)<-d_ids;
-  ans;
+  colnames(ans) = as.vector(sampR)
+  rownames(ans) = d_ids
+
+  return(ans)
 }
 
 #' @title template matching
@@ -341,20 +339,19 @@ ccn_sampR_to_pattern<-function (sampR){
 #' @param expDat expression matrix
 #'
 #' @return data.frame(row.names=geneids, pval=pval, cval=cval,holm=holm);
-ccn_testPattern<-function(pattern, expDat){
-  pval<-vector();
-  cval<-vector();
-  geneids<-rownames(expDat);
-  llfit<-ls.print(lsfit(pattern, t(expDat)), digits=25, print=FALSE);
-  xxx<-matrix( unlist(llfit$coef), ncol=8,byrow=TRUE);
-  ccorr<-xxx[,6];
-  cval<- sqrt(as.numeric(llfit$summary[,2])) * sign(ccorr);
-  pval<-as.numeric(xxx[,8]);
+ccn_testPattern<-function(pattern, expDat) {
+  pval = vector()
+  cval = vector()
+  geneids = rownames(expDat)
+  llfit = ls.print(lsfit(pattern, t(expDat)), digits=25, print=FALSE)
+  xxx = matrix(unlist(llfit$coef), ncol=8,byrow=TRUE)
+  ccorr = xxx[,6]
+  cval = sqrt(as.numeric(llfit$summary[,2])) * sign(ccorr)
+  pval = as.numeric(xxx[,8])
 
-  #qval<-qvalue(pval)$qval;
-  holm<-p.adjust(pval, method='holm');
-  #data.frame(row.names=geneids, pval=pval, cval=cval, qval=qval, holm=holm);
-  data.frame(row.names=geneids, pval=pval, cval=cval,holm=holm);
+  holm = p.adjust(pval, method='holm')
+
+  return(data.frame(row.names=geneids, pval=pval, cval=cval,holm=holm))
 }
 
 #' finds general and context dependent specifc genes
@@ -370,32 +367,34 @@ ccn_testPattern<-function(pattern, expDat){
 #'
 #' @return list of $matcher${cell_type}->{germ_layer}$context$general${cell_type}->gene vector etc
 #' @export
-ccn_specGenesAll<-function(expDat, sampTab,holm=1e-4,cval=0.4,cvalGK=0.75, dLevel, dLevelGK=NULL,prune=FALSE){
-  matcher<-list();
-  general<-ccn_findSpecGenes(expDat, sampTab, holm=holm, cval=cval, dLevel=dLevel,prune=prune);
-  ctXs<-list()# one per germlayer
+ccn_specGenesAll<-function(expDat, sampTab,holm=1e-4,cval=0.4,cvalGK=0.75, dLevel, dLevelGK=NULL,prune=FALSE) {
+  matcher = list()
+  general = ccn_findSpecGenes(expDat, sampTab, holm=holm, cval=cval, dLevel=dLevel,prune=prune)
+  ctXs = list()# one per germlayer
   if(!is.null(dLevelGK)){
 
-    germLayers<-unique(as.vector(sampTab[,dLevelGK]));
-    for(germlayer in germLayers){
-      stTmp<-sampTab[sampTab[,dLevelGK]==germlayer,];
-      expTmp<-expDat[,rownames(stTmp)];
-      xxx<-ccn_findSpecGenes(expTmp, stTmp, holm=holm, cval=cvalGK,dLevel=dLevel, prune=prune);
-      cts<-names(xxx);
+    germLayers = unique(as.vector(sampTab[,dLevelGK]))
+    for(germlayer in germLayers) {
+
+      stTmp = sampTab[sampTab[,dLevelGK]==germlayer,]
+      expTmp = expDat[,rownames(stTmp)]
+      xxx = ccn_findSpecGenes(expTmp, stTmp, holm=holm, cval=cvalGK,dLevel=dLevel, prune=prune)
+      cts = names(xxx)
       for(ct in cts){
-        matcher[[ct]]<-germlayer;
+        matcher[[ct]] = germlayer
         # remove general ct-specific genes from this set
-        a<-general[[ct]];
-        b<-xxx[[ct]];
-        ba<-setdiff(b, a);
-        both<-union(a,b);
-        xxx[[ct]]<-ba;
+        a = general[[ct]]
+        b = xxx[[ct]]
+        ba = setdiff(b, a)
+        both = union(a,b)
+        xxx[[ct]] = ba
       }
-      ctXs[[germlayer]]<-xxx;
+      ctXs[[germlayer]] = xxx
     }
   }
-  ctXs[['general']]<-general;
-  list(context=ctXs, matcher=matcher);
+  ctXs[['general']] = general
+
+  return(list(context=ctXs, matcher=matcher))
 }
 
 #' extract sub-networks made up of CT genes;
@@ -406,40 +405,40 @@ ccn_specGenesAll<-function(expDat, sampTab,holm=1e-4,cval=0.4,cvalGK=0.75, dLeve
 #'
 #' @return list(geneLists=geneLists, graphLists=graphLists, tfTargets=tfTargets)
 #' @export
-ccn_specGRNs<-function(rawGRNs, specGenes){
+ccn_specGRNs<-function(rawGRNs, specGenes) {
 
   # should return a list of gene lists and igraphs
-  geneLists<-list();
-  graphLists<-list();
+  geneLists = list()
+  graphLists = list()
 
-  groupNames<-names(specGenes[['context']][['general']]);
+  groupNames = names(specGenes[['context']][['general']])
 
-  big_graph<-rawGRNs[['graph']];
+  big_graph = rawGRNs[['graph']]
 
-  matcher<-specGenes$matcher;
+  matcher = specGenes$matcher
 
-  allgenes<-V(big_graph)$name;
+  allgenes = V(big_graph)$name
 
   for(ct in groupNames){
     cat(ct,"\n")
-    if(!is.null(names(matcher))){ #TODO modifiy the germ line stuff later
-      gll<-matcher[[ct]];
-      cat(ct," ",gll,"\n");
-      mygenes<-union(specGenes[['context']][['general']][[ct]], specGenes[['context']][[gll]][[ct]]);
+    if(!is.null(names(matcher))){
+      gll = matcher[[ct]]
+      cat(ct," ",gll,"\n")
+      mygenes = union(specGenes[['context']][['general']][[ct]], specGenes[['context']][[gll]][[ct]]);
     }
     else{
-      mygenes<-names(specGenes[['context']][['general']][[ct]])
+      mygenes = names(specGenes[['context']][['general']][[ct]])
     }
 
-    geneLists[[ct]]<-specGenes[['context']][['general']][[ct]][intersect(allgenes, mygenes)];
+    geneLists[[ct]] = specGenes[['context']][['general']][[ct]][intersect(allgenes, mygenes)];
 
-    graphLists[[ct]]<-induced.subgraph(big_graph, names(geneLists[[ct]]));
+    graphLists[[ct]] = induced.subgraph(big_graph, names(geneLists[[ct]]))
 
   }
 
-  tfTargets<-ccn_MakeTLs(graphLists);
+  tfTargets = ccn_MakeTLs(graphLists)
 
-  list(geneLists=geneLists, graphLists=graphLists, tfTargets=tfTargets);
+  return(list(geneLists=geneLists, graphLists=graphLists, tfTargets=tfTargets))
 }
 
 #' get targets of tFs
@@ -448,13 +447,14 @@ ccn_specGRNs<-function(rawGRNs, specGenes){
 #' @param graphList a list of networks represented as iGraphs
 #'
 #' @return list of tf=>targets
-ccn_MakeTLs<-function(graphList){
-  tfTargs<-list();
-  nnames<-names(graphList);
+ccn_MakeTLs<-function(graphList) {
+  tfTargs = list()
+  nnames = names(graphList)
   for(nname in nnames){
-    tfTargs[[nname]]<-ccn_get_targets(graphList[[nname]]); # get the name of the genelist
+    tfTargs[[nname]] = ccn_get_targets(graphList[[nname]])# get the name of the genelist
   }
-  tfTargs;
+
+  return(tfTargs)
 }
 
 #' get targets of a tf
@@ -463,15 +463,17 @@ ccn_MakeTLs<-function(graphList){
 #' @param aGraph an iGraph
 #'
 #' @return target list
-ccn_get_targets<-function(aGraph){
-  targList<-list();
-  regs<-V(aGraph)$label[V(aGraph)$type=='Regulator'];
-  if(length(regs)>0){
-    for(reg in regs){
-      targList[[reg]]<-unique(sort(V(aGraph)$label[neighbors(aGraph, reg)]));
+ccn_get_targets<-function(aGraph) {
+
+  targList = list()
+  regs = V(aGraph)$label[V(aGraph)$type=='Regulator']
+  if(length(regs)>0) {
+    for(reg in regs) {
+      targList[[reg]] = unique(sort(V(aGraph)$label[neighbors(aGraph, reg)]))
     }
   }
-  targList;
+
+  return(targList)
 }
 
 

@@ -4,7 +4,7 @@
 \alias{getClassGenes}
 \title{Find Classy Genes}
 \usage{
-getClassGenes(diffRes, topX = 25, bottom = TRUE)
+getClassGenes(diffRes, topX = 25, bottom = TRUE, leastDiff = TRUE)
 }
 \arguments{
 \item{diffRes}{a dataframe with pval, cval, holm, and rownames as the gene names}

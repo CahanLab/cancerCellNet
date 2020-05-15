@@ -26,6 +26,6 @@ splitCommon_proportion <- function(sampTab, proportion, dLevel) {
   }
 
   valSampleTable = sampTab[!(rownames(sampTab) %in% rownames(trainSampleTable)), ]
-  # return
-  list("trainingSet" = trainSampleTable, "validationSet" = valSampleTable)
+
+  return(list("trainingSet" = trainSampleTable, "validationSet" = valSampleTable))
 }

@@ -4,7 +4,7 @@
 \alias{gnrAll}
 \title{Find Genes in Clusters compare to other categories}
 \usage{
-gnrAll(expDat, cellLabels)
+gnrAll(expDat, cellLabels, sliceSize)
 }
 \arguments{
 \item{expDat}{a matrix of normalized gene expression taken from \code{\link{trans_prop}}}

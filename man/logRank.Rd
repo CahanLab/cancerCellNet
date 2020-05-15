@@ -4,10 +4,12 @@
 \alias{logRank}
 \title{logRank gene expression}
 \usage{
-logRank(expTrain, base = 2)
+logRank(expTrain, base = 0)
 }
 \arguments{
 \item{expTrain}{the expression matrix}
+
+\item{base}{the base of the log. Default is 0 which means it will just return the rank.}
 }
 \value{
 the log10 rank of genes

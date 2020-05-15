@@ -13,10 +13,9 @@
 #'
 #' @export
 weighted_down<-function(expRaw, total=1e5, dThresh=0) {
-  expCountDnW<-apply(expRaw, 2, downSampleW, total=total, dThresh=dThresh)
+  expCountDnW = apply(expRaw, 2, downSampleW, total=total, dThresh=dThresh)
 
-  # return
-  expCountDnW
+  return(expCountDnW)
 }
 
 #' Weighted subtraction from mapped reades
@@ -30,15 +29,14 @@ weighted_down<-function(expRaw, total=1e5, dThresh=0) {
 #' @return vector of downsampled read mapped to genes/transcripts
 downSampleW<-function(vector, total=1e5, dThresh=0){
 
-  totalSignal<-sum(vector) # get the sum of the vector
-  wAve<-vector/totalSignal #
+  totalSignal = sum(vector) # get the sum of the vector
+  wAve = vector/totalSignal #
 
-  resid<-totalSignal-total #num to subtract from sample
-  residW<-wAve*resid # amount to substract from each gene
+  resid = totalSignal-total #num to subtract from sample
+  residW = wAve*resid # amount to substract from each gene
 
-  ans<-vector-residW
-  ans[which(ans<dThresh)]<-0
+  ans = vector-residW
+  ans[which(ans<dThresh)] = 0
 
-  #return
-  ans
+  return(ans)
 }

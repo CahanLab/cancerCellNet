@@ -12,7 +12,8 @@ findClassyGenes(
   dThresh = 0,
   alpha1 = 0.05,
   alpha2 = 0.001,
-  mu = 2
+  mu = 2,
+  sliceSize = 1000
 )
 }
 \arguments{

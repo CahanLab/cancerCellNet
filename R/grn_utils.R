@@ -3,9 +3,10 @@
 #' @title logRank gene expression
 #' @description rank the gene expression values and log10 the ranks
 #' @param expTrain the expression matrix
+#' @param base the base of the log. Default is 0 which means it will just return the rank.
 #' @return the log10 rank of genes
 #' @export
-logRank <- function(expTrain, base = 2) {
+logRank <- function(expTrain, base = 0) {
   expTrain = apply(expTrain, FUN = rank, MARGIN = 2)
 
   if (base == 0) {

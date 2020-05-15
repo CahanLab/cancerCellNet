@@ -68,6 +68,5 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.nam
    returnList = list("sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc" = cnProc, "xpairs_list" = xpairs_list)
 
    cat("All Done\n")
-   #return
-   returnList
+   return(returnList)
 }

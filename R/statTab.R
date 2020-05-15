@@ -9,18 +9,19 @@
 #' and standard deviation of the expression matrix
 #' @export
 sc_statTab<-function(expDat, dThresh=0){
-  statTab<-data.frame()
+  statTab = data.frame()
   # below generates various statistical values
-  muAll<-sc_compMu(expDat, threshold=dThresh);
-  alphaAll<-sc_compAlpha(expDat,threshold=dThresh);
-  meanAll<-apply(expDat, 1, mean);
-  covAll<-apply(expDat, 1, sc_cov);
-  fanoAll<-apply(expDat,1, sc_fano);
-  maxAll<-apply(expDat, 1, max);
-  sdAll<-apply(expDat, 1, sd);
+  muAll = sc_compMu(expDat, threshold=dThresh)
+  alphaAll = sc_compAlpha(expDat,threshold=dThresh)
+  meanAll = apply(expDat, 1, mean)
+  covAll = apply(expDat, 1, sc_cov)
+  fanoAll = apply(expDat,1, sc_fano)
+  maxAll = apply(expDat, 1, max)
+  sdAll = apply(expDat, 1, sd)
 
-  statTabAll<-data.frame(gene=rownames(expDat), mu=muAll, alpha=alphaAll, overall_mean=meanAll, cov=covAll, fano=fanoAll, max_val=maxAll, sd=sdAll)
-  statTabAll;
+  statTabAll = data.frame(gene=rownames(expDat), mu=muAll, alpha=alphaAll, overall_mean=meanAll, cov=covAll, fano=fanoAll, max_val=maxAll, sd=sdAll)
+
+  return(statTabAll)
 }
 
 #' @title
@@ -36,12 +37,13 @@ sc_statTab<-function(expDat, dThresh=0){
 sc_compMu<-function(expMat, threshold=0){
 
   afunct<-function(vector, threshold){
-    mean(vector[which(vector>threshold)]);
+    mean(vector[which(vector>threshold)])
   }
 
-  mus<-unlist(apply(expMat, 1, afunct, threshold))
-  mus[is.na(mus)]<-0;
-  mus;
+  mus = unlist(apply(expMat, 1, afunct, threshold))
+  mus[is.na(mus)] = 0
+
+  return(mus)
 }
 
 
@@ -59,19 +61,18 @@ sc_compMu<-function(expMat, threshold=0){
 sc_compAlpha<-function(expMat, threshold=0,pseudo=FALSE){
   # identify the index of vectors greater than threshold
   lengthFunction<-function(vector, threshold){
-    length(which(vector>threshold));
+    length(which(vector>threshold))
   }
 
-  alphas <- apply(expMat, 1, lengthFunction, threshold)
+  alphas = apply(expMat, 1, lengthFunction, threshold)
 
-  ans <- alphas/ncol(expMat)
+  ans = alphas/ncol(expMat)
 
   if (pseudo) {
-    ans <- (alphas+1) / (ncol(expMat) + 1)
+    ans = (alphas+1) / (ncol(expMat) + 1)
   }
 
-  #return
-  ans
+  return(ans)
 }
 
 #' @title
@@ -82,7 +83,7 @@ sc_compAlpha<-function(expMat, threshold=0,pseudo=FALSE){
 #' @return the fano factor
 #' @export
 sc_fano<-function(vector){
-  var(vector)/mean(vector);
+  return(var(vector)/mean(vector))
 }
 
 # compute coeef of variation on vector
@@ -93,5 +94,5 @@ sc_fano<-function(vector){
 #' @return the coefficient of variation
 #' @export
 sc_cov<-function(vector){
-  sd(vector)/mean(vector);
+  return(sd(vector)/mean(vector))
 }

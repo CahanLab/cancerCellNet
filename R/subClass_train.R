@@ -107,6 +107,6 @@ subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colN
   returnList = list("sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc_subClass" = cnProc_subClass, "xpairs_list" = xpairs_list)
 
   cat("All Done \n")
-  # return
-  returnList
+
+  return(returnList)
 }

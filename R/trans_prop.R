@@ -11,14 +11,15 @@
 #'
 #' @export
 trans_prop<-function(expDat, xFact=1e5){
-  ans<-matrix(0, nrow=nrow(expDat), ncol=ncol(expDat));
+  ans = matrix(0, nrow=nrow(expDat), ncol=ncol(expDat))
 
   for(i in seq(ncol(expDat))){
-    ans[,i]<-expDat[,i]/sum(expDat[,i]);
+    ans[,i] = expDat[,i]/sum(expDat[,i])
   }
 
-  ans<-ans*xFact;
-  colnames(ans)<-colnames(expDat);
-  rownames(ans)<-rownames(expDat);
-  log(1+ans)
+  ans = ans*xFact
+  colnames(ans) = colnames(expDat)
+  rownames(ans) = rownames(expDat)
+
+  return(log(1+ans))
 }
