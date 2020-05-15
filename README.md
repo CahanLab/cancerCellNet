@@ -46,8 +46,8 @@ BiocManager::install("org.Hs.eg.db")
 All the training data were compiled from the <a href="https://portal.gdc.cancer.gov/">TCGA project</a>. The example expression profiles of UCEC cell lines were extracted from <a href="https://portals.broadinstitute.org/ccle">CCLE</a>. The example expression profiles of UCEC GEMMs were taken from the study <a href="https://doi.org/10.1016/j.ccell.2015.11.005">Blaisdell et al, 2015</a> (<a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE73541">GSE73541</a>)
 ```R
 # fetch compiled TCGA training data 
-download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/Named_expGDC_20181218.rda", "Named_expGDC_20181218.rda")
-download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/Named_stGDC_20181218.rda", "Named_stGDC_20181218.rda")
+download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/expGDC_compiled.rda", "Named_expGDC_20181218.rda")
+download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/stGDC_compiled.rda", "Named_stGDC_20181218.rda")
 
 # fetch sample cancer models 
 download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/CCLE_UCEC.rda", "CCLE_UCEC.rda")
@@ -56,17 +56,15 @@ download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/GEMM_U
 # fetch data needed for subclass training 
 download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/UCEC_readyToTrain_sub_exp.rda", "UCEC_readyToTrain_sub_exp.rda")
 download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/UCEC_readyToTrain_sub_st.rda", "UCEC_readyToTrain_sub_st.rda")
-download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/BroadClassifier_return.rda", "BroadClassifier_return.rda")
 download.file("https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/iGenes.rda", "iGenes.rda")
 
 ```
-Alternatively you can download the <a href="https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/webapp/GDC_BroadTraining/stTrain_web.rda">sample table</a> and <a href=" https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/webapp/GDC_BroadTraining/expTrain_web.rda">expression profile</a> of the compiled training data used in our preprint with fewer cancer categories and with COAD and READ combined into one category. 
 ### <a name="broadTrain_ccn">Broad Class Training</a>
 Load in the necessary files first. 
 ```
 library(cancerCellNet)
-expGDC = utils_loadObject("Named_expGDC_20181218.rda")
-stGDC = utils_loadObject("Named_stGDC_20181218.rda")
+expGDC = utils_loadObject("expGDC_compiled.rda")
+stGDC = utils_loadObject("stGDC_compiled.rda")
 
 CCLE_sample = utils_loadObject("CCLE_UCEC.rda")
 GEMM_sample = utils_loadObject("GEMM_UCEC.rda")
@@ -80,18 +78,18 @@ save(iGenes, file = "iGenes.rda")
 ```
 stList = splitCommon_proportion(sampTab = stGDC, proportion = 0.66, dLevel = "project_id")
 stTrain = stList$trainingSet
-expTrain = expGDC[, stTrain$barcode]
+expTrain = expGDC[iGenes, stTrain$barcode]
 ```
 #### Train the broad class classifier 
 Because the training data is not balanced in this case, we would have to use stratified sampling in this case. The samplesize parameter indicates the samplesize of stratified sampling. Additionally, because the process of gene pair transform is resource intensive and time consuming, we developed a modified method to perform quick pair transform that is much quicker. 
 ```
 broad_return = broadClass_train(stTrain = stTrain, 
-                                expTrain = expTrain[iGenes, ], 
+                                expTrain = expTrain, 
                                 colName_cat = "project_id", 
                                 colName_samp = "barcode", 
                                 nRand = 70,
-                                nTopGenes = 25, 
-                                nTopGenePairs = 70, 
+                                nTopGenes = 30, 
+                                nTopGenePairs = 75, 
                                 nTrees = 2000, 
                                 stratify=TRUE, 
                                 sampsize=60, 
@@ -102,6 +100,7 @@ broad_return = broadClass_train(stTrain = stTrain,
 ```
 stVal_Broad = stList$validationSet
 stVal_Broad_ord = stVal_Broad[order(stVal_Broad$project_id), ] #order by broadClass
+stVal_Broad[order(stVal_Broad$project_id), ] #order by broadClass
 expVal_Broad = expGDC[iGenes, rownames(stVal_Broad_ord)]
 cnProc_broad = broad_return$cnProc #select the cnProc from the broadclass training earlier 
 
@@ -115,7 +114,7 @@ grps = as.vector(stValRand_broad$project_id)
 names(grps)<-rownames(stValRand_broad)
 ccn_hmClass(classMatrix_broad, grps=grps, fontsize_row=10)
 ```
-![](md_img/TCGA_validate_heatmap.png)
+![](md_img/broadValidation_general.png)
 
 #### Adding gaps between groups for more clear visualization 
 ```
@@ -126,7 +125,7 @@ for (uniqueClass in unique(grps)) {
 }
 ccn_hmClass(classMatrix_broad, grps=grps, fontsize_row=10, gaps_col = breakVector) 
 ```
-![](md_img/TCGA_validate_heatmap_split.png)
+![](md_img/generalClassificationWsplit.png)
 
 
 #### Classifier Assessment 
@@ -134,7 +133,7 @@ ccn_hmClass(classMatrix_broad, grps=grps, fontsize_row=10, gaps_col = breakVecto
 assessmentDat = ccn_classAssess(classMatrix_broad, stValRand_broad, "project_id","barcode")
 plot_class_PRs(assessmentDat)
 ```
-![](md_img/TCGA_PR.png)
+![](md_img/PR_curves.png)
 
 #### Train a final broad class classifier using all the data 
 Now that we see the broad class classifier has good performance, we can train a broad classifier with all the data. 
@@ -144,8 +143,8 @@ broad_return = broadClass_train(stTrain = stGDC,
                                 colName_cat = "project_id", 
                                 colName_samp = "barcode", 
                                 nRand = 70,
-                                nTopGenes = 25, 
-                                nTopGenePairs = 70, 
+                                nTopGenes = 30, 
+                                nTopGenePairs = 75, 
                                 nTrees = 2000, 
                                 stratify=TRUE, 
                                 sampsize=60, 
@@ -180,14 +179,13 @@ returnSubClass = subClass_train(cnProc_broad = cnProc_broad, stratify = TRUE, sa
                                 colName_broadCat = "broadClass",
                                 colName_subClass = "subClass",
                                 name_broadCat = "TCGA-UCEC",
-                                weight_broadClass = 10,
+                                weight_broadClass = 5,
                                 colName_samp="samples",
-                                nRand = 90,  
-                                nTopGenes = 10,
-                                nTopGenePairs = 20,
+                                nRand = 15,  
+                                nTopGenes = 30,
+                                nTopGenePairs = 50,
                                 nTrees = 1000)
 ```
-
 ### <a name="subVal_ccn">Validate Subclass classifier</a>
 ```
 stVal_Sub = stList_sub$validationSet
@@ -208,17 +206,17 @@ classMatrix_sub = subClass_predict(cnProc_broad, cnProc_sub, expVal_sub, nrand =
 ```
 stValRand_sub = addRandToSampTab(classMatrix_sub, stVal_Sub_ord, "subClass", "samples")
 grps = as.vector(stValRand_sub$subClass)
-names(grps)<-rownames(stValRand_sub)
+names(grps) = rownames(stValRand_sub)
 ccn_hmClass(classMatrix_sub, grps=grps, fontsize_row=10)
 ```
-![](md_img/TCGA_subvalidate_heatmap.png)
+![](md_img/new_UCEC_sub_val.png)
 
 #### Assess the classifier 
 ```
 assessmentDat = ccn_classAssess(classMatrix_sub, stValRand_sub, "subClass","samples")
 plot_class_PRs(assessmentDat) # plot out the PR curves
 ```
-![](md_img/TCGA_subvalidate_PR.png)
+![](md_img/subClass_Val_PR.png)
 #### Train a subclass classifier with all the data 
 ```
 returnSubClass = subClass_train(cnProc_broad = cnProc_broad, stratify = TRUE, sampsize = 15, 
@@ -227,11 +225,11 @@ returnSubClass = subClass_train(cnProc_broad = cnProc_broad, stratify = TRUE, sa
                                 colName_broadCat = "broadClass",
                                 colName_subClass = "subClass",
                                 name_broadCat = "TCGA-UCEC",
-                                weight_broadClass = 10,
+                                weight_broadClass = 5,
                                 colName_samp="samples",
-                                nRand = 90,  
-                                nTopGenes = 10,
-                                nTopGenePairs = 20,
+                                nRand = 15,  
+                                nTopGenes = 30,
+                                nTopGenePairs = 50,
                                 nTrees = 1000)
 save(returnSubClass, file = "subClass_UCEC_return.rda")
 ```
@@ -245,7 +243,7 @@ GEMM_sample = utils_loadObject("GEMM_UCEC.rda")
 returnBroad = utils_loadObject("BroadClassifier_return.rda")
 returnSubClass = utils_loadObject("subClass_UCEC_return.rda")
 cnProc_broad = returnBroad$cnProc
-cnProc_subclass = returnSubClass$cnProc_subClass
+cnProc_subclass = returnSubClass$cnProc_subClass   
 ```
 
 #### Apply CCN on cancer cell-lines (broad class)
@@ -253,14 +251,14 @@ cnProc_subclass = returnSubClass$cnProc_subClass
 classMatrix_CCLE = broadClass_predict(cnProc = cnProc_broad, expDat = CCLE_sample, nrand = 2)
 ccn_hmClass(classMatrix_CCLE, main = "cancer cell-lines", fontsize_row=9, fontsize_col = 10)
 ```
-![](md_img/cancerCellLine_broadHeatmap.png)
+![](md_img/CCL_classification.png)
 
 #### Apply CCN on cancer cell-lines (sub class)
 ```
-classMatrix_CCLE_sub = subClass_predict(cnProc = cnProc_broad, cnProc_sub = cnProc_subclass, weight_broadClass = 10, expDat = CCLE_sample, nrand = 2)
+classMatrix_CCLE_sub = subClass_predict(cnProc = cnProc_broad, cnProc_sub = cnProc_subclass, weight_broadClass = 5, expDat = CCLE_sample, nrand = 2)
 ccn_hmClass(classMatrix_CCLE_sub, main = "cancer cell-lines", fontsize_row=9, fontsize_col = 10)
 ```
-![](md_img/cancerCellLines_subHeatmap.png)
+![](md_img/subClass_heatmap_CCLs.png)
 
 You can also apply it to GEMM samples provided above. For classifiying other GEMM samples, you may have to find the human orthologous genes between mouse and human. We built a function that can do the conversion listed below. But you can also use biomaRt to perform conversion.  
 ```
@@ -291,7 +289,7 @@ geneCompareMatrix = makeGeneCompareTab(queryExpTab = genePairs_query,
                                        avgGeneTab = avgGenePair_TCGA, geneSamples = genePairs)
 plotGeneComparison(geneCompareMatrix, fontsize_row = 7)
 ```
-![](md_img/genePairComparisonPlot.png)
+![](md_img/genepair_heatmap.png)
 #### Gene Expression Comparison Plot - using subclass as an example
 ```
 CCLE_sample = utils_loadObject("CCLE_UCEC.rda")
@@ -330,9 +328,8 @@ query_expNorm = trans_prop(weighted_down(CCLE_sample[iGenes, ], 5e5, dThresh=0.2
 geneCompareMatrix = makeGeneCompareTab(queryExpTab = query_expNorm,
                                        avgGeneTab = avgGene_TCGA, geneSamples = cgenes)
 plotGeneComparison(geneCompareMatrix[rownames(annoDf), ], fontsize_row = 7, annotation_row = annoDf)
-
 ```
-![](md_img/geneComparison.png)
+![](md_img/classificationgene_heatmap.png)
 
 ### <a name="old_way">Old way of Training - Broad</a>
 The old way of training instead of having one packaged function 
@@ -376,16 +373,16 @@ cnProc = list("cgenes"= cgenesA, "xpairs"=xpairs, "grps"= grps, "classifier" = t
 ### <a name="grn_construction"> GRN Reconstruction </a>
 The GRN reconstruction method is based on our previously developed method that can be found <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4233680/">here</a>.
  ```
-library(cancercellNet)
+library(cancerCellNet)
 
 # load in the training samples and intersecting genes between training sample and query samples 
-expGDC = utils_loadObject("Named_expGDC_20181218.rda")
-stGDC = utils_loadObject("Named_stGDC_20181218.rda")
+expGDC = utils_loadObject("expGDC_compiled.rda")
+stGDC = utils_loadObject("stGDC_compiled.rda")
 iGenes = utils_loadObject("iGenes.rda")
 expGDC = expGDC[iGenes, ]
 
 # evenly samples 80 samples per cancer type for training 
-stList = splitCommon(sampTab = stGDC, ncells = 80, dLevel = "project_id")
+stList = splitCommon(sampTab = stGDC, ncells = 60, dLevel = "project_id")
 stTrain = stList$train
 save(stList, file = "stList_grn.rda")
 
@@ -394,6 +391,7 @@ expTrain = expGDC[,rownames(stTrain)]
 # normalize the training data 
 expTrain = trans_prop(weighted_down(expTrain, 5e5, dThresh=0.25), 1e5)
 
+rm(list = c("expGDC", "stGDC"))
 # GRN reconstruction 
 grnAll = ccn_makeGRN(expTrain, stTrain, "project_id", zThresh = 4, dLevelGK = NULL, prune = TRUE, holm = 1e-4, cval=0.3)
 save(grnAll, file = "grnAll.rda")
@@ -407,7 +405,7 @@ library(cancerCellNet)
 library(ggplot2)
 
 # load in training expression file 
-expGDC = utils_loadObject("Named_expGDC_20181218.rda")
+expGDC = utils_loadObject("expGDC_compiled.rda")
 iGenes = utils_loadObject("iGenes.rda")
 
 # load in splitted training sample table 
@@ -453,7 +451,7 @@ ggplot(data = temp_mean) +
         theme_bw()+
         theme(text = element_text(size=10),legend.position="none",axis.text.x = element_text(angle = 30, hjust = 1))
 ```
-![](md_img/TCGA-UCEC-GRN_status.png)
+![](md_img/grn_status.png)
 
 #### 2. Calculate GRN Status for Query Data 
 
@@ -484,20 +482,23 @@ The output is a matrix with samples as column names and cancer types as row name
 
 You can visualize GRN status of a cancer by
 ```
-plotDf = data.frame("CellLines" = colnames(GRN_statusQuery),
-                  "GRN_Status" = as.vector(GRN_statusQuery["TCGA-UCEC, ]))
-plotDf$CellLines <- factor(plotDf$CellLines, levels = plotDf$CellLines)
+# get the GRN status matrix 
+GRN_mean = trainNormParam$trainingScores
 
-ggplot(data = plotDf) +
-   geom_bar(stat="identity", data = plotDf, aes(x=CellLines, y=GRN_Status), width = 0.7) +
-   ggtitle("TCGA-UCEC-subnetwork") +
-   xlab("Cell Lines")+
-   ylab("GRN Status")+
-   #geom_hline(yintercept=1, linetype="dashed", color = "steelblue")+
-   theme_bw()+
-   theme(text = element_text(size=10),legend.position="none",axis.text.x = element_text(angle = 270, vjust=0.2))
+# select the GRN status for UCEC GRN
+temp_mean = GRN_mean[GRN_mean$subNet == "UCEC", ]
+
+ggplot(data = temp_mean) +
+        geom_bar(stat="identity", data = temp_mean, aes(x=reorder(grp_name, mean), y=mean), width = 0.7) +
+        geom_errorbar(aes(ymin=mean - stdev, ymax = mean + stdev, x = grp_name), width = 0.5)+
+        ggtitle(paste0("UCEC-subnetwork")) +
+        ylim(-0.5, 1.2)+
+        xlab("Cancer Groups")+
+        ylab("GRN Status")+
+        theme_bw()+
+        theme(text = element_text(size=10),legend.position="none",axis.text.x = element_text(angle = 30, hjust = 1))
 ```
-![](md_img/UCEC_CCLE.png)
+![](md_img/GRN_status_CCLs.png)
 
 ### <a name="TF_scores">TF Scores</a>
 TF scores are metric indicating the importance of transcription factors in establishing cancer type specific gene regulatory network. The magnitude of the score indicates the importance of the transcription factor. If the TF score is a positive number, it indicate that the TF should be more upregulated to have similar GRN to the desired cancer type. If the TF score is a negative number, it indicates that the TF should be downregulated to have similar GRN to the desired cancer type. 
@@ -520,7 +521,8 @@ CCL_samples = CCL_samples[iGenes, ]
 
 # rank the query sample genes 
 CCL_query = logRank(CCL_samples, base = 0)
-TF_scores = ccn_tfScores(expQuery = CCL_query, subnetName = "TCGA-UCEC", grnAll = grn_all, trainNorm = trainNorm_param, classifier_return = classReturn, exprWeight = FALSE, normTFscore = TRUE)
+
+GRN_statusQuery = ccn_queryGRNstatus(expQuery = CCL_query, grn_return = grn_all, trainNorm = trainNorm_param, classifier_return = classReturn, prune = TRUE)  
 ```
 The output should be a matrix with TF as row names and samples as column names. 
-![](md_img/TF_scores_example.PNG)
+![](md_img/TF_scoreMatrix.PNG)
