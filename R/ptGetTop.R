@@ -9,17 +9,18 @@
 #' @param topX number of genepairs for training
 #' @param sliceSize the size of the slice for pair transform. Default at 5e3
 #' @param quickPairs TRUE if wanting to select the gene pairs in a quick fashion
-#'
+#' @param coreProportion the proportion of logical cores for finding top scoring gene pairs (not applicable for quick pairs)
+
 #' @import parallel
 #' @return vector of top gene-pair names
 #'
 #' @export
-ptGetTop<-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e3, quickPairs = FALSE){
+ptGetTop<-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e3, quickPairs = FALSE, coreProportion = 1/4){
 
-  ncores = parallel::detectCores(logical = FALSE) # detect the number of cores in the system
+  ncores = parallel::detectCores(logical = TRUE) # detect the number of cores in the system
   mcCores = 1
-  if(ncores/2>1){
-    mcCores = round(ncores / 2)
+  if(ncores * coreProportion > 1){
+    mcCores = round(ncores * coreProportion)
   }
 
   if(!quickPairs){
@@ -27,7 +28,7 @@ ptGetTop<-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e3
     ans = list()
     genes = rownames(expDat)
 
-    cat(ncores, "cores in total", "  --> ", mcCores, "cores running to find top scoring gene pairs...","\n")
+    cat(ncores, "logical cores in total", "  --> ", mcCores, "cores running to find top scoring gene pairs...","\n")
 
     # make a data frame of pairs of genes that will be sliced later
     pairTab = makePairTab(genes)
@@ -53,28 +54,53 @@ ptGetTop<-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e3
     stp = min(c(sliceSize, nPairs)) # detect what is smaller the slice size or npairs
 
 
-    cl = snow::makeCluster(mcCores, type="SOCK")
-    while(str <= nPairs){
-      if(stp>nPairs){
-        stp = nPairs
+    if(mcCores == 1) {
+      while(str <= nPairs){
+        if(stp>nPairs){
+          stp = nPairs
+        }
+        cat(str,"-", stp,"\n")
+        tmpTab = pairTab[str:stp,]
+        tmpPdat = ptSmall(expDat, tmpTab)
+
+        tmpAns = lapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tmpPdat)
+
+        for(gi in seq(length(myPatternG))){
+          grp = grps[[gi]]
+          statList[[grp]] = rbind( statList[[grp]],  tmpAns[[grp]])
+        }
+
+
+        str = stp+1
+        stp = str + sliceSize - 1
+
       }
-      cat(str,"-", stp,"\n")
-      tmpTab = pairTab[str:stp,]
-      tmpPdat = ptSmall(expDat, tmpTab)
-
-      tmpAns = snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tmpPdat)
-
-      for(gi in seq(length(myPatternG))){
-        grp = grps[[gi]]
-        statList[[grp]] = rbind( statList[[grp]],  tmpAns[[grp]])
-      }
-
-
-      str = stp+1
-      stp = str + sliceSize - 1
-
     }
-    stopCluster(cl)
+     else {
+       cl = snow::makeCluster(mcCores, type="SOCK")
+       while(str <= nPairs){
+         if(stp>nPairs){
+           stp = nPairs
+         }
+         cat(str,"-", stp,"\n")
+         tmpTab = pairTab[str:stp,]
+         tmpPdat = ptSmall(expDat, tmpTab)
+
+         tmpAns = snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tmpPdat)
+
+         for(gi in seq(length(myPatternG))){
+           grp = grps[[gi]]
+           statList[[grp]] = rbind( statList[[grp]],  tmpAns[[grp]])
+         }
+
+
+         str = stp+1
+         stp = str + sliceSize - 1
+
+       }
+       stopCluster(cl)
+     }
+
 
     cat("compile results\n")
     for(grp in grps){

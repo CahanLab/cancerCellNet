@@ -11,10 +11,11 @@
 #' @param alpha1 a number representing proportion of cells in which a gene must be considered detected (as defined in geneStats)
 #' @param alpha2 a number representing lower proportion of cells for genes that must have higher expression level
 #' @param mu a number represeting threshold for average expression level of genes passing the lower proportion criteria
+#' @param coreProportion the proportion of logical cores for finding classification genes
 #'
 #' @return a list containing two lists: a list of classifier worthy genes named 'cgenes' and a list of cancer category named 'grps'
 #' @export
-findClassyGenes <- function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.05, alpha2=.001, mu=2, sliceSize = 1000) {
+findClassyGenes <- function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.05, alpha2=.001, mu=2, sliceSize = 1000, coreProportion = 1/4) {
   if((dLevel %in% colnames(sampTab)) == FALSE) {
     stop("Please enter the correct column name for sampTab that indicates the categories")
   }
@@ -36,18 +37,24 @@ findClassyGenes <- function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=
     expDat = expDat[ggenes,]
   }
 
-  ncores = parallel::detectCores(logical = FALSE) # detect the number of cores in the system
+  ncores = parallel::detectCores(logical = TRUE) # detect the number of cores in the system
   mcCores = 1
-  if(ncores/2>1){
-    mcCores = round(ncores/2)
+  if(ncores * coreProportion >1){
+    mcCores = round(ncores * coreProportion)
   }
 
-  cat(ncores, "cores in total", "  --> ", mcCores, "cores running to find classification genes...","\n")
-  xdiff = gnrAll(expDat, grps, sliceSize)
+  cat(ncores, "logical cores in total", "  --> ", mcCores, "cores running to find classification genes...","\n")
+  xdiff = gnrAll(expDat, grps, sliceSize, coreProportion)
 
-  cl = snow::makeCluster(mcCores, type="SOCK")
-  cgenes = snow::parLapply(cl = cl, x = xdiff, fun = getClassGenes, topX = topX)
-  stopCluster(cl)
+  if(mcCores == 1) {
+    cgenes = lapply(cl = cl, x = xdiff, fun = getClassGenes, topX = topX)
+
+  }
+  else {
+    cl = snow::makeCluster(mcCores, type="SOCK")
+    cgenes = snow::parLapply(cl = cl, x = xdiff, fun = getClassGenes, topX = topX)
+    stopCluster(cl)
+  }
 
   labelled_cgenes = cgenes
   cgenes = unique(unlist(cgenes))
@@ -76,12 +83,13 @@ sc_filterGenes<-function(geneStats, alpha1=0.1, alpha2=0.01, mu=2){
 #' Find genes higher in a cluster compared to all other cells
 #' @param expDat a matrix of normalized gene expression taken from \code{\link{trans_prop}}
 #' @param cellLabels a vector of all the named vector of cancer categories
+#' @param coreProportion the proportion of logical cores for finding classification genes
 #' @return list of dataFrames containing pval, cval and holm for each gene in each cancer category
-gnrAll<-function(expDat, cellLabels, sliceSize) {
+gnrAll<-function(expDat, cellLabels, sliceSize, coreProportion) {
   ncores = parallel::detectCores(logical = FALSE) # detect the number of cores in the system
   mcCores = 1
-  if(ncores/2>1){
-    mcCores = round(ncores/2)
+  if(ncores * coreProportion > 1){
+    mcCores = round(ncores * coreProportion)
   }
 
   nGenes = nrow(expDat)
@@ -97,27 +105,48 @@ gnrAll<-function(expDat, cellLabels, sliceSize) {
     statList[[grp]] = data.frame()
   }
 
-  cl = snow::makeCluster(mcCores, type="SOCK")
+  if(mcCores == 1) {
+    while(str <= nGenes){
+      if(stp>nGenes){
+        stp = nGenes
+      }
+      cat(str,"-", stp,"\n")
 
-  while(str <= nGenes){
-    if(stp>nGenes){
-      stp = nGenes
+      tempExpDat = expDat[str:stp, ]
+      tmpAns = lapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tempExpDat)
+
+      for(gi in seq(length(myPatternG))){
+        grp = grps[[gi]]
+        statList[[grp]] = rbind( statList[[grp]],  tmpAns[[grp]])
+      }
+
+      str = stp+1
+      stp = str + sliceSize - 1
+
     }
-    cat(str,"-", stp,"\n")
-
-    tempExpDat = expDat[str:stp, ]
-    tmpAns = snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tempExpDat)
-
-    for(gi in seq(length(myPatternG))){
-      grp = grps[[gi]]
-      statList[[grp]] = rbind( statList[[grp]],  tmpAns[[grp]])
-    }
-
-    str = stp+1
-    stp = str + sliceSize - 1
-
   }
-  stopCluster(cl)
+  else {
+    cl = snow::makeCluster(mcCores, type="SOCK")
+    while(str <= nGenes){
+      if(stp>nGenes){
+        stp = nGenes
+      }
+      cat(str,"-", stp,"\n")
+
+      tempExpDat = expDat[str:stp, ]
+      tmpAns = snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tempExpDat)
+
+      for(gi in seq(length(myPatternG))){
+        grp = grps[[gi]]
+        statList[[grp]] = rbind( statList[[grp]],  tmpAns[[grp]])
+      }
+
+      str = stp+1
+      stp = str + sliceSize - 1
+
+    }
+    stopCluster(cl)
+  }
 
   cat("Done testing\n")
   return(statList)

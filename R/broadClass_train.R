@@ -16,10 +16,11 @@
 #' @param weightedDown_dThresh the threshold at which anything lower than that is 0 for weighted_down function
 #' @param transprop_xFact scaling factor for transprop
 #' @param quickPairs TRUE if using quick version of genepair transform
+#' @param coreProportion the proportion of logical cores for finding classification genes and top scoring gene pairs. If you want to disable parallel processing, then enter 0
 #'
 #' @return a list containing normalized expression data, classification gene list, cnPRoc
 #' @export
-broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, stratify=FALSE, sampsize=40, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, quickPairs = FALSE) {
+broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, stratify=FALSE, sampsize=40, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, quickPairs = FALSE, coreProportion = 1/4) {
 
    if (class(stTrain) != "data.frame") {
       stTrain = as.data.frame(stTrain)
@@ -34,7 +35,7 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.nam
    expTnorm = trans_prop(weighted_down(expTrain, weightedDown_total, dThresh = weightedDown_dThresh), transprop_xFact)
    cat("Expression data has been normalized\n")
 
-   system.time(cgenes<-findClassyGenes(expDat = expTnorm, sampTab = stTrain, dLevel = colName_cat, topX = nTopGenes, sliceSize=1000))
+   system.time(cgenes<-findClassyGenes(expDat = expTnorm, sampTab = stTrain, dLevel = colName_cat, topX = nTopGenes, sliceSize=1000, coreProportion = coreProportion))
    cat("Finished finding classification genes\n")
 
    cgenesA = cgenes[['cgenes']]
@@ -43,7 +44,7 @@ broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.nam
 
    cat("There are ", length(cgenesA), " classification genes\n")
 
-   system.time(xpairs_list<-ptGetTop(expTrain[cgenesA,], grps, cgenes_list, topX=nTopGenePairs, sliceSize=2000, quickPairs=quickPairs))
+   system.time(xpairs_list<-ptGetTop(expTrain[cgenesA,], grps, cgenes_list, topX=nTopGenePairs, sliceSize=2000, quickPairs=quickPairs, coreProportion = coreProportion))
    cat("Finished finding top gene pairs\n")
 
    # compile the genepair list
