@@ -47,13 +47,13 @@ findClassyGenes <- function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=
   xdiff = gnrAll(expDat, grps, sliceSize, coreProportion)
 
   if(mcCores == 1) {
-    cgenes = lapply(cl = cl, x = xdiff, fun = getClassGenes, topX = topX)
+    cgenes = lapply(X = xdiff, FUN = getClassGenes, topX = topX)
 
   }
   else {
     cl = snow::makeCluster(mcCores, type="SOCK")
     cgenes = snow::parLapply(cl = cl, x = xdiff, fun = getClassGenes, topX = topX)
-    stopCluster(cl)
+    snow::stopCluster(cl)
   }
 
   labelled_cgenes = cgenes
@@ -110,10 +110,10 @@ gnrAll<-function(expDat, cellLabels, sliceSize, coreProportion) {
       if(stp>nGenes){
         stp = nGenes
       }
-      cat(str,"-", stp,"\n")
 
       tempExpDat = expDat[str:stp, ]
-      tmpAns = lapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tempExpDat)
+      tmpAns = lapply(X = myPatternG, FUN = sc_testPattern, expDat=tempExpDat)
+      cat(str,"-", stp,"\n")
 
       for(gi in seq(length(myPatternG))){
         grp = grps[[gi]]
@@ -131,10 +131,10 @@ gnrAll<-function(expDat, cellLabels, sliceSize, coreProportion) {
       if(stp>nGenes){
         stp = nGenes
       }
-      cat(str,"-", stp,"\n")
 
       tempExpDat = expDat[str:stp, ]
       tmpAns = snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tempExpDat)
+      cat(str,"-", stp,"\n")
 
       for(gi in seq(length(myPatternG))){
         grp = grps[[gi]]
@@ -145,7 +145,7 @@ gnrAll<-function(expDat, cellLabels, sliceSize, coreProportion) {
       stp = str + sliceSize - 1
 
     }
-    stopCluster(cl)
+    snow::stopCluster(cl)
   }
 
   cat("Done testing\n")

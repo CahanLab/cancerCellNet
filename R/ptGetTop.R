@@ -59,11 +59,11 @@ ptGetTop<-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e3
         if(stp>nPairs){
           stp = nPairs
         }
-        cat(str,"-", stp,"\n")
         tmpTab = pairTab[str:stp,]
         tmpPdat = ptSmall(expDat, tmpTab)
 
-        tmpAns = lapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tmpPdat)
+        tmpAns = lapply(X = myPatternG, FUN = sc_testPattern, expDat=tmpPdat)
+        cat(str,"-", stp,"\n")
 
         for(gi in seq(length(myPatternG))){
           grp = grps[[gi]]
@@ -82,11 +82,11 @@ ptGetTop<-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e3
          if(stp>nPairs){
            stp = nPairs
          }
-         cat(str,"-", stp,"\n")
          tmpTab = pairTab[str:stp,]
          tmpPdat = ptSmall(expDat, tmpTab)
 
          tmpAns = snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tmpPdat)
+         cat(str,"-", stp,"\n")
 
          for(gi in seq(length(myPatternG))){
            grp = grps[[gi]]
@@ -98,7 +98,7 @@ ptGetTop<-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e3
          stp = str + sliceSize - 1
 
        }
-       stopCluster(cl)
+       snow::stopCluster(cl)
      }
 
 
