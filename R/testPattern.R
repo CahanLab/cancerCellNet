@@ -17,17 +17,16 @@ sc_testPattern<-function(pattern, expDat){
 
   llfit = ls.print(lsfit(pattern, t(expDat)), digits=25, print=FALSE)
 
-  xxx = matrix( unlist(llfit$coef), ncol=8,byrow=TRUE)
+  pos_R_index = which(as.numeric(llfit$summary[,2]) >= 0)
 
-  # remove r squared values that are negative
-  naIndex = (llfit$summary[, 2] < 0)
+  xxx = matrix(unlist(llfit$coef), ncol=8,byrow=TRUE)
 
-  ccorr = xxx[!naIndex,6]  # t-value of X coefficient
-  cval =  sqrt(as.numeric(llfit$summary[!naIndex,2])) * sign(ccorr)  # R squared
-  pval = as.numeric(xxx[!naIndex,8])  # p-value of X coefficient
+  ccorr = xxx[pos_R_index,6]  # t-value of X coefficient
+  cval =  sqrt(as.numeric(llfit$summary[pos_R_index,2])) * sign(ccorr)  # R squared
 
+  pval = as.numeric(xxx[,8])  # p-value of X coefficient
   holm = p.adjust(pval, method='holm')
 
 
-  return(data.frame(row.names=geneids[!naIndex], pval=pval, cval=cval,holm=holm))
+  return(data.frame(row.names=geneids[pos_R_index], pval=pval[pos_R_index], cval=cval,holm=holm[pos_R_index]))
 }
