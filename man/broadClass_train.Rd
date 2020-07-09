@@ -18,7 +18,8 @@ broadClass_train(
   weightedDown_total = 5e+05,
   weightedDown_dThresh = 0.25,
   transprop_xFact = 1e+05,
-  quickPairs = FALSE
+  quickPairs = FALSE,
+  coreProportion = 1/4
 )
 }
 \arguments{
@@ -47,6 +48,8 @@ broadClass_train(
 \item{transprop_xFact}{scaling factor for transprop}
 
 \item{quickPairs}{TRUE if using quick version of genepair transform}
+
+\item{coreProportion}{the proportion of logical cores for finding classification genes and top scoring gene pairs. If you want to disable parallel processing, then enter 0}
 
 \item{weightDown_total}{numeric post transformation sum of read counts for weighted_down function}
 }

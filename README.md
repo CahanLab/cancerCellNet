@@ -11,6 +11,7 @@
 [9. GRN Construction](#grn_construction) <br>
 [10. GRN Status](#grn_status) <br> 
 [11. TF Scores](#TF_scores) <br>
+[12. scRNA-seq Aggregation](#sc_aggreate) <br >
 
 ## CancerCellNet Instructions 
 CancerCellNet is a R package that allows cancer type classification and evaluation of transcriptional fidelity for cancer models across species and platform (bulk RNA-seq, microarray). Alternatively, you can visit our <a href="http://ec2-3-88-19-178.compute-1.amazonaws.com/cl_apps/cancerCellNet_web/">web-app</a>. You can also read about the applications of CancerCellNet in our <a href="https://www.biorxiv.org/content/10.1101/2020.03.27.012757v2">bioRxiv preprint</a>
@@ -32,6 +33,7 @@ install.packages("randomForest")
 install.packages("ggplot2")
 install.packages("igraph")
 install.packages("stringr")
+install.packages("snow")
 
 # install packages from Bioconductor 
 if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -524,3 +526,16 @@ TF_scores = ccn_tfScores(expQuery = CCL_query, subnetName = "TCGA-UCEC", grnAll 
 ```
 The output should be a matrix with TF as row names and samples as column names. 
 ![](md_img/TF_scores_example.PNG)
+
+### <a name="sc_aggreate">scRNA-seq Aggregation</a>
+In order to apply classifier on scRNA-seq profiles, you would have to aggregate the expression profiles within the same cluster label or cell type label. You can download a compiled sample <a href="https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/sample_scRNA_exp.rda">scRNA expression profile</a> and <a href="https://cnobjects.s3.amazonaws.com/cancerCellNet/resources/sample_scRNA_st.rda">sample table</a> to follow along with the demonstration. The compiled sample scRNA data were from <a href="https://www.sciencedirect.com/science/article/pii/S0092867418311784">Jerby-Arnon, L. et al.</a> and <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5810554/"> Darmanis, S. et al.  </a>
+
+```
+scRNA_exp = utils_loadObject("sample_scRNA_exp.rda")
+scRNA_st = utils_loadObject("sample_scRNA_st.rda")
+agg_list = aggregate_scProfiles(scRNA_exp, scRNA_st, cell_id_col = "cell_id", group_id_col = "cell_type")
+classMatrix_broad = broadClass_predict(broad_return$cnProc, agg_list$agg_exp, nrand = 2)
+
+ccn_hmClass(classMatrix_broad, fontsize_col = 10, fontsize_row=10)
+```
+![](md_img/sc_aggregate.png)
