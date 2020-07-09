@@ -20,7 +20,7 @@
 #'
 #' @return a list containing normalized expression data, classification gene list, cnPRoc
 #' @export
-broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, stratify=FALSE, sampsize=40, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, quickPairs = FALSE, coreProportion = 1/4) {
+broadClass_train<-function(stTrain, expTrain, colName_cat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, stratify=FALSE, sampsize=40, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, quickPairs = FALSE, coreProportion = 0) {
 
    if (class(stTrain) != "data.frame") {
       stTrain = as.data.frame(stTrain)
