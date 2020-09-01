@@ -30,10 +30,10 @@ weighted_down<-function(expRaw, total=1e5, dThresh=0) {
 downSampleW<-function(vector, total=1e5, dThresh=0){
 
   totalSignal = sum(vector) # get the sum of the vector
-  wAve = vector/totalSignal #
+  wAve = vector/totalSignal 
 
   resid = totalSignal-total #num to subtract from sample
-  residW = wAve*resid # amount to substract from each gene
+  residW = wAve*resid 
 
   ans = vector-residW
   ans[which(ans<dThresh)] = 0

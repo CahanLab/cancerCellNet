@@ -442,7 +442,7 @@ You can also visualize the GRN status of training samples.
 GRN_mean = trainNormParam$trainingScores
 
 # select the GRN status for UCEC GRN
-temp_mean = my_mean[my_mean$subNet == "TCGA-UCEC", ]
+temp_mean = GRN_mean[GRN_mean$subNet == "TCGA-UCEC", ]
 
 ggplot(data = temp_mean) +
         geom_bar(stat="identity", data = temp_mean, aes(x=reorder(grp_name, mean), y=mean), width = 0.7) +
