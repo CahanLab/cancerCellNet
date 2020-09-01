@@ -4,8 +4,18 @@
 \alias{findClassyGenes}
 \title{Find Classifier-Worthy Gene Candidates}
 \usage{
-findClassyGenes(expDat, sampTab, dLevel, topX = 25, dThresh = 0,
-  alpha1 = 0.05, alpha2 = 0.001, mu = 2)
+findClassyGenes(
+  expDat,
+  sampTab,
+  dLevel,
+  topX = 25,
+  dThresh = 0,
+  alpha1 = 0.05,
+  alpha2 = 0.001,
+  mu = 2,
+  sliceSize = 1000,
+  coreProportion = 1/4
+)
 }
 \arguments{
 \item{expDat}{a matrix of normalized expression data from \code{\link{trans_prop}}}
@@ -23,6 +33,8 @@ findClassyGenes(expDat, sampTab, dLevel, topX = 25, dThresh = 0,
 \item{alpha2}{a number representing lower proportion of cells for genes that must have higher expression level}
 
 \item{mu}{a number represeting threshold for average expression level of genes passing the lower proportion criteria}
+
+\item{coreProportion}{the proportion of logical cores for finding classification genes}
 }
 \value{
 a list containing two lists: a list of classifier worthy genes named 'cgenes' and a list of cancer category named 'grps'

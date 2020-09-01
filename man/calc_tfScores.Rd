@@ -5,8 +5,16 @@
 \title{Calculate the TF
 Calculate the TF score given all the parameters}
 \usage{
-calc_tfScores(tf, targs, sampleID, z_scoreMat, netGenes, weights, grnTable,
-  correlationFactor = 1)
+calc_tfScores(
+  tf,
+  targs,
+  sampleID,
+  z_scoreMat,
+  netGenes,
+  weights,
+  grnTable,
+  correlationFactor = 1
+)
 }
 \arguments{
 \item{tf}{TF}

@@ -4,9 +4,21 @@
 \alias{ccn_queryGRNstatus}
 \title{Get Query GRN status}
 \usage{
-ccn_queryGRNstatus(expQuery, expTrain, stTrain, dLevel, sidCol, grn_return,
-  trainNorm = NULL, classifier_return, classWeight = TRUE,
-  exprWeight = FALSE, prune = TRUE, xmax = 1000, predSD = FALSE)
+ccn_queryGRNstatus(
+  expQuery,
+  expTrain,
+  stTrain,
+  dLevel,
+  sidCol,
+  grn_return,
+  trainNorm = NULL,
+  classifier_return,
+  classWeight = TRUE,
+  exprWeight = FALSE,
+  prune = TRUE,
+  xmax = 1000,
+  predSD = FALSE
+)
 }
 \arguments{
 \item{expQuery}{logRanked query expression matrix}

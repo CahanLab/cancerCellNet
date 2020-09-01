@@ -9,24 +9,21 @@
 #' @param classWeight class weight
 #' @param exprWeight  expression weight
 #' @return grn scores (not normalized)
-ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=TRUE, classWeightVal = 3, exprWeight=TRUE, exprWeightVal = 3, xmax=1e3){
+ccn_netScores<-function(expDat, genes, tVals, ctt, classList=NULL, classWeight=TRUE, classWeightVal = 3, exprWeight=TRUE, exprWeightVal = 3, xmax=1e3){
   cat(ctt,"\n")
-  aMat<-matrix(0, nrow=length(genes), ncol=ncol(expDat));
-  rownames(aMat)<-names(genes);
+  aMat = matrix(0, nrow=length(genes), ncol=ncol(expDat))
+  rownames(aMat) = names(genes)
 
-  weights<-rep(1, length(genes));
-  names(weights)<-names(genes);
-
-  #otherCTs<-setdiff(names(tVals), ct)
+  weights = rep(1, length(genes))
+  names(weights) = names(genes)
 
   cat(dim(aMat),"\n")
   if(exprWeight){
-    meanVect<-unlist(tVals[[ctt]][['mean']][names(genes)]);
-    weights<-(exprWeightVal*meanVect)/sum(exprWeightVal*meanVect); # also arbritary value on the weight you are putting on the expression
+    meanVect = unlist(tVals[[ctt]][['mean']][names(genes)])
+    weights = (exprWeightVal*meanVect)/sum(exprWeightVal*meanVect) # also arbritary value on the weight you are putting on the expression
   }
 
-  if(classWeight){ #TODO modify this to fit the gene pairs
-    #classImp<-classList[[ctt]]$importance[genes,1];
+  if(classWeight){
 
     classImp = weights
     for(gene in names(classList[[ctt]])) {
@@ -35,24 +32,20 @@ ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=
       }
     }
 
-    ### 04-19-17
-    ###classImp<-classImp/sum(classImp)
-    weights<-weights*classImp;
+    weights = weights*classImp
   }
 
   for(gene in names(genes)){
 
-    ### cat("***",gene,"\n")
-    ###zzs<-as.matrix(cn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]])[1,])
+    zzs = ccn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]], xmax=xmax, reg_type = genes[gene])
 
-    zzs<-ccn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]], xmax=xmax, reg_type = genes[gene])
-
-    aMat[gene,] = zzs;
+    aMat[gene,] = zzs
   }
 
   print(dim(aMat))
-  xscores<-apply(aMat, 2, weighted.mean, w=weights);
-  xscores;
+  xscores = apply(aMat, 2, weighted.mean, w=weights)
+
+  return(xscores)
 }
 
 #' Estimate gene expression dist in CTs
@@ -64,31 +57,32 @@ ccn_netScores<-function (expDat, genes, tVals, ctt, classList=NULL, classWeight=
 #' @param predictSD=FALSE ### whether to predict SD based on expression level
 #'
 #' @return tVals list of ct->mean->named vector of average gene expression, ->sd->named vector of gene standard deviation
-ccn_make_tVals<-function (expDat, sampTab, dLevel="description1", predictSD=FALSE){
+ccn_make_tVals<-function(expDat, sampTab, dLevel="description1", predictSD=FALSE){
 
   if(predictSD){
-    ans<-ccn_make_tVals_predict(expDat, sampTab, dLevel);
+    ans = ccn_make_tVals_predict(expDat, sampTab, dLevel)
   }
   else{
     # Note: returns a list of dName->gene->mean, sd, where 'dName' is a ctt or lineage
     # make sure everything is lined up
-    expDat<-expDat[,rownames(sampTab)];
-    tVals<-list();
-    dNames<-unique(as.vector(sampTab[,dLevel]));
-    allGenes<-rownames(expDat);
+    expDat = expDat[,rownames(sampTab)]
+    tVals = list()
+    dNames = unique(as.vector(sampTab[,dLevel]))
+    allGenes = rownames(expDat)
     for(dName in dNames){
-      #cat(dName,"\n");
-      xx<-which(sampTab[,dLevel]==dName);
-      sids<-rownames(sampTab[xx,]);
-      xDat<-expDat[,sids];
-      means<-apply(xDat, 1, mean);
-      sds<-apply(xDat, 1, sd);
-      tVals[[dName]][['mean']]<-as.list(means);
-      tVals[[dName]][['sd']]<-as.list(sds);
+
+      xx = which(sampTab[,dLevel]==dName)
+      sids = rownames(sampTab[xx,])
+      xDat = expDat[,sids]
+      means = apply(xDat, 1, mean)
+      sds = apply(xDat, 1, sd)
+      tVals[[dName]][['mean']] = as.list(means)
+      tVals[[dName]][['sd']] = as.list(sds)
     }
-    ans<-tVals;
+    ans = tVals
   }
-  ans;
+
+  return(ans)
 }
 
 #' ccn_make_tVals_predict
@@ -102,25 +96,26 @@ ccn_make_tVals<-function (expDat, sampTab, dLevel="description1", predictSD=FALS
 ccn_make_tVals_predict<-function(expDat, sampTab, dLevel="description1"){
   # Note: returns a list of dName->gene->mean, sd, where 'dName' is a ctt or lineage
   # make sure everything is lined up
-  expDat<-expDat[,rownames(sampTab)];
-  tVals<-list();
-  dNames<-unique(as.vector(sampTab[,dLevel]));
-  allGenes<-rownames(expDat);
+  expDat = expDat[,rownames(sampTab)]
+  tVals = list()
+  dNames = unique(as.vector(sampTab[,dLevel]))
+  allGenes = rownames(expDat)
 
   # make a model to predict SD given average expression level across all samples
-  sdT<-apply(expDat, 1, sd);
-  mT<-apply(expDat, 1, mean);
-  myModel<-lm(sdT~mT);
+  sdT = apply(expDat, 1, sd)
+  mT = apply(expDat, 1, mean)
+  myModel = lm(sdT~mT)
   for(dName in dNames){
-    xx<-which(sampTab[,dLevel]==dName);
-    sids<-rownames(sampTab[xx,]);
-    xDat<-expDat[,sids];
-    means<-apply(xDat, 1, mean);
-    sds<-predict(myModel, data.frame(mT=means));
-    tVals[[dName]][['mean']]<-as.list(means);
-    tVals[[dName]][['sd']]<-as.list(sds);
+    xx = which(sampTab[,dLevel]==dName)
+    sids = rownames(sampTab[xx,])
+    xDat = expDat[,sids]
+    means = apply(xDat, 1, mean)
+    sds = predict(myModel, data.frame(mT=means))
+    tVals[[dName]][['mean']] = as.list(means)
+    tVals[[dName]][['sd']] = as.list(sds)
   }
-  tVals;
+
+  return(tVals)
 }
 
 #' Min Difference
@@ -131,13 +126,14 @@ ccn_make_tVals_predict<-function(expDat, sampTab, dLevel="description1"){
 #' @param ct ct to compare to
 #' @return vector of differences
 minDif<-function(tVals, genes, ct){
-  octs<-setdiff(names(tVals), ct)
-  qq<-lapply(tVals[octs], "[[", "mean")
-  ##tVals[[ct]][["mean"]][[gene]]#-max(unlist(lapply(qq, "[[", gene)))
-  tmpMat<-matrix(unlist(lapply(qq, "[", genes)), nrow=length(genes))
-  rownames(tmpMat)<-genes
-  maxes<-apply(tmpMat, 1, max)
-  unlist(tVals[[ct]][["mean"]][genes])-maxes
+  octs = setdiff(names(tVals), ct)
+  qq = lapply(tVals[octs], "[[", "mean")
+
+  tmpMat = matrix(unlist(lapply(qq, "[", genes)), nrow=length(genes))
+  rownames(tmpMat) = genes
+  maxes = apply(tmpMat, 1, max)
+
+  return(unlist(tVals[[ct]][["mean"]][genes])-maxes)
 }
 
 #' computes the raw z score for a gene as xmax-abs(zscore).
@@ -150,7 +146,7 @@ minDif<-function(tVals, genes, ct){
 #' @return transformed (but not normalized) GRN score
 #'
 ccn_rawScore<-function(vect, mmean, ssd, xmax=1e3, reg_type){
-  zcs = zscore(vect, mmean, ssd);
+  zcs = zscore(vect, mmean, ssd)
 
   if(as.numeric(reg_type) == 1) { # if the
     #zcs[zcs > 0 & zcs < 1] = 0 # change this to revert back to original place
@@ -176,36 +172,35 @@ ccn_rawScore<-function(vect, mmean, ssd, xmax=1e3, reg_type){
 #' @param exprWeight  expression weight
 #' @return GRN scores
 #' @export
-ccn_score<-function(expDat, subList, tVals, classList=NULL, minVals=NULL, classWeight=FALSE, exprWeight=TRUE, xmax=1e3){
-  #nSubnets<-sum(sapply(subList, length));
+ccn_score <- function(expDat, subList, tVals, classList=NULL, minVals=NULL, classWeight=FALSE, exprWeight=TRUE, xmax=1e3){
+  #nSubnets<-sum(sapply(subList, length))
   if(class(expDat) != "matrix") {
     expDat = as.matrix(expDat)
   }
-  nSubnets<-length(subList);
-  ans<-matrix(0, nrow=nSubnets, ncol=ncol(expDat));
-  ctts<-names(subList);
-  rnames<-vector();
-  rIndex<-1;
+  nSubnets = length(subList)
+  ans = matrix(0, nrow=nSubnets, ncol=ncol(expDat))
+  ctts = names(subList)
+  rnames = vector()
+  rIndex = 1
   for(ctt in ctts){
-    cat(ctt,"\n");
-    genes<-subList[[ctt]];
+    cat(ctt,"\n")
+    genes = subList[[ctt]]
     # 06-06-16 -- added to allow for use of GRNs defined elsewhere
-    genes<-genes[intersect(names(genes), rownames(expDat))]; # only select the genes that are
-    #    snNames<-names(subnets);
-    #    rnames<-append(rnames, snNames);
-    #    for(sName in snNames){
-    ans[rIndex,]<-ccn_netScores(expDat, genes, tVals=tVals, ctt=ctt,classList=classList, classWeight=classWeight,exprWeight=exprWeight, xmax=xmax);
-    rnames<-append(rnames, ctt);
-    rIndex<-rIndex+1;
-    #   }
+    genes = genes[intersect(names(genes), rownames(expDat))]  # only select the genes that are
+
+    ans[rIndex,] = ccn_netScores(expDat, genes, tVals=tVals, ctt=ctt,classList=classList, classWeight=classWeight,exprWeight=exprWeight, xmax=xmax)
+    rnames = append(rnames, ctt)
+    rIndex = rIndex+1
+
   }
-  rownames(ans)<-rnames;
-  colnames(ans)<-colnames(expDat);
+  rownames(ans) = rnames
+  colnames(ans) = colnames(expDat)
   if(!is.null(minVals)){
-    minVals<-minVals[rownames(ans)];
-    ans<-ans-minVals;
+    minVals = minVals[rownames(ans)]
+    ans = ans-minVals
   }
-  ans;
+
+  return(ans)
 }
 
 #' Normalize grn status as compared to training data
@@ -217,17 +212,16 @@ ccn_score<-function(expDat, subList, tVals, classList=NULL, minVals=NULL, classW
 #'
 #' @return normalized grn status matrix
 #' @export
-ccn_normalizeScores<-function(ctrlScores, queryScores, subNets){
+ccn_normalizeScores <- function(ctrlScores, queryScores, subNets){
 
-  ans<-matrix(0, nrow=length(subNets), ncol=ncol(queryScores));
-  rownames(ans)<-subNets
-  #subNets<-rownames(queryScores);
+  ans = matrix(0, nrow=length(subNets), ncol=ncol(queryScores))
+  rownames(ans) = subNets
   for(subNet in subNets){
-    ### cat(subNet,"\n")
-    ans[subNet,]<- queryScores[subNet,] / ctrlScores[[subNet]];
+    ans[subNet,] = queryScores[subNet,] / ctrlScores[[subNet]]
   }
-  colnames(ans)<-colnames(queryScores);
-  ans;
+  colnames(ans) = colnames(queryScores)
+
+  return(ans)
 }
 
 
@@ -248,61 +242,59 @@ ccn_normalizeScores<-function(ctrlScores, queryScores, subNets){
 #'
 #' @return list of trainingScores, normVals, raw_scores, minVals, tVals=tVals
 #' @export
-ccn_trainNorm<-function (expTrain, stTrain, subNets, classList = NULL,  dLevel = "description1", tVals=NULL, classWeight=TRUE, exprWeight=FALSE, sidCol='sample_id', xmax=1e3, meanNorm = FALSE){
+ccn_trainNorm <- function(expTrain, stTrain, subNets, classList = NULL,  dLevel = "description1", tVals=NULL, classWeight=TRUE, exprWeight=FALSE, sidCol='sample_id', xmax=1e3, meanNorm = FALSE){
 
   if(is.null(tVals)){
-    tVals<-ccn_make_tVals(expTrain, stTrain, dLevel)
+    tVals = ccn_make_tVals(expTrain, stTrain, dLevel)
   }
 
-  ctts<-as.vector(unique(stTrain[,dLevel]));
-  scoreList<-list();
-  normList<-list(); # a list of ctt->subnet->mean value
-  minVect<-vector(); # a list of ctt->subnet->min value, used to shift raw grn est scores
+  ctts = as.vector(unique(stTrain[,dLevel]))
+  scoreList = list()
+  normList = list()  # a list of ctt->subnet->mean value
+  minVect = vector()  # a list of ctt->subnet->min value, used to shift raw grn est scores
 
-  cat("calculating GRN scores on training data ...\n");
-  tmpScores<-ccn_score(expTrain, subNets, tVals, classList, minVals=NULL, classWeight=classWeight, exprWeight=exprWeight, xmax=xmax)
+  cat("calculating GRN scores on training data ...\n")
+  tmpScores = ccn_score(expTrain, subNets, tVals, classList, minVals=NULL, classWeight=classWeight, exprWeight=exprWeight, xmax=xmax)
 
 
   if(meanNorm == TRUE) {
     train_meanScores = meanTraining(tmpScores, stTrain, dLevel, sidCol)
-    minVect<-apply(train_meanScores, 1, min);
-    names(minVect)<-rownames(train_meanScores);
+    minVect = apply(train_meanScores, 1, min)
+    names(minVect) = rownames(train_meanScores)
 
   } else {
-    minVect<-apply(tmpScores, 1, min);
-    names(minVect)<-rownames(tmpScores);
-
+    minVect = apply(tmpScores, 1, min)
+    names(minVect) = rownames(tmpScores)
   }
 
 
-  # shift the raw scores so that min=0;
-  tmpScores<-tmpScores - minVect;
-  cat("norm factors\n");
+  # shift the raw scores so that min=0
+  tmpScores = tmpScores - minVect
+  cat("norm factors\n")
   for(ctt in ctts){
     # determine nomalization factors
-    ##snets<-names(subNets[[ctt]]);
-    snets<-ctt;
+    snets = ctt
 
-    scoreDF<-ccn_extract_SN_DF(tmpScores, stTrain, dLevel, snets, sidCol=sidCol);
-    scoreDF<-ccn_reduceMatLarge(scoreDF, "score", "description", "subNet");
-    xdf<-scoreDF[which(scoreDF$grp_name==ctt),];
-    tmpSNS<-as.list(xdf$mean);
-    names(tmpSNS)<-xdf$subNet;
-    normList[names(tmpSNS)]<-tmpSNS;
+    scoreDF = ccn_extract_SN_DF(tmpScores, stTrain, dLevel, snets, sidCol=sidCol)
+    scoreDF = ccn_reduceMatLarge(scoreDF, "score", "description", "subNet")
+    xdf = scoreDF[which(scoreDF$grp_name==ctt),]
+    tmpSNS = as.list(xdf$mean)
+    names(tmpSNS) = xdf$subNet
+    normList[names(tmpSNS)] = tmpSNS
   }
 
   # normalize training scores
-  nScores<-ccn_normalizeScores(normList, tmpScores, rownames(tmpScores));
+  nScores = ccn_normalizeScores(normList, tmpScores, rownames(tmpScores))
 
-  scoreDF<-ccn_extract_SN_DF(nScores, stTrain, dLevel, sidCol=sidCol);
+  scoreDF = ccn_extract_SN_DF(nScores, stTrain, dLevel, sidCol=sidCol)
 
-  scoreDF<-ccn_reduceMatLarge(scoreDF, "score", "description", "subNet");
+  scoreDF = ccn_reduceMatLarge(scoreDF, "score", "description", "subNet")
 
-  list(trainingScores=scoreDF,
+  return(list(trainingScores=scoreDF,
        normVals=normList,
        raw_scores=tmpScores,
        minVals=minVect,
-       tVals=tVals);
+       tVals=tVals))
 }
 
 #' @title calculate the mean GRN scores across categories
@@ -334,7 +326,7 @@ meanTraining <- function(grnScores, stTrain, dLevel, sidCol) {
 #' @param meanVal mean of the distribution
 zscore<-function(x,meanVal,sdVal){
 
-  (x-meanVal)/sdVal;
+  return((x-meanVal)/sdVal)
 }
 
 
@@ -348,35 +340,32 @@ zscore<-function(x,meanVal,sdVal){
 #' @param sidCol sample identifier column name
 #'
 #' @return returns a DF of: sample_id, description, ctt, subnet_name, score
-ccn_extract_SN_DF<-function(scores, sampTab, dLevel, rnames=NULL, sidCol="sample_id"){
+ccn_extract_SN_DF <- function(scores, sampTab, dLevel, rnames=NULL, sidCol="sample_id") {
 
   if(is.null(rnames)){
-    rnames<-rownames(scores);
-    #cat("GOT NULL\n");
+    rnames = rownames(scores)
   }
 
-  tss<-scores[rnames,];
+  tss = scores[rnames,]
   if(length(rnames)==1){
-    tss<-t(as.matrix(scores[rnames,]));
-    rownames(tss)<-rnames;
-    #  cat(dim(tss),"\n")
+    tss = t(as.matrix(scores[rnames,]))
+    rownames(tss) = rnames
   }
 
-  nSamples<-ncol(tss);
-  stTmp<-sampTab[colnames(tss),]; ####
-  snNames<-rownames(tss);
-  num_subnets<-length(snNames);
-  snNames<-unlist(lapply(snNames, rep, times=nSamples));
-  sample_ids<-rep(as.vector(stTmp[,sidCol]), num_subnets);
-  descriptions<-rep(as.vector(stTmp[,dLevel]), num_subnets);
-  # myCtts<-rep(ctt, length(snNames));
-  scores<-as.vector(t(tss));
-  data.frame(sample_id=sample_ids,
+  nSamples = ncol(tss)
+  stTmp = sampTab[colnames(tss),]  ####
+  snNames = rownames(tss)
+  num_subnets = length(snNames)
+  snNames = unlist(lapply(snNames, rep, times=nSamples))
+  sample_ids = rep(as.vector(stTmp[,sidCol]), num_subnets)
+  descriptions = rep(as.vector(stTmp[,dLevel]), num_subnets)
+
+  scores = as.vector(t(tss))
+
+  return(data.frame(sample_id=sample_ids,
              description=descriptions,
-             #         ctt=myCtts,
              subNet = snNames,
-             score=scores);
-  ### data.frame
+             score=scores))
 }
 
 #' reduce large matrix
@@ -388,20 +377,19 @@ ccn_extract_SN_DF<-function(scores, sampTab, dLevel, rnames=NULL, sidCol="sample
 #' @param iterOver the column name of the subnetworks
 #'
 #' @return reduced large matrix
-ccn_reduceMatLarge<-function (datFrame, valCol="score", cName="description", iterOver="subNet"){
+ccn_reduceMatLarge <- function(datFrame, valCol="score", cName="description", iterOver="subNet") {
 
-  iterOvers<-unique(as.vector(datFrame[,iterOver]));
-  ans<-data.frame();
+  iterOvers = unique(as.vector(datFrame[,iterOver]))
+  ans = data.frame()
   for(io in iterOvers){
-    #  cat(io,"\n");
-    xi<-which(datFrame[,iterOver]==io);
-    dfTmp<-datFrame[xi,];
-    x<- utils_reduceMat(dfTmp,valCol=valCol,cName=cName);
-    x<-cbind(x, subNet=rep(io, nrow(x)));
-    ans<-rbind(ans, x);
+    xi = which(datFrame[,iterOver]==io)
+    dfTmp = datFrame[xi,]
+    x = utils_reduceMat(dfTmp,valCol=valCol,cName=cName)
+    x = cbind(x, subNet=rep(io, nrow(x)))
+    ans = rbind(ans, x)
   }
-  ans;
-  ### ans
+
+  return(ans)
 }
 
 #' @title  Reduce data matrix
@@ -412,21 +400,22 @@ ccn_reduceMatLarge<-function (datFrame, valCol="score", cName="description", ite
 #' @param cName column with groups
 #'
 #' @return df of grp_name, mean, sd
-utils_reduceMat<-function(datFrame, valCol, cName='ann'){
+utils_reduceMat <- function(datFrame, valCol, cName='ann') {
 
-  mids<-unique(as.vector(datFrame[,cName]));
-  means<-rep(0, length(mids));
-  sds<-rep(1, length(mids));
-  indexI<-rep(0, length(mids)); # index to extract other columns from original data.frame
+  mids = unique(as.vector(datFrame[,cName]))
+  means = rep(0, length(mids))
+  sds = rep(1, length(mids))
+  indexI = rep(0, length(mids))  # index to extract other columns from original data.frame
 
   for(i in seq(length(mids))){
-    mid<-mids[i]
-    xi<-which(datFrame[,cName]==mid);
-    tmpDat<-datFrame[xi,];
-    means[i]<-mean(tmpDat[,valCol]);
-    sds[i]<-sd(tmpDat[,valCol]);
+    mid = mids[i]
+    xi = which(datFrame[,cName]==mid)
+    tmpDat = datFrame[xi,]
+    means[i] = mean(tmpDat[,valCol])
+    sds[i] = sd(tmpDat[,valCol])
   }
-  data.frame(grp_name=mids, mean=means, stdev=sds);
+
+  return(data.frame(grp_name=mids, mean=means, stdev=sds))
 }
 
 #' @title Get Query GRN status

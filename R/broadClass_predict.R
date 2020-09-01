@@ -23,6 +23,5 @@ broadClass_predict<-function(cnProc, expDat, nrand = 2) {
 
    cat("All Done\n")
 
-   #return
-   classRes_val
+   return(classRes_val)
 }

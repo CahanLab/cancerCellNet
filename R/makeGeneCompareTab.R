@@ -51,6 +51,5 @@ makeGeneCompareTab<-function(queryExpTab, avgGeneTab, querySample = NULL, traini
   returnMatrix = cbind(filteredQuery, filteredGeneTab)
   colnames(returnMatrix) = returnLabel
 
-  #return
-  returnMatrix
+  return(returnMatrix)
 }

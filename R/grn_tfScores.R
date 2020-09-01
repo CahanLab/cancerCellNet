@@ -11,7 +11,7 @@
 #' @param exprWeight whether to take the weight of the expression into calculation
 #' @param exprWeightVal the value of the expression weight
 #' @param correlationFactor the weight of correlation direction in the network
-#' @param prune the pararmeter for pruning importance of gene pairs 
+#' @param prune the pararmeter for pruning importance of gene pairs
 #' @param normTFscore boolean indicate whether to normalize TF scores
 #'
 #' @return matrix of TF scores and query samples
@@ -52,18 +52,18 @@ ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, classifier_ret
   weights = rep(1, length(netGenes))
   names(weights) = names(netGenes)
   if(exprWeight){
-    meanVect = unlist(tVals[[subnetName]][['mean']][names(netGenes)]);
-    weights = (exprWeightVal*meanVect)/sum(exprWeightVal*meanVect); # also arbritary value on the weight you are putting on the expression
+    meanVect = unlist(tVals[[subnetName]][['mean']][names(netGenes)])
+    weights = (exprWeightVal*meanVect)/sum(exprWeightVal*meanVect)  # also arbritary value on the weight you are putting on the expression
   }
 
-  if(classWeight){ #TODO modify this to fit the gene pairs
+  if(classWeight){
     classImp = weights
     for(gene in names(classList[[subnetName]])) {
       if(gene %in% names(classImp)) {
         classImp[gene] = classList[[subnetName]][gene] + classWeightVal # arbritary value
       }
     }
-    weights = weights*classImp;
+    weights = weights*classImp
   }
 
 
@@ -75,7 +75,7 @@ ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, classifier_ret
 
     for(i in seq(1, length(tfs))) {
       tf = tfs[i]
-      targs = TF_targetList[[tf]]; #
+      targs = TF_targetList[[tf]]  #
       targs = intersect(targs, rownames(expQuery))
 
       temp_tfScore = calc_tfScores(tf, targs, sampleID, z_scoreMat, netGenes, weights, grnTable, correlationFactor)
@@ -102,12 +102,13 @@ ccn_tfScores <- function(expQuery, subnetName, grnAll, trainNorm, classifier_ret
 #' @param ctt cell type
 #'
 #' @return a vector of Z scores
-ccn_zscoreVect<-function (genes, xvals, tVals, ctt){
-  ans<-vector();
+ccn_zscoreVect <- function(genes, xvals, tVals, ctt){
+  ans = vector()
   for(gene in genes){
-    ans<-append(ans, zscore(xvals[gene], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]]));
+    ans = append(ans, zscore(xvals[gene], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]]))
   }
-  ans;
+
+  return(ans)
 }
 
 #' Calculate the TF

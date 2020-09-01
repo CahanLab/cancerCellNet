@@ -73,6 +73,5 @@ utils_matchSampTab <- function(expDat, sampTab, sampID, sampDesc) {
     returnList = list(matchedExpDat = sortedExpDat, matchedSampTab = sortedSampTab, unmatchedExpDat = unmatchedExpDat, unmatchedSampleTab = unmatchedSampleTab)
   }
 
-  #return
-  returnList
+  return(returnList)
 }

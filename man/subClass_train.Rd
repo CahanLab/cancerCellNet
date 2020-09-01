@@ -4,12 +4,27 @@
 \alias{subClass_train}
 \title{Sub-Class Training (new and improved version) with merged rand category}
 \usage{
-subClass_train(cnProc_broad, stTrain, expTrain, colName_broadCat,
-  colName_subClass, name_broadCat, colName_samp = "row.names",
-  nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000,
-  stratify = FALSE, sampsize = 40, weightedDown_total = 5e+05,
-  weightedDown_dThresh = 0.25, transprop_xFact = 1e+05,
-  weight_broadClass = 1, quickPairs = FALSE)
+subClass_train(
+  cnProc_broad,
+  stTrain,
+  expTrain,
+  colName_broadCat,
+  colName_subClass,
+  name_broadCat,
+  colName_samp = "row.names",
+  nTopGenes = 20,
+  nTopGenePairs = 50,
+  nRand = 40,
+  nTrees = 1000,
+  stratify = FALSE,
+  sampsize = 40,
+  weightedDown_total = 5e+05,
+  weightedDown_dThresh = 0.25,
+  transprop_xFact = 1e+05,
+  weight_broadClass = 1,
+  quickPairs = FALSE,
+  coreProportion = 1/4
+)
 }
 \arguments{
 \item{cnProc_broad}{the broad cnProc from \code{\link{broadClass_train}}}
@@ -39,6 +54,8 @@ subClass_train(cnProc_broad, stTrain, expTrain, colName_broadCat,
 \item{transprop_xFact}{scaling factor for transprop}
 
 \item{weight_broadClass}{the weight on the result of the broad classification as features for subclassifier}
+
+\item{coreProportion}{the proportion of logical cores for finding classification genes and top scoring gene pairs. If you want to disable parallel processing, then enter 0}
 
 \item{weightDown_total}{numeric post transformation sum of read counts for weighted_down function}
 }

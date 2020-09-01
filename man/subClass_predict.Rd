@@ -4,8 +4,13 @@
 \alias{subClass_predict}
 \title{Predict sub class query using broad class and subclass classifier (newer version)}
 \usage{
-subClass_predict(cnProc_broad, cnProc_sub, expDat, nrand = 2,
-  weight_broadClass = 1)
+subClass_predict(
+  cnProc_broad,
+  cnProc_sub,
+  expDat,
+  nrand = 2,
+  weight_broadClass = 1
+)
 }
 \arguments{
 \item{cnProc_broad}{the cnProc of the broad classifier}

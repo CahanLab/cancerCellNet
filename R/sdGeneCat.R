@@ -36,6 +36,5 @@ sdGeneCat<-function(expDat, sampTab, dLevel, sampID = NULL){
     }
   }
 
-  #return
-  stdMatrix
+  return(stdMatrix)
 }

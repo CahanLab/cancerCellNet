@@ -7,46 +7,44 @@
 ModifiedRandomize<-function(expDat, num=50) {
 
   if (num <= ncol(expDat)) {
-    randDat<-t(apply(expDat, 1, sample))
-    randDat<-apply(randDat, 2, sample)
+    randDat = t(apply(expDat, 1, sample))
+    randDat = apply(randDat, 2, sample)
 
-    randDat<-randDat[,sample(1:ncol(randDat), num)]
+    randDat = randDat[,sample(1:ncol(randDat), num)]
 
-    colnames(randDat)<-paste0(rep("rand_", num), 1:num)
-    rownames(randDat)<-rownames(expDat)
+    colnames(randDat) = paste0(rep("rand_", num), 1:num)
+    rownames(randDat) = rownames(expDat)
     randDat
 
-    returnRandDat<-randDat
+    returnRandDat = randDat
   }
   else {
-    returnRandDat<-NULL
+    returnRandDat = NULL
     while (num > ncol(expDat)) {
-      randDat<-t(apply(expDat, 1, sample))
-      randDat<-apply(randDat, 2, sample)
+      randDat = t(apply(expDat, 1, sample))
+      randDat = apply(randDat, 2, sample)
 
-      randDat<-randDat[, sample(1:ncol(randDat), ncol(randDat))]
+      randDat = randDat[, sample(1:ncol(randDat), ncol(randDat))]
 
 
       if (is.null(returnRandDat) == TRUE) {
-        returnRandDat<-randDat
+        returnRandDat = randDat
       }
       else {
-        returnRandDat<-cbind(returnRandDat, randDat)
+        returnRandDat = cbind(returnRandDat, randDat)
       }
-      num<-num - ncol(expDat)
+      num = num - ncol(expDat)
     }
 
-    randDat<-t(apply(expDat, 1, sample))
-    randDat<-apply(randDat, 2, sample)
+    randDat = t(apply(expDat, 1, sample))
+    randDat = apply(randDat, 2, sample)
 
-    randDat<-randDat[, sample(1:ncol(randDat), num)]
-    returnRandDat<-cbind(returnRandDat, randDat)
+    randDat = randDat[, sample(1:ncol(randDat), num)]
+    returnRandDat = cbind(returnRandDat, randDat)
 
-    colnames(returnRandDat)<-paste0(rep("rand_", ncol(returnRandDat)), 1:ncol(returnRandDat))
-    rownames(returnRandDat)<-rownames(expDat)
+    colnames(returnRandDat) = paste0(rep("rand_", ncol(returnRandDat)), 1:ncol(returnRandDat))
+    rownames(returnRandDat) = rownames(expDat)
   }
 
-
-  #return
-  returnRandDat
+  return(returnRandDat)
 }

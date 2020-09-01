@@ -4,8 +4,13 @@
 \alias{barPlotGene}
 \title{Plot Specific Gene Expression}
 \usage{
-barPlotGene(GeneCompareTab, sdGeneCat = NULL, gene, text_size = 10,
-  title_size = 12)
+barPlotGene(
+  GeneCompareTab,
+  sdGeneCat = NULL,
+  gene,
+  text_size = 10,
+  title_size = 12
+)
 }
 \arguments{
 \item{GeneCompareTab}{the gene comparsion matrix generated from \code{\link{makeGeneCompareTab}}}

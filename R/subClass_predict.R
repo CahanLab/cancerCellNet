@@ -40,6 +40,6 @@ subClass_predict<-function(cnProc_broad, cnProc_sub, expDat, nrand = 2, weight_b
    expValTrans = subClassQuery_transform(expDat = expDat, cgenes = cgenes, xpairs = xpairs, classMatrix = classMatrix)
 
    returnMatrix = rf_classPredict(rf_tsp, expValTrans, numRand=nrand)
-   #return
-   returnMatrix
+
+   return(returnMatrix)
 }

@@ -17,60 +17,60 @@
 #' @return a heatmap of genes and their groups
 #' @importFrom RColorBrewer brewer.pal
 #' @export
-hm_gpa_sel<-function(expDat, genes, grps, maxPerGrp=100, cRow=FALSE, cCol=FALSE, limits=c(0,10), toScale=FALSE, fontsize_row=4, reOrderCells=FALSE, ...){
+hm_gpa_sel <- function(expDat, genes, grps, maxPerGrp=100, cRow=FALSE, cCol=FALSE, limits=c(0,10), toScale=FALSE, fontsize_row=4, reOrderCells=FALSE, ...){
 
-  allgenes<-rownames(expDat)
-  missingGenes<-setdiff(genes, allgenes) # find the genes that are not classification worthy
+  allgenes = rownames(expDat)
+  missingGenes = setdiff(genes, allgenes) # find the genes that are not classification worthy
 
   if(length(missingGenes)>0){
     cat("Missing genes: ", paste0(missingGenes, collapse=","), "\n")
-    genes<-intersect(genes, allgenes) #this line might be redundent since all the cgenes are gathered from allgenes
+    genes = intersect(genes, allgenes) #this line might be redundent since all the cgenes are gathered from allgenes
   }
 
-  value<-expDat[genes,] #select the matrix with cgenes
+  value = expDat[genes,] #select the matrix with cgenes
 
   if(toScale){
-    value <- t(scale(t(value))) #scales the matrix
+    value = t(scale(t(value))) #scales the matrix
   }
 
-  value[value < limits[1]] <- limits[1] # ensures 0 is the smallest
-  value[value > limits[2]] <- limits[2] # ensures 10 is the highest
+  value[value < limits[1]] = limits[1] # ensures 0 is the smallest
+  value[value > limits[2]] = limits[2] # ensures 10 is the highest
 
-  groupNames<-unique(grps) # gather the names of the groups
+  groupNames = unique(grps) # gather the names of the groups
 
   if(reOrderCells){
-    grps<-grps[order(grps)]
-    groupNames<-sort(unique(grps))
+    grps = grps[order(grps)]
+    groupNames = sort(unique(grps))
   } # alphabetical ordering
 
-  cells<-names(grps)
+  cells = names(grps)
 
-  cells2<-vector()
+  cells2 = vector()
   for(groupName in groupNames){
-    xi<-which(grps==groupName) #select samples that are in a certain group
+    xi = which(grps==groupName) #select samples that are in a certain group
 
     if(length(xi)>maxPerGrp){
-      tmpCells<-sample(cells[xi], maxPerGrp) #if over the maximum number of samples per group, then sample that amount
+      tmpCells = sample(cells[xi], maxPerGrp) #if over the maximum number of samples per group, then sample that amount
     }
     else{
-      tmpCells<-cells[xi] #if not over the maximum number of samples per group, then use all the samples available
+      tmpCells = cells[xi] #if not over the maximum number of samples per group, then use all the samples available
     }
-    cells2<-append(cells2, tmpCells) # create a vector with all the samples selected for plotting
+    cells2 = append(cells2, tmpCells) # create a vector with all the samples selected for plotting
   }
-  value<-value[,cells2] # select the samples that are going to be used for plotting
+  value = value[,cells2] # select the samples that are going to be used for plotting
 
-  xcol <- colorRampPalette(rev(brewer.pal(n = 12,name = "Paired")))(length(groupNames))
-  names(xcol) <- groupNames
-  anno_colors <- list(group = xcol)
+  xcol = colorRampPalette(rev(brewer.pal(n = 12,name = "Paired")))(length(groupNames))
+  names(xcol) = groupNames
+  anno_colors = list(group = xcol)
 
-  xx<-data.frame(group=as.factor(grps))
-  rownames(xx)<-cells
+  xx = data.frame(group=as.factor(grps))
+  rownames(xx) = cells
 
-  val_col <- colorRampPalette(rev(RColorBrewer::brewer.pal(n = 12,name = "Spectral")))(25)
+  val_col = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 12,name = "Spectral")))(25)
 
-  pheatmap(value, cluster_rows = cRow, cluster_cols = cCol, color=val_col,
+  return(pheatmap(value, cluster_rows = cRow, cluster_cols = cCol, color=val_col,
            show_colnames = FALSE, annotation_names_row = FALSE,
            ##        annotation_col = annTab,
            annotation_col = xx,
-           annotation_names_col = FALSE, annotation_colors = anno_colors, fontsize_row=fontsize_row, ...)
+           annotation_names_col = FALSE, annotation_colors = anno_colors, fontsize_row=fontsize_row, ...))
 }

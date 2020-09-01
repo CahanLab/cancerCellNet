@@ -11,10 +11,11 @@
 #' @param alpha1 a number representing proportion of cells in which a gene must be considered detected (as defined in geneStats)
 #' @param alpha2 a number representing lower proportion of cells for genes that must have higher expression level
 #' @param mu a number represeting threshold for average expression level of genes passing the lower proportion criteria
+#' @param coreProportion the proportion of logical cores for finding classification genes
 #'
 #' @return a list containing two lists: a list of classifier worthy genes named 'cgenes' and a list of cancer category named 'grps'
 #' @export
-findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.05, alpha2=.001, mu=2) {
+findClassyGenes <- function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.05, alpha2=.001, mu=2, sliceSize = 1000, coreProportion = 1/4) {
   if((dLevel %in% colnames(sampTab)) == FALSE) {
     stop("Please enter the correct column name for sampTab that indicates the categories")
   }
@@ -26,21 +27,39 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
   # remove duplicated genes
   expDat = expDat[!duplicated(rownames(expDat)), ]
 
-  gsTrain<-sc_statTab(expDat, dThresh=dThresh)
-  ggenes<-sc_filterGenes(gsTrain, alpha1=alpha1, alpha2=alpha2, mu=mu)
-  grps<-as.vector(sampTab[,dLevel])
-  names(grps)<-rownames(sampTab)
+  gsTrain = sc_statTab(expDat, dThresh=dThresh)
+  ggenes = sc_filterGenes(gsTrain, alpha1=alpha1, alpha2=alpha2, mu=mu)
+  grps = as.vector(sampTab[,dLevel])
+  names(grps) = rownames(sampTab)
 
   # more robust way to avoid subscript out of bound
   if(length(ggenes) != nrow(expDat)) {
     expDat = expDat[ggenes,]
   }
 
-  xdiff<-gnrAll(expDat, grps)
-  cgenes<-lapply(xdiff, getClassGenes, topX=topX)
-  labelled_cgenes <- cgenes
-  cgenes<-unique(unlist(cgenes))
-  list(cgenes=cgenes, grps=grps, labelled_cgenes=labelled_cgenes)
+  ncores = parallel::detectCores(logical = TRUE) # detect the number of cores in the system
+  mcCores = 1
+  if(ncores * coreProportion >1){
+    mcCores = round(ncores * coreProportion)
+  }
+
+  cat(ncores, "logical cores in total", "  --> ", mcCores, "cores running to find classification genes...","\n")
+  xdiff = gnrAll(expDat, grps, sliceSize, coreProportion)
+
+  if(mcCores == 1) {
+    cgenes = lapply(X = xdiff, FUN = getClassGenes, topX = topX)
+
+  }
+  else {
+    cl = snow::makeCluster(mcCores, type="SOCK")
+    cgenes = snow::parLapply(cl = cl, x = xdiff, fun = getClassGenes, topX = topX)
+    snow::stopCluster(cl)
+  }
+
+  labelled_cgenes = cgenes
+  cgenes = unique(unlist(cgenes))
+
+  return(list(cgenes=cgenes, grps=grps, labelled_cgenes=labelled_cgenes))
 }
 
 #' @title
@@ -55,8 +74,7 @@ findClassyGenes<-function(expDat, sampTab, dLevel, topX=25, dThresh=0, alpha1=0.
 #' @export
 sc_filterGenes<-function(geneStats, alpha1=0.1, alpha2=0.01, mu=2){
 
-  #return
-  rownames(geneStats[(geneStats$alpha > alpha1) | (geneStats$alpha > alpha2 & geneStats$mu > mu), ])
+  return(rownames(geneStats[(geneStats$alpha > alpha1) | (geneStats$alpha > alpha2 & geneStats$mu > mu), ]))
 }
 
 #' @title
@@ -65,14 +83,73 @@ sc_filterGenes<-function(geneStats, alpha1=0.1, alpha2=0.01, mu=2){
 #' Find genes higher in a cluster compared to all other cells
 #' @param expDat a matrix of normalized gene expression taken from \code{\link{trans_prop}}
 #' @param cellLabels a vector of all the named vector of cancer categories
+#' @param coreProportion the proportion of logical cores for finding classification genes
 #' @return list of dataFrames containing pval, cval and holm for each gene in each cancer category
-gnrAll<-function(expDat, cellLabels){
-  myPatternG<-sc_sampR_to_pattern(as.character(cellLabels))
-  specificSets<-lapply(myPatternG, sc_testPattern, expDat=expDat)
-  cat("Done testing\n")
+gnrAll<-function(expDat, cellLabels, sliceSize, coreProportion) {
+  ncores = parallel::detectCores(logical = FALSE) # detect the number of cores in the system
+  mcCores = 1
+  if(ncores * coreProportion > 1){
+    mcCores = round(ncores * coreProportion)
+  }
 
-  # return
-  specificSets
+  nGenes = nrow(expDat)
+  cat("nGenes = ",nGenes,"\n")
+  str = 1
+  stp = min(c(sliceSize, nGenes)) # detect what is smaller the slice size or nGenes
+
+  myPatternG = sc_sampR_to_pattern(as.character(cellLabels))
+  statList = list()
+  grps = unique(cellLabels)
+
+  for(grp in grps){
+    statList[[grp]] = data.frame()
+  }
+
+  if(mcCores == 1) {
+    while(str <= nGenes){
+      if(stp>nGenes){
+        stp = nGenes
+      }
+
+      tempExpDat = expDat[str:stp, ]
+      tmpAns = lapply(X = myPatternG, FUN = sc_testPattern, expDat=tempExpDat)
+      cat(str,"-", stp,"\n")
+
+      for(gi in seq(length(myPatternG))){
+        grp = grps[[gi]]
+        statList[[grp]] = rbind( statList[[grp]],  tmpAns[[grp]])
+      }
+
+      str = stp+1
+      stp = str + sliceSize - 1
+
+    }
+  }
+  else {
+    cl = snow::makeCluster(mcCores, type="SOCK")
+    while(str <= nGenes){
+      if(stp>nGenes){
+        stp = nGenes
+      }
+
+      tempExpDat = expDat[str:stp, ]
+      tmpAns = snow::parLapply(cl = cl, x = myPatternG, fun = sc_testPattern, expDat=tempExpDat)
+      cat(str,"-", stp,"\n")
+
+      for(gi in seq(length(myPatternG))){
+        grp = grps[[gi]]
+        statList[[grp]] = rbind( statList[[grp]],  tmpAns[[grp]])
+      }
+
+      str = stp+1
+      stp = str + sliceSize - 1
+
+    }
+    snow::stopCluster(cl)
+  }
+
+  cat("Done testing\n")
+  return(statList)
 }
 
 #' @title
@@ -84,22 +161,23 @@ gnrAll<-function(expDat, cellLabels){
 #' @param bottom logic if true use the top x genes with - cvals
 #'
 #' @return a vector of genes that are good for training classifier for that category
-getClassGenes<-function(diffRes, topX=25, bottom=TRUE) {
+getClassGenes<-function(diffRes, topX=25, bottom=TRUE, leastDiff = TRUE) {
   #exclude NAs
-  xi<-which(!is.na(diffRes$cval))
-  diffRes<-diffRes[xi,] # exclude the NAs. Select the rows that does not have NAs
+  xi = which(!is.na(diffRes$cval))
+  diffRes = diffRes[xi,] # exclude the NAs. Select the rows that does not have NAs
 
-  diffRes<-diffRes[order(diffRes$cval, decreasing=TRUE),] #order based on classification value largest to lowest
-  ans<-rownames(diffRes[1:topX,]) # get the top 20 genes
+  diffRes = diffRes[order(diffRes$cval, decreasing=TRUE),] #order based on classification value largest to lowest
+  ans = rownames(diffRes[1:topX,]) # get the top 20 genes
 
   if(bottom){
-    ans<-append(ans, rownames( diffRes[nrow(diffRes) - ((topX-1):0),]))
+    ans = append(ans, rownames( diffRes[nrow(diffRes) - ((topX-1):0),]))
   }
 
   # get the least differentially expressed genes as house holders
-  sameRes<-diffRes[order(abs(diffRes$cval), decreasing = FALSE), ]
-  ans<-append(ans, rownames(sameRes[1:topX, ]))
+  if(leastDiff) {
+    sameRes = diffRes[order(abs(diffRes$cval), decreasing = FALSE), ]
+    ans = append(ans, rownames(sameRes[1:topX, ]))
+  }
 
-  #return
-  ans
+  return(ans)
 }

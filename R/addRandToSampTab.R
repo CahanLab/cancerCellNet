@@ -13,20 +13,19 @@
 #' stValRand<-addRandToSampTab(classRes_val, stVal, "description2", "sample_name")
 #' @export
 addRandToSampTab<-function(classRes, sampTab, desc, id) {
-  cNames<-colnames(classRes)
-  snames<-rownames(sampTab)
+  cNames = colnames(classRes)
+  snames = as.vector(sampTab[, id])
 
-  rnames<-setdiff(cNames, snames)
+  rnames = setdiff(cNames, snames)
 
   cat("number of random samples: ",length(rnames), "\n")
 
-  stNew<-data.frame(rid=rnames, rdesc=rep("rand", length(rnames)))
-  stTop<-sampTab[,c(id, desc)]
-  colnames(stNew)<-c(id, desc)
+  stNew = data.frame(rid=rnames, rdesc=rep("rand", length(rnames)))
+  stTop = sampTab[,c(id, desc)]
+  colnames(stNew) = c(id, desc)
 
-  ans<-rbind(stTop, stNew)
-  rownames(ans)<-colnames(classRes)
+  ans = rbind(stTop, stNew)
+  rownames(ans) = colnames(classRes)
 
-  #return
-  ans
+  return(ans)
 }

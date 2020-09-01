@@ -7,7 +7,7 @@ Depends: R (>= 3.3.1)
 License: MIT
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 Imports: 
     stringr,
     randomForest,
@@ -18,7 +18,7 @@ Imports:
     AnnotationDbi,
     GO.db,
     org.Hs.eg.db,
-    igraph
+    igraph,
+    snow
 Suggests: 
     testthat,
-

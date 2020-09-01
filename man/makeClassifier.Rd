@@ -4,8 +4,15 @@
 \alias{makeClassifier}
 \title{Make Classifier}
 \usage{
-makeClassifier(expTrain, genes, groups, nRand = 50, ntrees = 2000,
-  stratify = FALSE, sampsize = 40)
+makeClassifier(
+  expTrain,
+  genes,
+  groups,
+  nRand = 50,
+  ntrees = 2000,
+  stratify = FALSE,
+  sampsize = 40
+)
 }
 \arguments{
 \item{expTrain}{transformed training data from \code{\link{query_transform}}}

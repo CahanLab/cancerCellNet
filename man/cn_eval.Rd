@@ -4,8 +4,14 @@
 \alias{cn_eval}
 \title{determine performance of classification at given threshold}
 \usage{
-cn_eval(vect, sampTab, dLevel, classification, threshs = seq(0, 1, by =
-  0.05), dLevelSID = "sample_id")
+cn_eval(
+  vect,
+  sampTab,
+  dLevel,
+  classification,
+  threshs = seq(0, 1, by = 0.05),
+  dLevelSID = "sample_id"
+)
 }
 \arguments{
 \item{vect}{vector of values}

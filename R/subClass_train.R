@@ -17,9 +17,10 @@
 #' @param weightedDown_dThresh the threshold at which anything lower than that is 0 for weighted_down function
 #' @param transprop_xFact scaling factor for transprop
 #' @param weight_broadClass the weight on the result of the broad classification as features for subclassifier
+#' @param coreProportion the proportion of logical cores for finding classification genes and top scoring gene pairs. If you want to disable parallel processing, then enter 0
 #' @return a list containing normalized expression data, classification gene list, cnProc
 #' @export
-subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colName_subClass, name_broadCat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, stratify=FALSE, sampsize=40, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, weight_broadClass = 1, quickPairs = FALSE) {
+subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colName_subClass, name_broadCat, colName_samp="row.names", nTopGenes = 20, nTopGenePairs = 50, nRand = 40, nTrees = 1000, stratify=FALSE, sampsize=40, weightedDown_total = 5e5, weightedDown_dThresh = 0.25, transprop_xFact = 1e5, weight_broadClass = 1, quickPairs = FALSE, coreProportion = 0) {
 
   if (class(stTrain) != "data.frame") {
     stTrain = as.data.frame(stTrain)
@@ -37,7 +38,7 @@ subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colN
   expTnorm_sub = expTnorm[, rownames(stTrain_sub)]
   cat("The sub-class expression data has been partitioned\n")
 
-  system.time(cgenes<-findClassyGenes(expDat = expTnorm_sub, sampTab = stTrain_sub, dLevel = colName_subClass, topX = nTopGenes))
+  system.time(cgenes<-findClassyGenes(expDat = expTnorm_sub, sampTab = stTrain_sub, dLevel = colName_subClass, topX = nTopGenes, coreProportion = coreProportion))
   cat("Finished finding classification genes\n")
 
   cgenesA = cgenes[['cgenes']]
@@ -45,7 +46,7 @@ subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colN
   cgenes_list = cgenes[['labelled_cgenes']]
   cat("There are ", length(cgenesA), " classification genes\n")
 
-  system.time(xpairs_list<-ptGetTop(expTnorm_sub[cgenesA,], grps, cgenes_list, topX=nTopGenePairs, sliceSize=2000, quickPairs=quickPairs))
+  system.time(xpairs_list<-ptGetTop(expTnorm_sub[cgenesA,], grps, cgenes_list, topX=nTopGenePairs, sliceSize=2000, quickPairs=quickPairs, coreProportion = coreProportion))
   cat("Finished finding top gene pairs\n")
 
   # compile the genepair list
@@ -107,6 +108,6 @@ subClass_train<-function(cnProc_broad, stTrain, expTrain, colName_broadCat, colN
   returnList = list("sampTab" = stTrain, "cgenes_list" = cgenes_list, "cnProc_subClass" = cnProc_subClass, "xpairs_list" = xpairs_list)
 
   cat("All Done \n")
-  # return
-  returnList
+
+  return(returnList)
 }

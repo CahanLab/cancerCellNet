@@ -12,11 +12,12 @@
 #' @export
 rf_classPredict<-function(rfObj, expQuery, numRand=50) {
 
-  randDat<-randomize(expQuery, num=numRand) # generate the random profiles
-  expQuery<-cbind(expQuery, randDat)
+  randDat = randomize(expQuery, num=numRand) # generate the random profiles
+  expQuery = cbind(expQuery, randDat)
 
-  preds<-rownames(rfObj$importance)
-  xpreds<-t(predict(rfObj, t(expQuery[preds,]), type='prob'))
-  colnames(xpreds)<-colnames(expQuery)
-  xpreds
+  preds = rownames(rfObj$importance)
+  xpreds = t(predict(rfObj, t(expQuery[preds,]), type='prob'))
+  colnames(xpreds) = colnames(expQuery)
+
+  return(xpreds)
 }

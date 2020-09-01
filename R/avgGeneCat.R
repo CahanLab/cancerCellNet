@@ -35,7 +35,6 @@ avgGeneCat<-function(expDat, sampTab, dLevel, sampID = NULL){
       }
    }
 
-   #return
-   returnMatrix
+   return(returnMatrix)
 }
 

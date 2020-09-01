@@ -23,21 +23,21 @@
 #' @export
 ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, fontsize_row=4, fontsize_col=4, main=NA, scale=FALSE, customAnnoColor = NULL, ...){
 
-  cools<-colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
-  bcol<-'white';
-  if(isBig){
-    bcol<-NA;
+  cools = colorRampPalette(c("black", "limegreen", "yellow"))(100)
+  bcol = 'white'
+  if(isBig) {
+    bcol = NA
   }
 
   # if no groups specified, use simple heatmap
   if(is.null(grps)){
 
-    if(scale){
-      mymin<-min(classMat)
-      mymax<-max(classMat)
-    }else{
-      mymin<-0
-      mymax<-1
+    if(scale) {
+      mymin = min(classMat)
+      mymax = max(classMat)
+    }else {
+      mymin = 0
+      mymax = 1
     }
 
     return(pheatmap::pheatmap(classMat,
@@ -50,24 +50,24 @@ ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, 
   }
 
   else{
-    grps<-grps[order(grps)]
-    cells<-names(grps)
-    groupNames<-sort(unique(grps))
-    xcol <- colorRampPalette(rev(brewer.pal(n = 12,name = "Paired")))(length(groupNames))
-    names(xcol) <- groupNames
-    anno_colors <- list(group = xcol)
+    grps = grps[order(grps)]
+    cells = names(grps)
+    groupNames = sort(unique(grps))
+    xcol = colorRampPalette(rev(brewer.pal(n = 12,name = "Paired")))(length(groupNames))
+    names(xcol) = groupNames
+    anno_colors = list(group = xcol)
 
-    xx<-data.frame(group=as.factor(grps))
-    rownames(xx)<-cells
+    xx = data.frame(group=as.factor(grps))
+    rownames(xx) = cells
 
 
-    if(scale){
-      mymin<-min(classMat)
-      mymax<-max(classMat)
+    if(scale) {
+      mymin = min(classMat)
+      mymax = max(classMat)
     }
-    else{
-      mymin<-0
-      mymax<-1
+    else {
+      mymin = 0
+      mymax = 1
     }
 
     # if there is a custom color pallete
@@ -77,12 +77,12 @@ ccn_hmClass<-function(classMat, grps=NULL, isBig=FALSE, cRow=FALSE, cCol=FALSE, 
         stop(paste0("Not all group name has a color in custom color vetor.", "\n"))
 
       }
-      customAnnoColor <- customAnnoColor[groupNames]
-      names(customAnnoColor) <- groupNames
-      anno_colors <- list(group = customAnnoColor)
+      customAnnoColor = customAnnoColor[groupNames]
+      names(customAnnoColor) = groupNames
+      anno_colors = list(group = customAnnoColor)
 
-      xx<-data.frame(group=as.factor(grps))
-      rownames(xx)<-cells
+      xx = data.frame(group=as.factor(grps))
+      rownames(xx) = cells
     }
 
     return(pheatmap::pheatmap(classMat,

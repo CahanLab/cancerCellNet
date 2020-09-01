@@ -4,9 +4,19 @@
 \alias{ccn_hmClass}
 \title{Heatmap of the classification result}
 \usage{
-ccn_hmClass(classMat, grps = NULL, isBig = FALSE, cRow = FALSE,
-  cCol = FALSE, fontsize_row = 4, fontsize_col = 4, main = NA,
-  scale = FALSE, customAnnoColor = NULL, ...)
+ccn_hmClass(
+  classMat,
+  grps = NULL,
+  isBig = FALSE,
+  cRow = FALSE,
+  cCol = FALSE,
+  fontsize_row = 4,
+  fontsize_col = 4,
+  main = NA,
+  scale = FALSE,
+  customAnnoColor = NULL,
+  ...
+)
 }
 \arguments{
 \item{classMat}{classification matrix generated from \code{\link{rf_classPredict}}}

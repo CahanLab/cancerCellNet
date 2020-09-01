@@ -4,8 +4,15 @@
 \alias{compareGenePairs}
 \title{Compile genePairs comparison matrix}
 \usage{
-compareGenePairs(query_exp, training_exp, training_st, classCol,
-  sampleCol = NULL, cnProc, numPairs = 20)
+compareGenePairs(
+  query_exp,
+  training_exp,
+  training_st,
+  classCol,
+  sampleCol = NULL,
+  cnProc,
+  numPairs = 20
+)
 }
 \arguments{
 \item{query_exp}{the expression matrix of query samples}

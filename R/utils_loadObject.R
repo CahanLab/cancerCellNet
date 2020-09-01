@@ -7,6 +7,6 @@
 #'
 #' @export
 utils_loadObject<-function(fname) {
-  x<-load(fname)
-  get(x)
+  x = load(fname)
+  return(get(x))
 }

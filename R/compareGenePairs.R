@@ -39,6 +39,5 @@ compareGenePairs<-function(query_exp, training_exp, training_st, classCol, sampl
                                          avgGeneTab = avg_training_pairs,
                                          geneSamples = names(userPairs))
 
-  #return
-  PairCompareMatrix
+  return(PairCompareMatrix)
 }

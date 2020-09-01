@@ -16,20 +16,20 @@
 #' @return Random Forest Classifier object
 #' @export
 makeClassifier<-function(expTrain, genes, groups, nRand=50, ntrees=2000, stratify=FALSE, sampsize=40){
-  randDat<-randomize(expTrain, num=nRand)
-  #randDat<-ModifiedRandomize(expTrain, num=nRand)
+  randDat = randomize(expTrain, num=nRand)
+  #randDat = ModifiedRandomize(expTrain, num=nRand)
 
-  expTrain<-cbind(expTrain, randDat)
+  expTrain = cbind(expTrain, randDat)
 
-  allgenes<-rownames(expTrain)
-  missingGenes<-setdiff(unique(genes), allgenes)
+  allgenes = rownames(expTrain)
+  missingGenes = setdiff(unique(genes), allgenes)
   cat("Number of missing genes ", length(missingGenes),"\n")
-  ggenes<-intersect(unique(genes), allgenes)
+  ggenes = intersect(unique(genes), allgenes)
 
   # return random forest object
   if(!stratify){
-    randomForest::randomForest(t(expTrain[ggenes,]), as.factor(c(groups, rep("rand", ncol(randDat)))), ntree=ntrees)
+    return(randomForest::randomForest(t(expTrain[ggenes,]), as.factor(c(groups, rep("rand", ncol(randDat)))), ntree=ntrees))
   }else{
-    randomForest::randomForest(t(expTrain[ggenes,]), as.factor(c(groups, rep("rand", ncol(randDat)))), ntree=ntrees, strata = as.factor(c(groups, rep("rand", ncol(randDat)))), sampsize=rep(sampsize, length(c(unique(groups), "rand"))))
+    return(randomForest::randomForest(t(expTrain[ggenes,]), as.factor(c(groups, rep("rand", ncol(randDat)))), ntree=ntrees, strata = as.factor(c(groups, rep("rand", ncol(randDat)))), sampsize=rep(sampsize, length(c(unique(groups), "rand")))))
   }
 }

@@ -35,6 +35,5 @@ makeSubClassifier<-function(expTrain, genes, groups, nRand, ntrees=2000, classMa
 
   returnList = list(tspRF = rf, namedVector = as.factor(c(groups, rep("rand", ncol(randDat)))))
 
-  # return
-  returnList
+  return(returnList)
 }

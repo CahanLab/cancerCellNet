@@ -9,6 +9,9 @@ makePairTab(genes)
 \arguments{
 \item{genes}{a vector of all the genes in the expression matrix}
 }
+\value{
+a gene pair table
+}
 \description{
 Generate all the combination of gene pairs
 }

@@ -7,12 +7,13 @@
 #' @export
 randomize<-function(expDat, num=50) {
 
-  randDat<-t(apply(expDat, 1, sample))
-  randDat<-apply(randDat, 2, sample)
+  randDat = t(apply(expDat, 1, sample))
+  randDat = apply(randDat, 2, sample)
 
-  randDat<-randDat[,sample(1:ncol(randDat), num)]
+  randDat = randDat[,sample(1:ncol(randDat), num)]
 
-  colnames(randDat)<-paste0(rep("rand_", num), 1:num)
-  rownames(randDat)<-rownames(expDat)
-  randDat
+  colnames(randDat) = paste0(rep("rand_", num), 1:num)
+  rownames(randDat) = rownames(expDat)
+
+  return(randDat)
 }

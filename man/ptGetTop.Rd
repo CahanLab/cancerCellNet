@@ -4,8 +4,15 @@
 \alias{ptGetTop}
 \title{Find the best gene pairs for training}
 \usage{
-ptGetTop(expDat, cell_labels, cgenes_list = NA, topX = 50,
-  sliceSize = 5000, quickPairs = FALSE)
+ptGetTop(
+  expDat,
+  cell_labels,
+  cgenes_list = NA,
+  topX = 50,
+  sliceSize = 5000,
+  quickPairs = FALSE,
+  coreProportion = 1/4
+)
 }
 \arguments{
 \item{expDat}{expDat}
@@ -19,6 +26,8 @@ ptGetTop(expDat, cell_labels, cgenes_list = NA, topX = 50,
 \item{sliceSize}{the size of the slice for pair transform. Default at 5e3}
 
 \item{quickPairs}{TRUE if wanting to select the gene pairs in a quick fashion}
+
+\item{coreProportion}{the proportion of logical cores for finding top scoring gene pairs (not applicable for quick pairs)}
 }
 \value{
 vector of top gene-pair names

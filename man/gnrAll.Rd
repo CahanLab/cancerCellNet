@@ -4,12 +4,14 @@
 \alias{gnrAll}
 \title{Find Genes in Clusters compare to other categories}
 \usage{
-gnrAll(expDat, cellLabels)
+gnrAll(expDat, cellLabels, sliceSize, coreProportion)
 }
 \arguments{
 \item{expDat}{a matrix of normalized gene expression taken from \code{\link{trans_prop}}}
 
 \item{cellLabels}{a vector of all the named vector of cancer categories}
+
+\item{coreProportion}{the proportion of logical cores for finding classification genes}
 }
 \value{
 list of dataFrames containing pval, cval and holm for each gene in each cancer category

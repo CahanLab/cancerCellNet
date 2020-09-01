@@ -4,19 +4,27 @@
 \alias{cn_clPerf}
 \title{run cn_clPerf across thresholds}
 \usage{
-cn_clPerf(vect, sampTab, dLevel, classification, thresh,
-  dLevelSID = "sample_id")
+cn_clPerf(
+  vect,
+  sampTab,
+  dLevel,
+  classification,
+  thresh,
+  dLevelSID = "sample_id"
+)
 }
 \arguments{
 \item{vect}{named vector}
+
+\item{sampTab}{sample table}
 
 \item{dLevel}{description level}
 
 \item{classification}{classification matrix}
 
-\item{dLevelSID}{column to indicate sample id}
+\item{thresh}{seq of pval cutoffs}
 
-\item{threshs}{seq of pval cutoffs}
+\item{dLevelSID}{column to indicate sample id}
 }
 \value{
 vector of TP FN FP TN

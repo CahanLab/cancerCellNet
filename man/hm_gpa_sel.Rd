@@ -4,9 +4,19 @@
 \alias{hm_gpa_sel}
 \title{Heatmap of the genes and groups}
 \usage{
-hm_gpa_sel(expDat, genes, grps, maxPerGrp = 100, cRow = FALSE,
-  cCol = FALSE, limits = c(0, 10), toScale = FALSE,
-  fontsize_row = 4, reOrderCells = FALSE, ...)
+hm_gpa_sel(
+  expDat,
+  genes,
+  grps,
+  maxPerGrp = 100,
+  cRow = FALSE,
+  cCol = FALSE,
+  limits = c(0, 10),
+  toScale = FALSE,
+  fontsize_row = 4,
+  reOrderCells = FALSE,
+  ...
+)
 }
 \arguments{
 \item{expDat}{normalized expression matrix from \code{\link{trans_prop}}}
