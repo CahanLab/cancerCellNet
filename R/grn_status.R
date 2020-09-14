@@ -1,3 +1,18 @@
+#' Proportionize Gene Expression
+#' Calculate the proportion of expression
+#'
+#' @param expTab Gene expression matrix
+#' @param scaleFactor Scaling factor
+#' @return Gene Expression proportion
+#' @export
+proportionGeneExpression <- function(expTab, scaleFactor = 1000) {
+  oldExpTab = expTab
+  expressionSum = apply(expTab, MARGIN = 2, FUN = sum)
+
+  return(t(t(oldExpTab) / expressionSum) * scaleFactor)
+}
+
+
 #' GRN status
 #'
 #' Calculates the status of all GRNs in query samples as compared to training data for
@@ -147,7 +162,6 @@ minDif<-function(tVals, genes, ct){
 #'
 ccn_rawScore<-function(vect, mmean, ssd, xmax=1e3, reg_type){
   zcs = zscore(vect, mmean, ssd)
-
   if(as.numeric(reg_type) == 1) { # if the
     #zcs[zcs > 0 & zcs < 1] = 0 # change this to revert back to original place
     zcs[zcs > 0] = 0
@@ -224,6 +238,25 @@ ccn_normalizeScores <- function(ctrlScores, queryScores, subNets){
   return(ans)
 }
 
+antiProportion <- function(expTrain) {
+  anti_expTrain = apply(X = expTrain, MARGIN = 2, FUN = reverseExp)
+
+  rownames(anti_expTrain) = rownames(expTrain)
+  colnames(anti_expTrain) = colnames(expTrain)
+
+  return(anti_expTrain)
+}
+
+reverseExp <- function(expressionList) {
+
+  geneOrder_original = names(expressionList)
+  names(geneOrder_original) = rank(expressionList, ties.method = "first")
+  geneOrder_newIndx = as.vector(rank(-expressionList, ties.method = "first"))
+
+  geneOrder_new = geneOrder_original[as.character(geneOrder_newIndx)]
+
+  return(as.vector(expressionList[geneOrder_new]))
+}
 
 #' Figure out normalization factors for GRNs, and norm training data
 #'
@@ -256,15 +289,26 @@ ccn_trainNorm <- function(expTrain, stTrain, subNets, classList = NULL,  dLevel 
   cat("calculating GRN scores on training data ...\n")
   tmpScores = ccn_score(expTrain, subNets, tVals, classList, minVals=NULL, classWeight=classWeight, exprWeight=exprWeight, xmax=xmax)
 
+  anti_expTrain = antiProportion(expTrain)
+  anti_scores = ccn_score(anti_expTrain, subNets, tVals, classList, minVals=NULL, classWeight=classWeight, exprWeight=exprWeight, xmax=xmax)
 
   if(meanNorm == TRUE) {
-    train_meanScores = meanTraining(tmpScores, stTrain, dLevel, sidCol)
-    minVect = apply(train_meanScores, 1, min)
-    names(minVect) = rownames(train_meanScores)
+    anti_meanScores = meanTraining(anti_scores, stTrain, dLevel, sidCol)
+    minVect = apply(anti_meanScores, 1, mean)
+    names(minVect) = rownames(anti_meanScores)
 
   } else {
-    minVect = apply(tmpScores, 1, min)
-    names(minVect) = rownames(tmpScores)
+    minVect = apply(anti_scores, 1, min)
+    names(minVect) = rownames(anti_scores)
+
+    norm_minVect = apply(tmpScores, 1, min)
+    names(norm_minVect) = rownames(tmpScores)
+
+    for(cellType in names(minVect)) {
+      if(minVect[cellType] > norm_minVect[cellType]) {
+        minVect[cellType] = norm_minVect[cellType]
+      }
+    }
   }
 
 
@@ -291,10 +335,10 @@ ccn_trainNorm <- function(expTrain, stTrain, subNets, classList = NULL,  dLevel 
   scoreDF = ccn_reduceMatLarge(scoreDF, "score", "description", "subNet")
 
   return(list(trainingScores=scoreDF,
-       normVals=normList,
-       raw_scores=tmpScores,
-       minVals=minVect,
-       tVals=tVals))
+              normVals=normList,
+              raw_scores=tmpScores,
+              minVals=minVect,
+              tVals=tVals))
 }
 
 #' @title calculate the mean GRN scores across categories
@@ -325,8 +369,13 @@ meanTraining <- function(grnScores, stTrain, dLevel, sidCol) {
 #' @param x query score
 #' @param meanVal mean of the distribution
 zscore<-function(x,meanVal,sdVal){
+  if(sdVal == 0 & meanVal == 0) {
+    return(x-meanVal) # modify if needed
+  }
+  else {
+    return((x-meanVal)/sdVal)
 
-  return((x-meanVal)/sdVal)
+  }
 }
 
 
@@ -363,9 +412,9 @@ ccn_extract_SN_DF <- function(scores, sampTab, dLevel, rnames=NULL, sidCol="samp
   scores = as.vector(t(tss))
 
   return(data.frame(sample_id=sample_ids,
-             description=descriptions,
-             subNet = snNames,
-             score=scores))
+                    description=descriptions,
+                    subNet = snNames,
+                    score=scores))
 }
 
 #' reduce large matrix
@@ -493,5 +542,3 @@ geneScores <- function(queryMatrix, ctt, trainNorm, grn_all, importantGenes) {
   returnMatrix = returnMatrix[orderGenes, ]
   return(returnMatrix)
 }
-
-

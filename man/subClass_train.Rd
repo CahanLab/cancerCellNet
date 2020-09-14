@@ -23,7 +23,7 @@ subClass_train(
   transprop_xFact = 1e+05,
   weight_broadClass = 1,
   quickPairs = FALSE,
-  coreProportion = 1/4
+  coreProportion = 0
 )
 }
 \arguments{

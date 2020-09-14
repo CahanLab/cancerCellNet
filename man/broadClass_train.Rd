@@ -19,7 +19,7 @@ broadClass_train(
   weightedDown_dThresh = 0.25,
   transprop_xFact = 1e+05,
   quickPairs = FALSE,
-  coreProportion = 1/4
+  coreProportion = 0
 )
 }
 \arguments{
