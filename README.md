@@ -484,21 +484,18 @@ The output is a matrix with samples as column names and cancer types as row name
 
 You can visualize GRN status of a cancer by
 ```
-# get the GRN status matrix 
-GRN_mean = trainNormParam$trainingScores
+plotDf = data.frame("CellLines" = colnames(GRN_statusQuery),
+                  "GRN_Status" = as.vector(GRN_statusQuery["UCEC", ]))
+plotDf$CellLines <- factor(plotDf$CellLines, levels = plotDf$CellLines)
 
-# select the GRN status for UCEC GRN
-temp_mean = GRN_mean[GRN_mean$subNet == "UCEC", ]
-
-ggplot(data = temp_mean) +
-        geom_bar(stat="identity", data = temp_mean, aes(x=reorder(grp_name, mean), y=mean), width = 0.7) +
-        geom_errorbar(aes(ymin=mean - stdev, ymax = mean + stdev, x = grp_name), width = 0.5)+
-        ggtitle(paste0("UCEC-subnetwork")) +
-        ylim(-0.5, 1.2)+
-        xlab("Cancer Groups")+
-        ylab("GRN Status")+
-        theme_bw()+
-        theme(text = element_text(size=10),legend.position="none",axis.text.x = element_text(angle = 30, hjust = 1))
+ggplot(data = plotDf) +
+   geom_bar(stat="identity", data = plotDf, aes(x=CellLines, y=GRN_Status), width = 0.7) +
+   ggtitle("UCEC-subnetwork") +
+   xlab("Cell Lines")+
+   ylab("GRN Status")+
+   #geom_hline(yintercept=1, linetype="dashed", color = "steelblue")+
+   theme_bw()+
+   theme(text = element_text(size=10),legend.position="none",axis.text.x = element_text(angle = 270, vjust=0.2))
 ```
 ![](md_img/GRN_status_CCLs.png)
 
