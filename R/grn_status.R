@@ -294,7 +294,7 @@ ccn_trainNorm <- function(expTrain, stTrain, subNets, classList = NULL,  dLevel 
 
   if(meanNorm == TRUE) {
     anti_meanScores = meanTraining(anti_scores, stTrain, dLevel, sidCol)
-    minVect = apply(anti_meanScores, 1, mean)
+    minVect = apply(anti_meanScores, 1, min)
     names(minVect) = rownames(anti_meanScores)
 
   } else {
@@ -359,7 +359,7 @@ meanTraining <- function(grnScores, stTrain, dLevel, sidCol) {
     tempStTrain = stTrain[stTrain[, dLevel] == cancerName, ]
     tempGRNscores = grnScores[, rownames(tempStTrain)]
 
-    meanMatrix[, cancerName] = apply(tempGRNscores, 1, mean)
+    meanMatrix[, cancerName] = apply(tempGRNscores, 1, median)
   }
 
   return(meanMatrix)
