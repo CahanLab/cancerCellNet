@@ -122,7 +122,7 @@ ptGetTop<-function(expDat, cell_labels, cgenes_list=NA, topX=50, sliceSize = 5e3
 
       tmpPdat = ptSmall(expDat, pairTab)
 
-      tmpAns = findBestPairs( sc_testPattern(myPatternG[[cct]], expDat=tmpPdat), topX)
+      tmpAns = findBestPairs(sc_testPattern(myPatternG[[cct]], expDat=tmpPdat), topX)
 
       ans[[cct]] = tmpAns
     }
@@ -199,6 +199,8 @@ findBestPairs <- function(xdiff, n=50,maxPer=3) {
 
     ans = as.vector(xdiff$cval)
     names(ans) = rownames(xdiff)
+    return(ans)
+
   }
   else {
     xdiff = xdiff[order(abs(xdiff$cval), decreasing=TRUE),]
@@ -223,7 +225,7 @@ findBestPairs <- function(xdiff, n=50,maxPer=3) {
 
       tgp = unlist(strsplit(tmpAns, "_"))
 
-      if((countList[ tgp[1] ] < maxPer) & (countList[ tgp[2] ] < maxPer )){
+      if((countList[tgp[1]] < maxPer) & (countList[tgp[2]] < maxPer )){
 
         # record down the gene pair name and sign
         ans_names = append(ans_names, tmpAns)
@@ -250,7 +252,7 @@ findBestPairs <- function(xdiff, n=50,maxPer=3) {
 
         ans_names = c(ans_names, additional_pairs)
         ans_signs = c(ans_signs, additional_pairs_sign)
-        i = length(ans)
+        i = length(ans_signs)
       }
 
     }
@@ -258,9 +260,9 @@ findBestPairs <- function(xdiff, n=50,maxPer=3) {
     # assign the signs and names to the return answer
     ans = ans_signs
     names(ans) = ans_names
+
     ans = na.omit(ans) # just in case there were NA
+    return(ans)
   }
 
-  #return
-  return(ans)
 }

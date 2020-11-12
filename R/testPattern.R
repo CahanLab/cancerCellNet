@@ -17,7 +17,7 @@ sc_testPattern<-function(pattern, expDat){
 
   llfit = ls.print(lsfit(pattern, t(expDat)), digits=25, print=FALSE)
 
-  pos_R_index = which(as.numeric(llfit$summary[,2]) >= 0)
+  pos_R_index = which(as.numeric(llfit$summary[,2]) >= 0) # R-squared value
 
   xxx = matrix(unlist(llfit$coef), ncol=8,byrow=TRUE)
 
