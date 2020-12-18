@@ -12,7 +12,7 @@
 #'
 #' @export
 subClassQuery_transform<-function(expDat, cgenes, xpairs, classMatrix) {
-   expValTrans = query_transform(expDat[cgenes,], xpairs)
+   expValTrans = query_transform(expDat, xpairs)
 
    extraFeatures = classMatrix[, colnames(expValTrans)]
    if (all(colnames(expValTrans) == colnames(extraFeatures))) {

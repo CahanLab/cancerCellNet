@@ -18,7 +18,7 @@ broadClass_predict<-function(cnProc, expDat, nrand = 2) {
 
    cat("Loaded in the cnProc\n")
 
-   expValTrans = query_transform(expVal[cgenes,], xpairs)
+   expValTrans = query_transform(expVal, xpairs)
    classRes_val = rf_classPredict(rf_tsp, expValTrans, numRand=nrand)
 
    cat("All Done\n")
