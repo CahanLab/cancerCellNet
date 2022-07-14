@@ -12,7 +12,8 @@ ccn_makeGRN(
   dLevelGK = NULL,
   prune = FALSE,
   holm = 1e-04,
-  cval = 0.4
+  cval = 0.4,
+  species = "Hs"
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ ccn_makeGRN(
 \item{holm}{threshold of holm adjusted p value for selecting subnetwork genes}
 
 \item{cval}{threshold of cval for selectin subnetwork genes. Higher cval indicates selecting higher enriched genes}
+
+\item{species}{Hs or Mm indicating human or mouse}
 }
 \value{
 constructed GRN

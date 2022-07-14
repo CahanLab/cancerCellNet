@@ -7,7 +7,7 @@ Depends: R (>= 3.3.1)
 License: MIT
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.0
 biocViews:
 Imports: 
     stringr,
@@ -19,6 +19,7 @@ Imports:
     AnnotationDbi,
     GO.db,
     org.Hs.eg.db,
+    org.Mm.eg.db,
     igraph,
     snow
 Suggests: 
