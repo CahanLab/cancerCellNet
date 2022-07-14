@@ -14,7 +14,7 @@
 [12. scRNA-seq Aggregation](#sc_aggreate) <br >
 
 ## CancerCellNet Instructions 
-CancerCellNet is a R package that allows cancer type classification and evaluation of transcriptional fidelity for cancer models across species and platform (bulk RNA-seq, microarray). Alternatively, you can visit our <a href="http://cahanlab.org/resources/cancerCellNet_web/">web-app</a>. You can also read about the applications of CancerCellNet in our <a href="https://www.biorxiv.org/content/10.1101/2020.03.27.012757v3">bioRxiv preprint</a>
+CancerCellNet is a R package that allows cancer type classification and evaluation of transcriptional fidelity for cancer models across species and platform (bulk RNA-seq, microarray). Alternatively, you can visit our <a href="http://cahanlab.org/resources/cancerCellNet_web/">web-app</a>. You can also read about the applications of CancerCellNet in our <a href="https://genomemedicine.biomedcentral.com/articles/10.1186/s13073-021-00888-w">publication</a>.
 
 We will demonstrate how to <br>
 * build/apply general (broad) classifier <br>
